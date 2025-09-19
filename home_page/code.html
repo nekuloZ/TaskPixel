@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<title>TaskPixel Home</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        "primary-hover": "#4338CA",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#1a1a1a",
+                        "pixel-border-color": "#000000",
+                        "pixel-text-color": "#000000",
+                        "pixel-accent": "#FFD300",
+                        "pixel-secondary": "#E5E7EB",
+                    },
+                    fontFamily: {
+                        display: ["'Press Start 2P'", "cursive"],
+                        sans: ['VT323', 'monospace'],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0px",
+                        lg: "0px",
+                        xl: "0px",
+                        full: "0px",
+                    },
+                    boxShadow: {
+                        pixel: '4px 4px 0px 0px rgba(0,0,0,1)',
+                        'pixel-inset': 'inset 2px 2px 0px 0px rgba(0,0,0,0.2)',
+                        'pixel-inset-active': 'inset -2px -2px 0px 0px rgba(0,0,0,0.2)',
+                    }
+                },
+            },
+        }
+    </script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Press Start 2P', cursive;
+            image-rendering: pixelated;
+            background-color: theme('colors.background-light');
+            color: theme('colors.pixel-text-color');
+        }
+        .pixel-border {
+            border: 4px solid theme('colors.pixel-border-color');
+            box-shadow: theme('boxShadow.pixel');
+        }
+        .pixel-button {
+            border: 4px solid theme('colors.pixel-border-color');
+            box-shadow: theme('boxShadow.pixel');
+            position: relative;
+            transition: all 0.1s ease-in-out;
+        }
+        .pixel-button:active {
+            box-shadow: none;
+            transform: translate(4px, 4px);
+        }
+        .pixel-card {
+            border: 4px solid theme('colors.pixel-border-color');
+            box-shadow: theme('boxShadow.pixel');
+            background-color: theme('colors.white');
+        }
+        .nav-link {
+            position: relative;
+            padding-bottom: 4px;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 4px;
+            background-color: theme('colors.primary');
+            transition: width 0.2s ease-in-out;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-pixel-text-color">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
+<div class="flex items-center gap-4">
+<svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+<h2 class="text-xl font-bold text-pixel-text-color">TaskPixel</h2>
+</div>
+<div class="hidden md:flex items-center gap-8 text-sm">
+<a class="font-bold text-pixel-text-color nav-link active" href="#">Home</a>
+<a class="text-black/70 hover:text-primary nav-link" href="#">Inbox</a>
+<a class="text-black/70 hover:text-primary nav-link" href="#">Calendar</a>
+<a class="text-black/70 hover:text-primary nav-link" href="#">Goals</a>
+<a class="text-black/70 hover:text-primary nav-link" href="#">Settings</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="size-10 flex items-center justify-center border-4 border-pixel-border-color bg-pixel-accent pixel-button">
+<svg class="text-pixel-text-color" fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"></path>
+</svg>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover size-10 border-4 border-black" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuByfiKfEWgAPz-KY2lFYRv0l-XHQ2JecxlNeycBpbLSjBEJ4_ow0EQ0ugE34hjqbMKpbmJ1q8nLj2w2eKrxIgN73_NMEeMVa6x1gmf9KfQnQMsOlo61eDnISQBWuGd9UBaGa2U_wmYZlwTGTvv242FI6wdJ5T-QeOYVbHiyp4NPnkXGXSc0FSeTmk4yT_bezNKwlge4DXZoYiY0R8MZcLiIYbzQ7UFK-vDd9wsiSUffCAWkaOWoXHIjA2jIfmZRJ9JkegRgP3ICnOY");'></div>
+</div>
+</header>
+<main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="mb-10">
+<h1 class="text-3xl font-bold mb-4">Welcome back, Sarah!</h1>
+<div class="flex items-center gap-4">
+<button class="pixel-button bg-primary hover:bg-primary-hover text-white text-sm font-bold py-3 px-6 flex items-center gap-2">
+<svg class="bi bi-plus-lg" fill="currentColor" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" fill-rule="evenodd"></path>
+</svg>
+<span>New Task</span>
+</button>
+<button class="pixel-button bg-pixel-secondary text-pixel-text-color text-sm font-bold py-3 px-6">
+<span>Weekly Review</span>
+</button>
+</div>
+</div>
+<div class="mb-12">
+<h2 class="text-2xl font-bold mb-6">My Tasks</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="pixel-card p-5 flex flex-col justify-between">
+<div>
+<p class="text-xs font-bold text-red-500 mb-2">Due Today</p>
+<p class="text-lg font-bold my-2">Complete Project Proposal</p>
+<p class="text-base text-black/70 leading-relaxed font-sans">Draft the final proposal document and submit it to the client.</p>
+</div>
+<div class="w-full aspect-video bg-cover bg-center mt-4 border-4 border-black" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC6YBfQ1JbsWsvR9Zs5wN1ZAU-zkrW0MrwKLBJugOVU1AObkyRKREfUI0kOUAaVRI2Fy8v-tLKDl4pRyzvUOptl-2UTrr2h15uUTItnZSKHrnSx50c5A9wQ-ZUqrs9EN6XK4Yrm18EfMFC8ZA47eq8b0fCxZDcnKVYwXSvQNkRKMYzD9xlq04eo7mqmvRgzy7u5U7Um7ekq-CQ_yCx7-hREBt-mB4Cmln4MS45hwapaHsBA2_mIpk0_p1jR0MXx0h19fbaCTZzlUMQ");'></div>
+</div>
+<div class="pixel-card p-5 flex flex-col justify-between">
+<div>
+<p class="text-xs font-bold text-yellow-500 mb-2">Due Tomorrow</p>
+<p class="text-lg font-bold my-2">Team Meeting Prep</p>
+<p class="text-base text-black/70 leading-relaxed font-sans">Prepare presentation slides and agenda for the upcoming team meeting.</p>
+</div>
+<div class="w-full aspect-video bg-cover bg-center mt-4 border-4 border-black" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDCY8JJ_OEErpKVki3mjCfuyjCxBh_JaQqG0soqnd-ca9bjxbFgDAteUAHn2_i2EXkkfBYZK0gkRKSE2pJfDByxieZkLJrC1ppK-nvvZ4GG0SpByABVjIhqwi70I7_3W3ED4DuIrlIf0FcgKIkeSbBKK03ucoGlxl5DwDpJYAvw7UTxwGu2bIcEcV-9TIgsKGxTqITDGg1CQYLBFvrDoecwsELdPlCQA9OT3lztmAXDJfTZ2Npqygal8UUjd5JUpfH-pzEo5_XeU4M");'></div>
+</div>
+<div class="pixel-card p-5 flex flex-col justify-between">
+<div>
+<p class="text-xs font-bold text-blue-500 mb-2">Due in 3 Days</p>
+<p class="text-lg font-bold my-2">Client Feedback</p>
+<p class="text-base text-black/70 leading-relaxed font-sans">Review and incorporate client feedback on the initial design concepts.</p>
+</div>
+<div class="w-full aspect-video bg-cover bg-center mt-4 border-4 border-black" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDQ3C4BKUpCTo3QOGoJY5I4tUg-DQZXWkrC80dddEEZoRF2yCcn45UztgxnB0xwDtO3SMbWQSWaXmJ-93y2wncJDM8anPUfFwcdCBRv_oPn2kR_78Js7XTPCjgGFR7rPDzrB0PMD6u5oFh1VcSY_iQux_zezs2KQAG9KCwzXVTJ7r9ueu8sbKR0v6m5rEjR_JJwKRxtFPLef0kbKap3tEthgv17QDgJ0-K4l5Ax94oflsgj3GTuHemeUAkRK32ROMTe1IfBaY9UvwM");'></div>
+</div>
+</div>
+</div>
+<div>
+<h2 class="text-2xl font-bold mb-6">Next Actions</h2>
+<div class="space-y-6">
+<div class="pixel-card p-5 flex items-center justify-between">
+<div class="flex-1">
+<p class="text-xs font-bold text-green-500 mb-2 flex items-center gap-2">
+<svg class="bi bi-stars" fill="currentColor" height="12" viewBox="0 0 16 16" width="12" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.9l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.9A1.73 1.73 0 0 0 2.31 4.807l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"></path>
+</svg> AI Suggestion
+                                </p>
+<p class="text-lg font-bold">Follow up with Alex</p>
+<p class="text-base text-black/70 mt-2 leading-relaxed font-sans">Send a follow-up email to Alex regarding the project timeline.</p>
+</div>
+<div class="w-32 h-24 bg-cover bg-center ml-6 flex-shrink-0 border-4 border-black" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDUzOluKTUv-mhuLkvZaZEXxo4fjI_hPuiAoj6t542V64Ob5F4mM87HPRhw9wvDBjVkA0AQ60cIyL68itbfoCtETaO7D-irzsmmdYGArSUlnxsCCeJ5Nbfsoldf6uUc7BJSGowBA6eQBqXp10TwMtb3Ce2qYiiwUMhKOtQv3XmRId1dx6WShJtk6GJCY0eUVRW11PETprjI-lulv3xsNiGgd9qJRctBGPTLeLWc-i6aDQ5wiLN3ljBorXkUqyFNxiLDG01h82FAQ2g");'></div>
+</div>
+<div class="pixel-card p-5 flex items-center justify-between">
+<div class="flex-1">
+<p class="text-xs font-bold text-green-500 mb-2 flex items-center gap-2">
+<svg class="bi bi-stars" fill="currentColor" height="12" viewBox="0 0 16 16" width="12" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.9l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.9A1.73 1.73 0 0 0 2.31 4.807l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"></path>
+</svg> AI Suggestion
+                                </p>
+<p class="text-lg font-bold">Schedule Design Review</p>
+<p class="text-base text-black/70 mt-2 leading-relaxed font-sans">Schedule a design review meeting with the team to discuss the latest updates.</p>
+</div>
+<div class="w-32 h-24 bg-cover bg-center ml-6 flex-shrink-0 border-4 border-black" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC5eTPJHoswVTv3do9TtB-RAij3dekoMJQe9bTsZCfKcFM_Et2-by_YCUuVngh_lMJhMtrQbFywkiFoOGsrc52ldkQCzkQlI8tTMmbJbKICowGMAviBQLWNh51IF1W4sizOZCFFVaQZBczG14UB4lr8S92tiUYWozadGfQjbahBU1LPQ_3k0Z_6iPWaHQs6aKor0mQSOZ4YZlaUjtHJWCpKBmFYmNg-zp6J_MRNIq3D3Sz8A8ElYSVV4iveZ7RPD0yAsSJp73Ugx5w");'></div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

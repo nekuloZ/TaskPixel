@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PixelTask - AI Goal Assessment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style type="text/tailwindcss">
+    @layer base {
+      :root {
+        --background-light: #f7f6f8;
+        --background-dark: #1E1E1E;
+        --primary-light: #6D28D9;
+        --primary-dark: #A78BFA;
+        --text-light: #111827;
+        --text-dark: #F3F4F6;
+        --border-light: #000000;
+        --border-dark: #FFFFFF;
+      }
+    }
+    body {
+      font-family: 'VT323', monospace;
+    }
+    .pixel-border {
+      border: 4px solid var(--border-light);
+      box-shadow:
+        4px 4px 0 0 var(--border-light),
+        -4px -4px 0 0 var(--border-light),
+        4px -4px 0 0 var(--border-light),
+        -4px 4px 0 0 var(--border-light);
+      image-rendering: pixelated;
+    }
+    .dark .pixel-border {
+      border-color: var(--border-dark);
+      box-shadow:
+        4px 4px 0 0 var(--border-dark),
+        -4px -4px 0 0 var(--border-dark),
+        4px -4px 0 0 var(--border-dark),
+        -4px 4px 0 0 var(--border-dark);
+    }
+    .pixel-button {
+      background-color: var(--primary-light);
+      color: white;
+      border: 2px solid var(--border-light);
+      box-shadow: 2px 2px 0 0 var(--border-light);
+      position: relative;
+      transition: all 0.1s ease-in-out;
+    }
+    .pixel-button:hover {
+      box-shadow: 4px 4px 0 0 var(--border-light);
+      transform: translate(-2px, -2px);
+    }
+    .pixel-button:active {
+      box-shadow: 0px 0px 0 0 var(--border-light);
+      transform: translate(2px, 2px);
+    }
+    .dark .pixel-button {
+      background-color: var(--primary-dark);
+      color: var(--text-light);
+      border-color: var(--border-dark);
+      box-shadow: 2px 2px 0 0 var(--border-dark);
+    }
+    .dark .pixel-button:hover {
+      box-shadow: 4px 4px 0 0 var(--border-dark);
+    }
+    .dark .pixel-button:active {
+      box-shadow: 0px 0px 0 0 var(--border-dark);
+    }
+  </style>
+</head>
+<body class="bg-[var(--background-light)] dark:bg-[var(--background-dark)] text-[var(--text-light)] dark:text-[var(--text-dark)] text-xl">
+<div class="flex flex-col min-h-screen">
+<header class="border-b-4 border-[var(--border-light)] dark:border-[var(--border-dark)]">
+<div class="container mx-auto px-6 py-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[var(--primary-light)] dark:text-[var(--primary-dark)] text-4xl">task_alt</span>
+<h1 class="text-3xl font-bold">PixelTask</h1>
+</div>
+<div class="flex items-center gap-6 text-xl">
+<a class="hover:text-[var(--primary-light)] dark:hover:text-[var(--primary-dark)]" href="#">My Tasks</a>
+<a class="hover:text-[var(--primary-light)] dark:hover:text-[var(--primary-dark)]" href="#">Goals</a>
+<a class="font-bold text-[var(--primary-light)] dark:text-[var(--primary-dark)]" href="#">AI Assist</a>
+<div class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-[var(--border-light)] dark:border-[var(--border-dark)]" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBW2BdLxuFVUbiAb9xYa5ik8ncRsylluBenfW1G8pJ3Yd_gCvyrGlekXtc-H6HVp7rv5SoQhQcpXC5MMD6TtiElumYW1pkhazXB9_kkh64hPbkiMG3zo8FUte-gFnuXqtc-WYhuxrIvLIr4BGonEQNs8EjgFCwUV-EMteCt6SdVVgTRAV0GoGGSzFfHBw-yU_8MEQ5IgGQ0fGOF2NfGDlF4fKpNLqCVFkzLwZJ8oPpwrPlmW1zqMAuBRxuuWk8QiGctD4NtI2lH4Ks");'></div>
+</div>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center p-4">
+<div class="w-full max-w-2xl">
+<div class="pixel-border p-8 bg-[var(--background-light)] dark:bg-gray-800">
+<div class="text-center mb-10">
+<h2 class="text-5xl font-bold mb-2">AI Goal Assessment</h2>
+<p class="text-lg text-gray-600 dark:text-gray-400">Our AI has analyzed your goal's importance.</p>
+</div>
+<div class="space-y-8">
+<div>
+<label class="block text-2xl font-bold mb-2" for="goal">Goal</label>
+<div class="pixel-border p-4 bg-white dark:bg-gray-700">
+<p class="text-xl" id="goal">Launch New Feature</p>
+</div>
+</div>
+<div>
+<label class="block text-2xl font-bold mb-2" for="priority">AI-Generated Priority</label>
+<div class="pixel-border p-4 bg-yellow-200/50 dark:bg-yellow-400/20 flex items-center gap-3">
+<span class="material-symbols-outlined text-yellow-500 dark:text-yellow-400 text-3xl">star</span>
+<p class="text-2xl font-bold text-yellow-600 dark:text-yellow-300" id="priority">High Priority</p>
+</div>
+</div>
+<div>
+<label class="block text-2xl font-bold mb-2">Justification</label>
+<div class="pixel-border p-4 bg-white dark:bg-gray-700">
+<p class="text-lg text-gray-700 dark:text-gray-300">
+                  This goal is assessed as high priority due to its direct impact on the company's revenue and market positioning. Successful completion will significantly contribute to the overall business objectives.
+                </p>
+</div>
+</div>
+</div>
+<div class="mt-12 text-center">
+<button class="pixel-button py-3 px-8 text-xl">
+              Accept &amp; Create Tasks
+            </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

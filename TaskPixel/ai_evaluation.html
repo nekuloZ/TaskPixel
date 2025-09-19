@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TaskPixel - AI目标评估</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style type="text/tailwindcss">
+    @layer base {
+      :root {
+        --background-light: #f7f6f8;
+        --background-dark: #1E1E1E;
+        --primary-light: #6D28D9;
+        --primary-dark: #A78BFA;
+        --text-light: #111827;
+        --text-dark: #F3F4F6;
+        --border-light: #000000;
+        --border-dark: #FFFFFF;
+      }
+    }
+    body {
+      font-family: 'VT323', monospace;
+    }
+    .pixel-border {
+      border: 4px solid var(--border-light);
+      box-shadow:
+        4px 4px 0 0 var(--border-light),
+        -4px -4px 0 0 var(--border-light),
+        4px -4px 0 0 var(--border-light),
+        -4px 4px 0 0 var(--border-light);
+      image-rendering: pixelated;
+    }
+    .dark .pixel-border {
+      border-color: var(--border-dark);
+      box-shadow:
+        4px 4px 0 0 var(--border-dark),
+        -4px -4px 0 0 var(--border-dark),
+        4px -4px 0 0 var(--border-dark),
+        -4px 4px 0 0 var(--border-dark);
+    }
+    .pixel-button {
+      background-color: var(--primary-light);
+      color: white;
+      border: 2px solid var(--border-light);
+      box-shadow: 2px 2px 0 0 var(--border-light);
+      position: relative;
+      transition: all 0.1s ease-in-out;
+    }
+    .pixel-button:hover {
+      box-shadow: 4px 4px 0 0 var(--border-light);
+      transform: translate(-2px, -2px);
+    }
+    .pixel-button:active {
+      box-shadow: 0px 0px 0 0 var(--border-light);
+      transform: translate(2px, 2px);
+    }
+    .dark .pixel-button {
+      background-color: var(--primary-dark);
+      color: var(--text-light);
+      border-color: var(--border-dark);
+      box-shadow: 2px 2px 0 0 var(--border-dark);
+    }
+    .dark .pixel-button:hover {
+      box-shadow: 4px 4px 0 0 var(--border-dark);
+    }
+    .dark .pixel-button:active {
+      box-shadow: 0px 0px 0 0 var(--border-dark);
+    }
+  </style>
+</head>
+<body class="bg-[var(--background-light)] dark:bg-[var(--background-dark)] text-[var(--text-light)] dark:text-[var(--text-dark)] text-xl">
+<div class="flex flex-col min-h-screen">
+<header class="border-b-4 border-[var(--border-light)] dark:border-[var(--border-dark)]">
+<div class="container mx-auto px-6 py-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[var(--primary-light)] dark:text-[var(--primary-dark)] text-4xl">task_alt</span>
+<h1 class="text-3xl font-bold">TaskPixel</h1>
+</div>
+<div class="flex items-center gap-6 text-xl">
+<a class="hover:text-[var(--primary-light)] dark:hover:text-[var(--primary-dark)]" href="index.html">主页</a>
+<a class="hover:text-[var(--primary-light)] dark:hover:text-[var(--primary-dark)]" href="#">任务</a>
+<a class="font-bold text-[var(--primary-light)] dark:text-[var(--primary-dark)]" href="#">AI辅助</a>
+<div class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-[var(--border-light)] dark:border-[var(--border-dark)] user-avatar"></div>
+</div>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center p-4">
+<div class="w-full max-w-2xl">
+<div class="pixel-border p-8 bg-[var(--background-light)] dark:bg-gray-800">
+<div class="text-center mb-10">
+<h2 class="text-5xl font-bold mb-2">AI目标评估</h2>
+<p class="text-lg text-gray-600 dark:text-gray-400">AI已分析了你的目标重要性</p>
+</div>
+<div class="space-y-8">
+<div>
+<label class="block text-2xl font-bold mb-2" for="goal">目标</label>
+<div class="pixel-border p-4 bg-white dark:bg-gray-700">
+<p class="text-xl" id="goal">市场研究</p>
+</div>
+</div>
+<div>
+<label class="block text-2xl font-bold mb-2" for="priority">AI生成的优先级</label>
+<div class="pixel-border p-4 bg-red-200/50 dark:bg-red-400/20 flex items-center gap-3">
+<span class="material-symbols-outlined text-red-500 dark:text-red-400 text-3xl">star</span>
+<p class="text-2xl font-bold text-red-600 dark:text-red-300" id="priority">高优先级</p>
+</div>
+</div>
+<div>
+<label class="block text-2xl font-bold mb-2">原因</label>
+<div class="pixel-border p-4 bg-white dark:bg-gray-700">
+<p class="text-lg text-gray-700 dark:text-gray-300">
+                  此目标被评为高优先级，因为市场研究是项目成功的关键因素。完成此目标将提供关键数据，帮助制定有效的营销策略和产品定位，直接影响整体业务目标的实现。
+                </p>
+</div>
+</div>
+</div>
+<div class="mt-12 text-center">
+<a href="task_detail.html" class="pixel-button py-3 px-8 text-xl inline-block">
+              确认并返回
+            </a>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<!-- 应用脚本 -->
+<script src="js/core.js"></script>
+<script>
+// 初始化应用
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化核心模块
+    TaskPixel.init();
+    
+    // 从URL获取参数
+    const urlParams = new URLSearchParams(window.location.search);
+    const taskId = urlParams.get('taskId');
+    const goalId = urlParams.get('goalId');
+    const priority = urlParams.get('priority');
+    const reason = urlParams.get('reason');
+    const goalTitle = urlParams.get('goalTitle');
+    
+    // 如果有参数，更新页面内容
+    if (goalTitle) {
+        document.getElementById('goal').textContent = decodeURIComponent(goalTitle);
+    }
+    
+    if (priority) {
+        const priorityElem = document.getElementById('priority');
+        const decodedPriority = decodeURIComponent(priority);
+        
+        priorityElem.textContent = decodedPriority === 'high' || decodedPriority === '高' ? 
+            '高优先级' : (decodedPriority === 'low' || decodedPriority === '低' ? '低优先级' : '中优先级');
+        
+        // 更新背景颜色
+        const priorityContainer = priorityElem.parentElement;
+        if (decodedPriority === 'high' || decodedPriority === '高') {
+            priorityContainer.className = 'pixel-border p-4 bg-red-200/50 dark:bg-red-400/20 flex items-center gap-3';
+            priorityContainer.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-red-500 dark:text-red-400 text-3xl';
+            priorityElem.className = 'text-2xl font-bold text-red-600 dark:text-red-300';
+        } else if (decodedPriority === 'low' || decodedPriority === '低') {
+            priorityContainer.className = 'pixel-border p-4 bg-blue-200/50 dark:bg-blue-400/20 flex items-center gap-3';
+            priorityContainer.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-blue-500 dark:text-blue-400 text-3xl';
+            priorityElem.className = 'text-2xl font-bold text-blue-600 dark:text-blue-300';
+        } else {
+            priorityContainer.className = 'pixel-border p-4 bg-yellow-200/50 dark:bg-yellow-400/20 flex items-center gap-3';
+            priorityContainer.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-yellow-500 dark:text-yellow-400 text-3xl';
+            priorityElem.className = 'text-2xl font-bold text-yellow-600 dark:text-yellow-300';
+        }
+    }
+    
+    if (reason) {
+        const reasonContainer = document.querySelector('label[for="priority"]').nextElementSibling.nextElementSibling;
+        if (reasonContainer) {
+            reasonContainer.querySelector('p').textContent = decodeURIComponent(reason);
+        }
+    }
+    
+    // 更新返回链接
+    if (taskId) {
+        const backButton = document.querySelector('.pixel-button');
+        if (backButton) {
+            backButton.href = `task_detail.html?id=${taskId}`;
+        }
+    }
+    
+    // 更新用户头像（如果有）
+    const avatarElements = document.querySelectorAll('.user-avatar');
+    avatarElements.forEach(element => {
+        // 这里可以根据用户设置更新头像
+    });
+});
+</script>
+</body>
+</html>
