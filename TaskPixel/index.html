@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
@@ -96,46 +97,63 @@
             width: 100%;
         }
     </style>
-    
+
     <!-- 应用样式 -->
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+
 <body class="bg-background-light font-display text-pixel-text-color">
     <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
         <div class="flex h-full grow flex-col">
-            <header class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
                 <div class="flex items-center gap-4">
-                    <svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg">
-                        <path clip-rule="evenodd" d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z" fill="currentColor" fill-rule="evenodd"></path>
+                    <svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd"
+                            d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z"
+                            fill="currentColor" fill-rule="evenodd"></path>
                     </svg>
                     <h2 class="text-xl font-bold text-pixel-text-color">TaskPixel</h2>
                 </div>
                 <div class="hidden md:flex items-center gap-8 text-sm">
                     <a class="font-bold text-pixel-text-color nav-link active" href="index.html">主页</a>
                     <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
-                    <a class="text-black/70 hover:text-primary nav-link" href="#">目标</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
                     <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button class="size-10 flex items-center justify-center border-4 border-pixel-border-color bg-pixel-accent pixel-button">
-                        <svg class="text-pixel-text-color" fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"></path>
+                    <button
+                        class="size-10 flex items-center justify-center border-4 border-pixel-border-color bg-pixel-accent pixel-button"
+                        title="Notifications" aria-label="Notifications" type="button">
+                        <svg class="text-pixel-text-color" fill="currentColor" height="20px" viewBox="0 0 256 256"
+                            width="20px" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z">
+                            </path>
                         </svg>
                     </button>
-                    <div class="bg-center bg-no-repeat aspect-square bg-cover size-10 border-4 border-black user-avatar"></div>
+                    <div
+                        class="bg-center bg-no-repeat aspect-square bg-cover size-10 border-4 border-black user-avatar">
+                    </div>
                 </div>
             </header>
             <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div class="mb-10">
                     <h1 class="text-3xl font-bold mb-4">欢迎回来，<span class="username">Sarah</span>！</h1>
                     <div class="flex items-center gap-4">
-                        <button class="pixel-button bg-primary hover:bg-primary-hover text-white text-sm font-bold py-3 px-6 flex items-center gap-2 create-task-button">
-                            <svg class="bi bi-plus-lg" fill="currentColor" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" fill-rule="evenodd"></path>
+                        <button
+                            class="pixel-button bg-primary hover:bg-primary-hover text-white text-sm font-bold py-3 px-6 flex items-center gap-2 create-task-button">
+                            <svg class="bi bi-plus-lg" fill="currentColor" height="16" viewBox="0 0 16 16" width="16"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"
+                                    fill-rule="evenodd"></path>
                             </svg>
                             <span>新任务</span>
                         </button>
-                        <button class="pixel-button bg-pixel-secondary text-pixel-text-color text-sm font-bold py-3 px-6 weekly-review-button">
+                        <button
+                            class="pixel-button bg-pixel-secondary text-pixel-text-color text-sm font-bold py-3 px-6 weekly-review-button">
                             <span>周报</span>
                         </button>
                     </div>
@@ -163,23 +181,23 @@
     <script src="js/home.js"></script>
     <script>
         // 初始化应用
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // 初始化核心模块
             TaskPixel.init();
-            
+
             // 初始化任务创建模块
             TaskPixel.TaskCreation.init();
-            
+
             // 初始化主页模块
             TaskPixel.Home.init();
-            
+
             // 更新用户名显示
             const settings = TaskPixel.DataStore.getSettings();
             const usernameElements = document.querySelectorAll('.username');
             usernameElements.forEach(element => {
                 element.textContent = settings.username || 'Sarah';
             });
-            
+
             // 更新头像（如果有）
             const avatarElements = document.querySelectorAll('.user-avatar');
             avatarElements.forEach(element => {
@@ -188,4 +206,5 @@
         });
     </script>
 </body>
+
 </html>

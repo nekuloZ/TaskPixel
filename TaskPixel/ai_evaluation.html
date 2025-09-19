@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>TaskPixel - AI目标评估</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-<style type="text/tailwindcss">
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>TaskPixel - AI目标评估</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style type="text/tailwindcss">
     @layer base {
       :root {
         --background-light: #f7f6f8;
@@ -72,128 +74,152 @@
     }
   </style>
 </head>
-<body class="bg-[var(--background-light)] dark:bg-[var(--background-dark)] text-[var(--text-light)] dark:text-[var(--text-dark)] text-xl">
-<div class="flex flex-col min-h-screen">
-<header class="border-b-4 border-[var(--border-light)] dark:border-[var(--border-dark)]">
-<div class="container mx-auto px-6 py-4 flex justify-between items-center">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-[var(--primary-light)] dark:text-[var(--primary-dark)] text-4xl">task_alt</span>
-<h1 class="text-3xl font-bold">TaskPixel</h1>
-</div>
-<div class="flex items-center gap-6 text-xl">
-<a class="hover:text-[var(--primary-light)] dark:hover:text-[var(--primary-dark)]" href="index.html">主页</a>
-<a class="hover:text-[var(--primary-light)] dark:hover:text-[var(--primary-dark)]" href="#">任务</a>
-<a class="font-bold text-[var(--primary-light)] dark:text-[var(--primary-dark)]" href="#">AI辅助</a>
-<div class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-[var(--border-light)] dark:border-[var(--border-dark)] user-avatar"></div>
-</div>
-</div>
-</header>
-<main class="flex-grow flex items-center justify-center p-4">
-<div class="w-full max-w-2xl">
-<div class="pixel-border p-8 bg-[var(--background-light)] dark:bg-gray-800">
-<div class="text-center mb-10">
-<h2 class="text-5xl font-bold mb-2">AI目标评估</h2>
-<p class="text-lg text-gray-600 dark:text-gray-400">AI已分析了你的目标重要性</p>
-</div>
-<div class="space-y-8">
-<div>
-<label class="block text-2xl font-bold mb-2" for="goal">目标</label>
-<div class="pixel-border p-4 bg-white dark:bg-gray-700">
-<p class="text-xl" id="goal">市场研究</p>
-</div>
-</div>
-<div>
-<label class="block text-2xl font-bold mb-2" for="priority">AI生成的优先级</label>
-<div class="pixel-border p-4 bg-red-200/50 dark:bg-red-400/20 flex items-center gap-3">
-<span class="material-symbols-outlined text-red-500 dark:text-red-400 text-3xl">star</span>
-<p class="text-2xl font-bold text-red-600 dark:text-red-300" id="priority">高优先级</p>
-</div>
-</div>
-<div>
-<label class="block text-2xl font-bold mb-2">原因</label>
-<div class="pixel-border p-4 bg-white dark:bg-gray-700">
-<p class="text-lg text-gray-700 dark:text-gray-300">
+
+<body
+  class="bg-[var(--background-light)] dark:bg-[var(--background-dark)] text-[var(--text-light)] dark:text-[var(--text-dark)] text-xl">
+  <div class="flex flex-col min-h-screen">
+    <header
+      class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
+      <div class="flex items-center gap-4">
+        <svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32"
+          xmlns="http://www.w3.org/2000/svg">
+          <path clip-rule="evenodd"
+            d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z"
+            fill="currentColor" fill-rule="evenodd"></path>
+        </svg>
+        <h2 class="text-xl font-bold text-pixel-text-color">TaskPixel</h2>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm">
+        <a class="text-black/70 hover:text-primary nav-link" href="index.html">主页</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <button
+          class="size-10 flex items-center justify-center border-4 border-pixel-border-color bg-pixel-accent pixel-button"
+          title="通知">
+          <svg class="text-pixel-text-color" fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z">
+            </path>
+          </svg>
+        </button>
+        <div class="bg-center bg-no-repeat aspect-square bg-cover size-10 border-4 border-black user-avatar"></div>
+      </div>
+    </header>
+    </header>
+    <main class="flex-grow flex items-center justify-center p-4">
+      <div class="w-full max-w-2xl">
+        <div class="pixel-border p-8 bg-[var(--background-light)] dark:bg-gray-800">
+          <div class="text-center mb-10">
+            <h2 class="text-5xl font-bold mb-2">AI目标评估</h2>
+            <p class="text-lg text-gray-600 dark:text-gray-400">AI已分析了你的目标重要性</p>
+          </div>
+          <div class="space-y-8">
+            <div>
+              <label class="block text-2xl font-bold mb-2" for="goal">目标</label>
+              <div class="pixel-border p-4 bg-white dark:bg-gray-700">
+                <p class="text-xl" id="goal">市场研究</p>
+              </div>
+            </div>
+            <div>
+              <label class="block text-2xl font-bold mb-2" for="priority">AI生成的优先级</label>
+              <div class="pixel-border p-4 bg-red-200/50 dark:bg-red-400/20 flex items-center gap-3">
+                <span class="material-symbols-outlined text-red-500 dark:text-red-400 text-3xl">star</span>
+                <p class="text-2xl font-bold text-red-600 dark:text-red-300" id="priority">高优先级</p>
+              </div>
+            </div>
+            <div>
+              <label class="block text-2xl font-bold mb-2">原因</label>
+              <div class="pixel-border p-4 bg-white dark:bg-gray-700">
+                <p class="text-lg text-gray-700 dark:text-gray-300">
                   此目标被评为高优先级，因为市场研究是项目成功的关键因素。完成此目标将提供关键数据，帮助制定有效的营销策略和产品定位，直接影响整体业务目标的实现。
                 </p>
-</div>
-</div>
-</div>
-<div class="mt-12 text-center">
-<a href="task_detail.html" class="pixel-button py-3 px-8 text-xl inline-block">
+              </div>
+            </div>
+          </div>
+          <div class="mt-12 text-center">
+            <a href="task_detail.html" class="pixel-button py-3 px-8 text-xl inline-block">
               确认并返回
             </a>
-</div>
-</div>
-</div>
-</main>
-</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 
-<!-- 应用脚本 -->
-<script src="js/core.js"></script>
-<script>
-// 初始化应用
-document.addEventListener('DOMContentLoaded', function() {
-    // 初始化核心模块
-    TaskPixel.init();
-    
-    // 从URL获取参数
-    const urlParams = new URLSearchParams(window.location.search);
-    const taskId = urlParams.get('taskId');
-    const goalId = urlParams.get('goalId');
-    const priority = urlParams.get('priority');
-    const reason = urlParams.get('reason');
-    const goalTitle = urlParams.get('goalTitle');
-    
-    // 如果有参数，更新页面内容
-    if (goalTitle) {
+  <!-- 应用脚本 -->
+  <script src="js/core.js"></script>
+  <script>
+    // 初始化应用
+    document.addEventListener('DOMContentLoaded', function () {
+      // 初始化核心模块
+      TaskPixel.init();
+
+      // 从URL获取参数
+      const urlParams = new URLSearchParams(window.location.search);
+      const taskId = urlParams.get('taskId');
+      const goalId = urlParams.get('goalId');
+      const priority = urlParams.get('priority');
+      const reason = urlParams.get('reason');
+      const goalTitle = urlParams.get('goalTitle');
+
+      // 如果有参数，更新页面内容
+      if (goalTitle) {
         document.getElementById('goal').textContent = decodeURIComponent(goalTitle);
-    }
-    
-    if (priority) {
+      }
+
+      if (priority) {
         const priorityElem = document.getElementById('priority');
-        const decodedPriority = decodeURIComponent(priority);
-        
-        priorityElem.textContent = decodedPriority === 'high' || decodedPriority === '高' ? 
-            '高优先级' : (decodedPriority === 'low' || decodedPriority === '低' ? '低优先级' : '中优先级');
-        
-        // 更新背景颜色
-        const priorityContainer = priorityElem.parentElement;
-        if (decodedPriority === 'high' || decodedPriority === '高') {
-            priorityContainer.className = 'pixel-border p-4 bg-red-200/50 dark:bg-red-400/20 flex items-center gap-3';
-            priorityContainer.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-red-500 dark:text-red-400 text-3xl';
-            priorityElem.className = 'text-2xl font-bold text-red-600 dark:text-red-300';
-        } else if (decodedPriority === 'low' || decodedPriority === '低') {
-            priorityContainer.className = 'pixel-border p-4 bg-blue-200/50 dark:bg-blue-400/20 flex items-center gap-3';
-            priorityContainer.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-blue-500 dark:text-blue-400 text-3xl';
-            priorityElem.className = 'text-2xl font-bold text-blue-600 dark:text-blue-300';
-        } else {
-            priorityContainer.className = 'pixel-border p-4 bg-yellow-200/50 dark:bg-yellow-400/20 flex items-center gap-3';
-            priorityContainer.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-yellow-500 dark:text-yellow-400 text-3xl';
-            priorityElem.className = 'text-2xl font-bold text-yellow-600 dark:text-yellow-300';
+        const decodedPriority = decodeURIComponent(priority).toLowerCase();
+
+        if (priorityElem) {
+          const parent = priorityElem.parentElement;
+          const star = parent ? parent.querySelector('.material-symbols-outlined') : null;
+
+          if (decodedPriority === 'high' || decodedPriority === '高') {
+            priorityElem.textContent = '高优先级';
+            if (parent) parent.className = 'pixel-border p-4 bg-red-200/50 dark:bg-red-400/20 flex items-center gap-3';
+            if (star) star.className = 'material-symbols-outlined text-red-500 dark:text-red-400 text-3xl';
+            if (priorityElem) priorityElem.className = 'text-2xl font-bold text-red-600 dark:text-red-300';
+          } else if (decodedPriority === 'low' || decodedPriority === '低') {
+            priorityElem.textContent = '低优先级';
+            if (parent) parent.className = 'pixel-border p-4 bg-blue-200/50 dark:bg-blue-400/20 flex items-center gap-3';
+            if (star) star.className = 'material-symbols-outlined text-blue-500 dark:text-blue-400 text-3xl';
+            if (priorityElem) priorityElem.className = 'text-2xl font-bold text-blue-600 dark:text-blue-300';
+          } else {
+            priorityElem.textContent = '中优先级';
+            if (parent) parent.className = 'pixel-border p-4 bg-yellow-200/50 dark:bg-yellow-400/20 flex items-center gap-3';
+            if (star) star.className = 'material-symbols-outlined text-yellow-500 dark:text-yellow-400 text-3xl';
+            if (priorityElem) priorityElem.className = 'text-2xl font-bold text-yellow-600 dark:text-yellow-300';
+          }
         }
-    }
-    
-    if (reason) {
+      }
+
+      if (reason) {
         const reasonContainer = document.querySelector('label[for="priority"]').nextElementSibling.nextElementSibling;
         if (reasonContainer) {
-            reasonContainer.querySelector('p').textContent = decodeURIComponent(reason);
+          reasonContainer.querySelector('p').textContent = decodeURIComponent(reason);
         }
-    }
-    
-    // 更新返回链接
-    if (taskId) {
+      }
+
+      // 更新返回链接
+      if (taskId) {
         const backButton = document.querySelector('.pixel-button');
         if (backButton) {
-            backButton.href = `task_detail.html?id=${taskId}`;
+          backButton.href = `task_detail.html?id=${taskId}`;
         }
-    }
-    
-    // 更新用户头像（如果有）
-    const avatarElements = document.querySelectorAll('.user-avatar');
-    avatarElements.forEach(element => {
+      }
+
+      // 更新用户头像（如果有）
+      const avatarElements = document.querySelectorAll('.user-avatar');
+      avatarElements.forEach(element => {
         // 这里可以根据用户设置更新头像
+      });
     });
-});
-</script>
+  </script>
 </body>
+
 </html>

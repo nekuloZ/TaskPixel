@@ -84,9 +84,11 @@ TaskPixel.AI = {
             目标标题: ${goalTitle}
             目标描述: ${goalDescription}
             
-            ${userDescription ? `用户当前情况描述: ${userDescription}` : ''}
+            ${userDescription ? `用户当前情况描述: ${userDescription}` : ""}
             
-            ${userDescription ? '请主要根据用户描述的当前情况，' : '请'}根据重要性和紧急性评估此目标的优先级(高、中、低)，并简要说明原因。
+            ${
+              userDescription ? "请主要根据用户描述的当前情况，" : "请"
+            }根据重要性和紧急性评估此目标的优先级(高、中、低)，并简要说明原因。
             请使用以下JSON格式回答:
             {
                 "priority": "高/中/低",
@@ -96,49 +98,46 @@ TaskPixel.AI = {
 
     try {
       const response = await this.sendRequest(prompt);
+      let jsonResponse = null;
 
-      // 尝试解析JSON响应
+      // 如果是纯 JSON
       try {
-        // 提取响应中的JSON部分
+        jsonResponse = JSON.parse(response);
+      } catch (e) {
+        // 尝试提取首个 JSON 对象块
         const jsonMatch = response.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          const jsonResponse = JSON.parse(jsonMatch[0]);
-          return {
-            priority: jsonResponse.priority,
-            reason: jsonResponse.reason,
-          };
-        }
-
-        // 如果没有找到JSON格式，进行文本解析
-        if (response.includes("高")) {
-          return {
-            priority: "高",
-            reason: response,
-          };
-        } else if (response.includes("中")) {
-          return {
-            priority: "中",
-            reason: response,
-          };
+          try {
+            jsonResponse = JSON.parse(jsonMatch[0]);
+          } catch (e2) {
+            console.warn("解析截取的JSON失败，response:", response);
+          }
         } else {
-          return {
-            priority: "低",
-            reason: response,
-          };
+          console.warn("未找到 JSON 块，AI 原始输出:", response);
         }
-      } catch (parseError) {
-        console.error("解析AI响应出错:", parseError);
+      }
+
+      if (jsonResponse && jsonResponse.priority) {
         return {
-          priority: "中",
-          reason: response,
+          priority: jsonResponse.priority,
+          reason:
+            jsonResponse.reason ||
+            this.getDefaultPriorityReason(jsonResponse.priority),
         };
       }
-    } catch (error) {
-      console.error("评估优先级出错:", error);
+
+      // 文本解析回退
+      if (response.includes("高"))
+        return { priority: "高", reason: response.trim() };
+      if (response.includes("低"))
+        return { priority: "低", reason: response.trim() };
       return {
         priority: "中",
-        reason: "由于技术原因无法获取AI评估，已设置为默认优先级。",
+        reason: response.trim() || this.getDefaultPriorityReason("中"),
       };
+    } catch (error) {
+      console.error("评估优先级出错:", error);
+      return { priority: "中", reason: this.getDefaultPriorityReason("中") };
     }
   },
 
@@ -149,16 +148,22 @@ TaskPixel.AI = {
    * @param {string} userDescription - 用户描述的当前情况或困难（可选）
    * @returns {Promise} - 返回包含目标和子步骤的Promise
    */
-  generateGoalsAndSubsteps: async function (taskTitle, taskDescription, userDescription = "") {
+  generateGoalsAndSubsteps: async function (
+    taskTitle,
+    taskDescription,
+    userDescription = ""
+  ) {
     const prompt = `
             你是一个任务分解专家AI助手。请为以下任务生成目标和子步骤。
             
             任务标题: ${taskTitle}
             任务描述: ${taskDescription}
             
-            ${userDescription ? `用户当前情况描述: ${userDescription}` : ''}
+            ${userDescription ? `用户当前情况描述: ${userDescription}` : ""}
             
-            ${userDescription ? '请主要根据用户描述的当前情况，' : '请'}生成3-5个明确的目标，每个目标包含2-4个具体可执行的子步骤。
+            ${
+              userDescription ? "请主要根据用户描述的当前情况，" : "请"
+            }生成3-5个明确的目标，每个目标包含2-4个具体可执行的子步骤。
             请使用以下JSON格式回答:
             {
                 "goals": [
@@ -393,7 +398,7 @@ TaskPixel.AI = {
             目标标题: ${goalTitle}
             目标描述: ${goalDescription}
             
-            子步骤: ${JSON.stringify(substeps.map(s => s.content))}
+            子步骤: ${JSON.stringify(substeps.map((s) => s.content))}
             
             请生成3-5个问题，每个问题2-4个选项，用于评估此目标的优先级。问题应涵盖紧急性、重要性、复杂度、资源需求和依赖关系等方面。
             请使用以下JSON格式回答:
@@ -464,22 +469,26 @@ TaskPixel.AI = {
     let maxPossibleScore = 0;
     let answeredQuestions = [];
 
-    questions.forEach(question => {
+    questions.forEach((question) => {
       const selectedOptionId = answers[question.id];
       if (selectedOptionId) {
-        const selectedOption = question.options.find(opt => opt.id === selectedOptionId);
+        const selectedOption = question.options.find(
+          (opt) => opt.id === selectedOptionId
+        );
         if (selectedOption) {
           totalScore += selectedOption.value;
           answeredQuestions.push({
             question: question.text,
             answer: selectedOption.text,
-            value: selectedOption.value
+            value: selectedOption.value,
           });
         }
       }
-      
+
       // 计算可能的最高分（每个问题的最高得分选项）
-      const maxOptionValue = Math.max(...question.options.map(opt => opt.value));
+      const maxOptionValue = Math.max(
+        ...question.options.map((opt) => opt.value)
+      );
       maxPossibleScore += maxOptionValue;
     });
 
@@ -487,13 +496,13 @@ TaskPixel.AI = {
     if (answeredQuestions.length === 0) {
       return {
         priority: "中",
-        reason: "未提供足够的问卷回答，无法进行准确评估。"
+        reason: "未提供足够的问卷回答，无法进行准确评估。",
       };
     }
 
     // 计算优先级得分百分比
     const scorePercentage = (totalScore / maxPossibleScore) * 100;
-    
+
     // 根据得分确定优先级
     let priority;
     if (scorePercentage >= 70) {
@@ -512,7 +521,9 @@ TaskPixel.AI = {
             目标描述: ${goalDescription}
             
             问卷回答:
-            ${answeredQuestions.map(a => `问题: ${a.question}\n回答: ${a.answer}`).join('\n\n')}
+            ${answeredQuestions
+              .map((a) => `问题: ${a.question}\n回答: ${a.answer}`)
+              .join("\n\n")}
             
             根据问卷结果，此目标的优先级为: ${priority}
             
@@ -521,16 +532,16 @@ TaskPixel.AI = {
 
     try {
       const response = await this.sendRequest(prompt);
-      
+
       return {
         priority: priority,
-        reason: response.trim() || this.getDefaultPriorityReason(priority)
+        reason: response.trim() || this.getDefaultPriorityReason(priority),
       };
     } catch (error) {
       console.error("生成优先级评估理由出错:", error);
       return {
         priority: priority,
-        reason: this.getDefaultPriorityReason(priority)
+        reason: this.getDefaultPriorityReason(priority),
       };
     }
   },
@@ -539,44 +550,44 @@ TaskPixel.AI = {
    * 获取默认问卷问题
    * @returns {Array} - 返回默认问卷问题数组
    */
-  getDefaultQuestionnaire: function() {
+  getDefaultQuestionnaire: function () {
     return [
       {
         id: "q1",
         text: "这个目标对整体任务的完成有多重要？",
         options: [
-          {id: "q1a", text: "非常重要，是关键环节", value: 3},
-          {id: "q1b", text: "比较重要，但不是必须的", value: 2},
-          {id: "q1c", text: "重要性较低，是锦上添花", value: 1}
-        ]
+          { id: "q1a", text: "非常重要，是关键环节", value: 3 },
+          { id: "q1b", text: "比较重要，但不是必须的", value: 2 },
+          { id: "q1c", text: "重要性较低，是锦上添花", value: 1 },
+        ],
       },
       {
         id: "q2",
         text: "这个目标的时间紧迫程度如何？",
         options: [
-          {id: "q2a", text: "非常紧急，需要立即处理", value: 3},
-          {id: "q2b", text: "有一定时间压力，但不是特别紧急", value: 2},
-          {id: "q2c", text: "时间充裕，可以稍后处理", value: 1}
-        ]
+          { id: "q2a", text: "非常紧急，需要立即处理", value: 3 },
+          { id: "q2b", text: "有一定时间压力，但不是特别紧急", value: 2 },
+          { id: "q2c", text: "时间充裕，可以稍后处理", value: 1 },
+        ],
       },
       {
         id: "q3",
         text: "完成这个目标的难度如何？",
         options: [
-          {id: "q3a", text: "非常困难，需要专业技能和大量时间", value: 3},
-          {id: "q3b", text: "中等难度，需要一定的专注和努力", value: 2},
-          {id: "q3c", text: "相对简单，容易完成", value: 1}
-        ]
+          { id: "q3a", text: "非常困难，需要专业技能和大量时间", value: 3 },
+          { id: "q3b", text: "中等难度，需要一定的专注和努力", value: 2 },
+          { id: "q3c", text: "相对简单，容易完成", value: 1 },
+        ],
       },
       {
         id: "q4",
         text: "这个目标与其他目标的依赖关系如何？",
         options: [
-          {id: "q4a", text: "其他目标高度依赖它，是前置条件", value: 3},
-          {id: "q4b", text: "与部分目标有依赖关系", value: 2},
-          {id: "q4c", text: "几乎没有依赖关系，可以独立完成", value: 1}
-        ]
-      }
+          { id: "q4a", text: "其他目标高度依赖它，是前置条件", value: 3 },
+          { id: "q4b", text: "与部分目标有依赖关系", value: 2 },
+          { id: "q4c", text: "几乎没有依赖关系，可以独立完成", value: 1 },
+        ],
+      },
     ];
   },
 
@@ -585,7 +596,7 @@ TaskPixel.AI = {
    * @param {string} priority - 优先级（高、中、低）
    * @returns {string} - 返回默认理由文本
    */
-  getDefaultPriorityReason: function(priority) {
+  getDefaultPriorityReason: function (priority) {
     switch (priority) {
       case "高":
         return "此目标对任务整体成功至关重要，且时间紧迫。它是完成其他目标的关键前提，需要优先分配资源完成。";
@@ -596,5 +607,5 @@ TaskPixel.AI = {
       default:
         return "无法确定此目标的优先级理由。";
     }
-  }
+  },
 };

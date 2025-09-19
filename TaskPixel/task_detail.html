@@ -1,254 +1,287 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>TaskPixel - 任务详情</title>
-<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
-<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Press+Start+2P&amp;family=VT323" onload="this.rel='stylesheet'" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              "primary": "#4f46e5",
-              "background": "#f0f0f0",
-              "surface": "#ffffff",
-              "text-primary": "#212121",
-              "text-secondary": "#616161",
-              "border-color": "#212121",
-              "accent-blue": "#3b82f6",
-              "accent-green": "#22c55e",
-              "accent-yellow": "#f59e0b",
-              "accent-red": "#ef4444",
-            },
-            fontFamily: {
-              "display": ["'Press Start 2P'", "cursive"],
-              "body": ["'VT323'", "monospace"]
-            },
-            boxShadow: {
-              'pixel': '4px 4px 0px #212121',
-              'pixel-sm': '2px 2px 0px #212121',
-              'pixel-inset': 'inset 2px 2px 0px #000000, inset -2px -2px 0px #e0e0e0',
-              'pixel-button-active': 'inset 4px 4px 0px #212121',
-            }
-          },
-        },
-      };
-    </script>
-<style>
-      body {
-        font-family: 'VT323', monospace;
-        background-color: #f0f0f0;
-        color: #212121;
-      }
-      .pixel-border {
-        border: 4px solid #212121;
-        box-shadow: 4px 4px 0px #212121;
-      }
-      .pixel-button {
-        border: 4px solid #212121;
-        box-shadow: 4px 4px 0px #212121;
-        transition: all 0.1s ease-out;
-        will-change: transform, box-shadow;
-        background-color: #ffffff;
-        color: #212121;
-        image-rendering: pixelated;
-      }
-      .pixel-button:hover {
-        transform: translate(2px, 2px);
-        box-shadow: 2px 2px 0px #212121;
-      }
-      .pixel-button:active {
-        transform: translate(4px, 4px);
-        box-shadow: 0px 0px 0px #212121;
-      }
-       .pixel-button-sm {
-        border: 2px solid #212121;
-        box-shadow: 2px 2px 0px #212121;
-        transition: all 0.1s ease-out;
-        will-change: transform, box-shadow;
-      }
-      .pixel-button-sm:hover {
-        transform: translate(1px, 1px);
-        box-shadow: 1px 1px 0px #212121;
-      }
-      .pixel-button-sm:active {
-        transform: translate(2px, 2px);
-        box-shadow: 0px 0px 0px #212121;
-      }
-      input[type="text"],
-      input[type="number"],
-      textarea {
-        border: 4px solid #212121;
-        box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
-        background-color: #ffffff;
-        font-family: 'VT323', monospace;
-        font-size: 1.25rem;
-        padding: 0.5rem;
-        color: #212121;
-        width: 100%;
-      }
-      input[type="checkbox"] {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 24px;
-        height: 24px;
-        border: 4px solid #212121;
-        background-color: #fff;
-        image-rendering: pixelated;
-        box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
-        position: relative;
-        cursor: pointer;
-        flex-shrink: 0;
-      }
-      input[type="checkbox"]:checked::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 12px;
-        height: 12px;
-        background-color: #212121;
-        transform: translate(-50%, -50%);
-        image-rendering: pixelated;
-      }
-      .text-shadow-sm {
-        text-shadow: 2px 2px 0 #a0a0a0;
-      }
-      .progress-bar {
-        height: 24px;
-        border: 4px solid #212121;
-        background-color: #e0e0e0;
-        box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
-        overflow: hidden;
-      }
-      .progress-bar-fill {
-        background-color: #22c55e;
-        height: 100%;
-        image-rendering: pixelated;
-        box-shadow: 2px 0 0 #16a34a;
-      }
-    </style>
-</head>
-<body class="bg-background">
-<div class="flex h-full min-h-screen w-full flex-col font-body">
-<header class="border-b-4 border-border-color bg-surface px-4 py-3 sticky top-0 z-10">
-<div class="mx-auto flex max-w-7xl items-center justify-between">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-4xl text-text-primary">task_alt</span>
-<h1 class="font-display text-2xl text-text-primary">TaskPixel</h1>
-</div>
-<div class="hidden items-center gap-6 md:flex">
-<a class="text-lg text-text-primary hover:text-primary font-display" href="index.html">主页</a>
-<a class="text-lg text-primary font-display" href="#">任务</a>
-<a class="text-lg text-text-primary hover:text-primary font-display" href="settings.html">设置</a>
-</div>
-<div class="flex items-center gap-4">
-<button class="pixel-button p-2 relative">
-<span class="material-symbols-outlined text-text-primary">notifications</span>
-</button>
-<div class="size-12 border-4 border-border-color bg-accent-blue user-avatar" style='image-rendering: pixelated; background-size: cover; background-position: center;'></div>
-</div>
-</div>
-</header>
-<main class="w-full flex-1 p-4 sm:p-6 md:p-10">
-<div class="mx-auto max-w-4xl space-y-8">
-<div class="pixel-border bg-surface p-6">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-<h2 class="font-display text-2xl text-text-primary mb-4 sm:mb-0 task-title">任务: Project Phoenix</h2>
-<div class="flex items-center gap-2">
-<span class="font-display text-sm bg-accent-yellow/20 text-accent-yellow-800 border-2 border-accent-yellow-800 px-2 py-1 task-status">进行中</span>
-<span class="font-display text-sm bg-accent-red/20 text-accent-red-800 border-2 border-accent-red-800 px-2 py-1 task-priority">高优先级</span>
-</div>
-</div>
-<div class="space-y-6">
-<div>
-<label class="block font-display text-lg text-text-primary mb-2" for="task-description">描述</label>
-<p class="text-xl text-text-secondary task-description">市场营销策略应涵盖从预发布到发布后的所有方面，包括市场研究、内容创建、社交媒体活动和发布活动。目标是最大化覆盖范围和参与度。</p>
-</div>
-<div class="mt-4">
-<label class="block font-display text-lg text-text-primary mb-2" for="task-progress">进度</label>
-<div class="progress-bar">
-<div class="progress-bar-fill" style="width: 25%;"></div>
-</div>
-<p class="text-right text-text-secondary text-lg mt-1 progress-text">25% 完成</p>
-</div>
-</div>
-<div class="mt-8 flex items-center justify-end gap-4">
-<button class="pixel-button back-button bg-pixel-secondary text-text-primary font-display py-2 px-4 text-sm flex items-center">
-<span class="material-symbols-outlined align-middle mr-2">arrow_back</span>
-                        返回
-                    </button>
-<button class="pixel-button edit-button bg-accent-blue text-white font-display py-2 px-4 text-sm flex items-center">
-<span class="material-symbols-outlined align-middle mr-2">edit</span>
-                        编辑任务
-                    </button>
-<button class="pixel-button complete-button bg-accent-green text-white font-display py-2 px-4 text-sm flex items-center">
-<span class="material-symbols-outlined align-middle mr-2">check_circle</span>
-                        标记为完成
-                    </button>
-</div>
-</div>
-<div class="pixel-border bg-surface p-6">
-<div class="flex items-center justify-between mb-6">
-<h3 class="font-display text-2xl text-text-primary">目标与子步骤</h3>
-<button class="pixel-button ai-assist-button bg-primary text-white font-display py-2 px-3 text-xs flex items-center">
-<span class="material-symbols-outlined text-base mr-1">auto_awesome</span>
-                        AI辅助
-                    </button>
-</div>
-<div class="space-y-6 goals-container">
-<!-- 目标和子步骤将通过JavaScript动态渲染 -->
-</div>
-</div>
-<div class="pixel-border bg-surface p-6">
-<h3 class="font-display text-2xl text-text-primary mb-6">记录工作时间</h3>
-<form id="timeline-form" class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-<div class="sm:col-span-2">
-<label class="block font-display text-lg text-text-primary mb-2" for="work-content">工作内容</label>
-<input id="work-content" placeholder="描述您的工作..." type="text"/>
-</div>
-<div>
-<label class="block font-display text-lg text-text-primary mb-2" for="time-spent">时间 (小时)</label>
-<input id="time-spent" placeholder="如：2" type="number" step="0.1" min="0.1"/>
-</div>
-<div class="sm:col-span-3">
-<button type="submit" class="pixel-button w-full bg-accent-green text-white font-display py-3 px-4 text-sm">记录进度</button>
-</div>
-</form>
-</div>
-<div class="pixel-border bg-surface p-6">
-<h3 class="font-display text-2xl text-text-primary mb-6">进度历史</h3>
-<div class="space-y-4 timeline-container">
-<!-- 时间线记录将通过JavaScript动态渲染 -->
-</div>
-</div>
-</div>
-</main>
-</div>
 
-<!-- 应用脚本 -->
-<script src="js/core.js"></script>
-<script src="js/aiAssist.js"></script>
-<script src="js/taskDetail.js"></script>
-<script>
-// 初始化应用
-document.addEventListener('DOMContentLoaded', function() {
-    // 初始化核心模块
-    TaskPixel.init();
-    
-    // 初始化任务详情模块
-    TaskPixel.TaskDetail.init();
-    
-    // 更新用户头像（如果有）
-    const avatarElements = document.querySelectorAll('.user-avatar');
-    avatarElements.forEach(element => {
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>TaskPixel - 任务详情</title>
+  <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+  <link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Press+Start+2P&amp;family=VT323"
+    onload="this.rel='stylesheet'" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#4f46e5",
+            "background": "#f0f0f0",
+            "surface": "#ffffff",
+            "text-primary": "#212121",
+            "text-secondary": "#616161",
+            "border-color": "#212121",
+            "accent-blue": "#3b82f6",
+            "accent-green": "#22c55e",
+            "accent-yellow": "#f59e0b",
+            "accent-red": "#ef4444",
+          },
+          fontFamily: {
+            "display": ["'Press Start 2P'", "cursive"],
+            "body": ["'VT323'", "monospace"]
+          },
+          boxShadow: {
+            'pixel': '4px 4px 0px #212121',
+            'pixel-sm': '2px 2px 0px #212121',
+            'pixel-inset': 'inset 2px 2px 0px #000000, inset -2px -2px 0px #e0e0e0',
+            'pixel-button-active': 'inset 4px 4px 0px #212121',
+          }
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'VT323', monospace;
+      background-color: #f0f0f0;
+      color: #212121;
+    }
+
+    .pixel-border {
+      border: 4px solid #212121;
+      box-shadow: 4px 4px 0px #212121;
+    }
+
+    .pixel-button {
+      border: 4px solid #212121;
+      box-shadow: 4px 4px 0px #212121;
+      transition: all 0.1s ease-out;
+      will-change: transform, box-shadow;
+      background-color: #ffffff;
+      color: #212121;
+      image-rendering: pixelated;
+    }
+
+    .pixel-button:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #212121;
+    }
+
+    .pixel-button:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px #212121;
+    }
+
+    .pixel-button-sm {
+      border: 2px solid #212121;
+      box-shadow: 2px 2px 0px #212121;
+      transition: all 0.1s ease-out;
+      will-change: transform, box-shadow;
+    }
+
+    .pixel-button-sm:hover {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px #212121;
+    }
+
+    .pixel-button-sm:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px #212121;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      border: 4px solid #212121;
+      box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
+      background-color: #ffffff;
+      font-family: 'VT323', monospace;
+      font-size: 1.25rem;
+      padding: 0.5rem;
+      color: #212121;
+      width: 100%;
+    }
+
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border: 4px solid #212121;
+      background-color: #fff;
+      image-rendering: pixelated;
+      box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      background-color: #212121;
+      transform: translate(-50%, -50%);
+      image-rendering: pixelated;
+    }
+
+    .text-shadow-sm {
+      text-shadow: 2px 2px 0 #a0a0a0;
+    }
+
+    .progress-bar {
+      height: 24px;
+      border: 4px solid #212121;
+      background-color: #e0e0e0;
+      box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      background-color: #22c55e;
+      height: 100%;
+      image-rendering: pixelated;
+      box-shadow: 2px 0 0 #16a34a;
+    }
+  </style>
+</head>
+
+<body class="bg-background">
+  <div class="flex h-full min-h-screen w-full flex-col font-body">
+    <header
+      class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
+      <div class="flex items-center gap-4">
+        <svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32"
+          xmlns="http://www.w3.org/2000/svg">
+          <path clip-rule="evenodd"
+            d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z"
+            fill="currentColor" fill-rule="evenodd"></path>
+        </svg>
+        <h2 class="text-xl font-bold text-pixel-text-color">TaskPixel</h2>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm">
+        <a class="text-black/70 hover:text-primary nav-link" href="index.html">主页</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <button
+          class="size-10 flex items-center justify-center border-4 border-pixel-border-color bg-pixel-accent pixel-button"
+          title="通知">
+          <span class="material-symbols-outlined text-pixel-text-color">notifications</span>
+        </button>
+        <div class="bg-center bg-no-repeat aspect-square bg-cover size-10 border-4 border-black user-avatar"></div>
+      </div>
+    </header>
+    <main class="w-full flex-1 p-4 sm:p-6 md:p-10">
+      <div class="mx-auto max-w-4xl space-y-8">
+        <div class="pixel-border bg-surface p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+            <h2 class="font-display text-2xl text-text-primary mb-4 sm:mb-0 task-title">任务: Project Phoenix</h2>
+            <div class="flex items-center gap-2">
+              <span
+                class="font-display text-sm bg-accent-yellow/20 text-accent-yellow-800 border-2 border-accent-yellow-800 px-2 py-1 task-status">进行中</span>
+              <span
+                class="font-display text-sm bg-accent-red/20 text-accent-red-800 border-2 border-accent-red-800 px-2 py-1 task-priority">高优先级</span>
+            </div>
+          </div>
+          <div class="space-y-6">
+            <div>
+              <label class="block font-display text-lg text-text-primary mb-2" for="task-description">描述</label>
+              <p class="text-xl text-text-secondary task-description">
+                市场营销策略应涵盖从预发布到发布后的所有方面，包括市场研究、内容创建、社交媒体活动和发布活动。目标是最大化覆盖范围和参与度。</p>
+            </div>
+            <div class="mt-4">
+              <label class="block font-display text-lg text-text-primary mb-2" for="task-progress">进度</label>
+              <div class="progress-bar">
+                <div class="progress-bar-fill" style="width: 25%;"></div>
+              </div>
+              <p class="text-right text-text-secondary text-lg mt-1 progress-text">25% 完成</p>
+            </div>
+          </div>
+          <div class="mt-8 flex items-center justify-end gap-4">
+            <button
+              class="pixel-button back-button bg-pixel-secondary text-text-primary font-display py-2 px-4 text-sm flex items-center">
+              <span class="material-symbols-outlined align-middle mr-2">arrow_back</span>
+              返回
+            </button>
+            <button
+              class="pixel-button edit-button bg-accent-blue text-white font-display py-2 px-4 text-sm flex items-center">
+              <span class="material-symbols-outlined align-middle mr-2">edit</span>
+              编辑任务
+            </button>
+            <button
+              class="pixel-button complete-button bg-accent-green text-white font-display py-2 px-4 text-sm flex items-center">
+              <span class="material-symbols-outlined align-middle mr-2">check_circle</span>
+              标记为完成
+            </button>
+          </div>
+        </div>
+        <div class="pixel-border bg-surface p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-display text-2xl text-text-primary">目标与子步骤</h3>
+            <button
+              class="pixel-button ai-assist-button bg-primary text-white font-display py-2 px-3 text-xs flex items-center">
+              <span class="material-symbols-outlined text-base mr-1">auto_awesome</span>
+              AI辅助
+            </button>
+          </div>
+          <div class="space-y-6 goals-container">
+            <!-- 目标和子步骤将通过JavaScript动态渲染 -->
+          </div>
+        </div>
+        <div class="pixel-border bg-surface p-6">
+          <h3 class="font-display text-2xl text-text-primary mb-6">记录工作时间</h3>
+          <form id="timeline-form" class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div class="sm:col-span-2">
+              <label class="block font-display text-lg text-text-primary mb-2" for="work-content">工作内容</label>
+              <input id="work-content" placeholder="描述您的工作..." type="text" />
+            </div>
+            <div>
+              <label class="block font-display text-lg text-text-primary mb-2" for="time-spent">时间 (小时)</label>
+              <input id="time-spent" placeholder="如：2" type="number" step="0.1" min="0.1" />
+            </div>
+            <div class="sm:col-span-3">
+              <button type="submit"
+                class="pixel-button w-full bg-accent-green text-white font-display py-3 px-4 text-sm">记录进度</button>
+            </div>
+          </form>
+        </div>
+        <div class="pixel-border bg-surface p-6">
+          <h3 class="font-display text-2xl text-text-primary mb-6">进度历史</h3>
+          <div class="space-y-4 timeline-container">
+            <!-- 时间线记录将通过JavaScript动态渲染 -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 应用脚本 -->
+  <script src="js/core.js"></script>
+  <script src="js/aiAssist.js"></script>
+  <script src="js/taskDetail.js"></script>
+  <script>
+    // 初始化应用
+    document.addEventListener('DOMContentLoaded', function () {
+      // 初始化核心模块
+      TaskPixel.init();
+
+      // 初始化任务详情模块
+      TaskPixel.TaskDetail.init();
+
+      // 更新用户头像（如果有）
+      const avatarElements = document.querySelectorAll('.user-avatar');
+      avatarElements.forEach(element => {
         // 这里可以根据用户设置更新头像
+      });
     });
-});
-</script>
+  </script>
 </body>
+
 </html>
