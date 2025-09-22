@@ -1,0 +1,285 @@
+/* TaskPixel 统一样式文件 */
+
+/* 导航链接样式 */
+.nav-link {
+  position: relative;
+  padding-bottom: 4px;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 4px;
+  background-color: #4f46e5;
+  transition: width 0.2s ease-in-out;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* 像素边框样式 */
+.pixel-border {
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+/* 像素按钮样式 */
+.pixel-button {
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  position: relative;
+  transition: all 0.1s ease-in-out;
+  background-color: #c0c0c0;
+  color: #000000;
+}
+
+.pixel-button:hover {
+  box-shadow: 6px 6px 0px 0px #000000;
+  transform: translate(-2px, -2px);
+}
+
+.pixel-button:active {
+  box-shadow: 0px 0px 0px 0px #000000;
+  transform: translate(4px, 4px);
+}
+
+/* 加载指示器 */
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 3px solid #3498db;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 用户头像样式已移除（头像占位由页面 header 已清理） */
+
+/* --- 补：像素风格卡片 / 任务卡样式 --- */
+.pixel-card {
+  border: 4px solid #000; /* 像素边框 */
+  box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 1);
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 0;
+}
+
+/* 任务卡具体样式 */
+.task-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
+  transition: transform 0.06s linear, box-shadow 0.06s linear;
+  cursor: pointer;
+}
+.task-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 8px 8px 0 0 rgba(0, 0, 0, 0.08);
+}
+
+/* 进度条容器与填充 */
+.task-card .w-full.h-2.bg-gray-200,
+.task-card .progress-track {
+  background-color: #e5e7eb;
+  height: 0.5rem;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.task-card .progress-track .progress-fill,
+.task-card .h-full.bg-primary {
+  background-color: #4f46e5; /* primary */
+  height: 100%;
+  display: block;
+}
+
+/* 标题/描述/状态文本微调 */
+.task-card .text-lg {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.task-card .text-base {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* 小标签 pill */
+.tag-pill,
+.task-card .tag-pill {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  margin-right: 0.25rem;
+}
+
+/* 保证 size-10/user-avatar 外观一致 */
+.size-10 {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+}
+/* user-avatar 样式已移除 */
+
+/* 恢复像素按钮/边框通用样式（若缺失） */
+.pixel-border {
+  border: 4px solid #000;
+}
+.pixel-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 4px solid #000;
+  padding: 0.5rem 1rem;
+  background-color: #4f46e5;
+  color: #fff;
+  font-weight: 700;
+}
+.pixel-button.bg-pixel-secondary {
+  background-color: #e5e7eb;
+  color: #000;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .nav-link {
+    font-size: 14px;
+  }
+
+  .pixel-button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+/* 额外的像素化工具类（来自 settings.html） */
+.pixel-box {
+  box-shadow: inset -2px -2px 0px 0px #000000, inset 2px 2px 0px 0px #ffffff;
+}
+
+.pixel-box-sm {
+  box-shadow: inset -1px -1px 0px 0px #000000, inset 1px 1px 0px 0px #ffffff;
+}
+
+/* 表单和小尺寸按钮样式（来自 task_detail.html） */
+.pixel-button-sm {
+  border: 2px solid #212121;
+  box-shadow: 2px 2px 0px #212121;
+  transition: all 0.1s ease-out;
+}
+
+.pixel-button-sm:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #212121;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+  border: 4px solid #212121;
+  box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
+  background-color: #ffffff;
+  font-family: "VT323", monospace;
+  font-size: 1.25rem;
+  padding: 0.5rem;
+  color: #212121;
+  width: 100%;
+}
+
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 4px solid #212121;
+  background-color: #fff;
+  image-rendering: pixelated;
+  box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "\2713";
+  display: block;
+  text-align: center;
+  line-height: 24px;
+}
+
+/* 全局进度条过渡和预设刻度 */
+.progress-bar-fill {
+  transition: width 300ms ease-in-out;
+}
+.progress-0 {
+  width: 0%;
+}
+.progress-25 {
+  width: 25%;
+}
+.progress-50 {
+  width: 50%;
+}
+.progress-75 {
+  width: 75%;
+}
+.progress-100 {
+  width: 100%;
+}
+
+/* 标签样式 - # 标签高亮 */
+.hashtag {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: #e5f1ff;
+  color: #1a56db;
+  border-radius: 4px;
+  font-weight: 500;
+  margin: 2px;
+  border: 1px solid #c6d8f5;
+  transition: all 0.1s ease;
+}
+
+.hashtag:hover {
+  background-color: #d1e2ff;
+  cursor: pointer;
+}
+
+/* 标签容器 */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+/* 输入框中的标签预览 */
+.tag-preview {
+  position: relative;
+}
+
+.tag-preview::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background-color: rgba(79, 70, 229, 0.2);
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskPixel - 任务管理</title>
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <!-- Tailwind CSS (CDN) and shared configuration -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+
+    <!-- 应用样式 -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="bg-background-light font-display text-pixel-text-color">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="flex h-full grow flex-col">
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
+                <div class="flex items-center gap-4">
+                    <svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd"
+                            d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z"
+                            fill="currentColor" fill-rule="evenodd"></path>
+                    </svg>
+                    <h2 class="text-xl font-bold text-pixel-text-color">TaskPixel</h2>
+                </div>
+                <div class="hidden md:flex items-center gap-8 text-sm">
+                    <a class="font-bold text-pixel-text-color nav-link active" href="index.html">主页</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="data_management.html">数据管理</a>
+                </div>
+                <!-- header right-side intentionally removed: notifications and avatar placeholders -->
+            </header>
+            <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div class="mb-10">
+                    <h1 class="text-3xl font-bold mb-4">欢迎回来，<span class="username">Sarah</span>！</h1>
+                    <div class="flex items-center gap-4">
+                        <button
+                            class="pixel-button bg-primary hover:bg-primary-hover text-white text-sm font-bold py-3 px-6 flex items-center gap-2 create-task-button">
+                            <svg class="bi bi-plus-lg" fill="currentColor" height="16" viewBox="0 0 16 16" width="16"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"
+                                    fill-rule="evenodd"></path>
+                            </svg>
+                            <span>新任务</span>
+                        </button>
+                        <button
+                            class="pixel-button bg-pixel-secondary text-pixel-text-color text-sm font-bold py-3 px-6 weekly-review-button">
+                            <span>周报</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-12">
+                    <h2 class="text-2xl font-bold mb-6">我的任务</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 task-container">
+                        <!-- 任务卡片将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold mb-6">下一步行动</h2>
+                    <div class="space-y-6 next-actions-container">
+                        <!-- 下一步行动建议将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 应用脚本 -->
+    <script src="js/core.js"></script>
+    <script src="js/dataStoreAdapter.js"></script>
+    <script src="js/aiAssist.js"></script>
+    <script src="js/taskCreation.js"></script>
+    <script src="js/home.js"></script>
+    <script>
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function () {
+            // 初始化核心模块
+            TaskPixel.init();
+
+            // 初始化数据适配器（如果存在）
+            if (TaskPixel.DataStoreAdapter && typeof TaskPixel.DataStoreAdapter.init === 'function') {
+                TaskPixel.DataStoreAdapter.init();
+            }
+
+            // 初始化任务创建模块
+            TaskPixel.TaskCreation.init();
+
+            // 初始化主页模块
+            TaskPixel.Home.init();
+
+            // 更新用户名显示
+            const settings = TaskPixel.DataStore.getSettings();
+            const usernameElements = document.querySelectorAll('.username');
+            usernameElements.forEach(element => {
+                element.textContent = settings.username || 'Sarah';
+            });
+
+            // 更新头像（如果有）
+            const avatarElements = document.querySelectorAll('.user-avatar');
+            avatarElements.forEach(element => {
+                // 这里可以根据用户设置更新头像
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>TaskPixel - AI目标评估</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style type="text/tailwindcss">
+    @layer base {
+      :root {
+        --background-light: #f7f6f8;
+        --background-dark: #1E1E1E;
+        --primary-light: #6D28D9;
+        --primary-dark: #A78BFA;
+        --text-light: #111827;
+        --text-dark: #F3F4F6;
+        --border-light: #000000;
+        --border-dark: #FFFFFF;
+      }
+    }
+    body {
+      font-family: 'VT323', monospace;
+    }
+    .pixel-border {
+      border: 4px solid var(--border-light);
+      box-shadow:
+        4px 4px 0 0 var(--border-light),
+        -4px -4px 0 0 var(--border-light),
+        4px -4px 0 0 var(--border-light),
+        -4px 4px 0 0 var(--border-light);
+      image-rendering: pixelated;
+    }
+    .dark .pixel-border {
+      border-color: var(--border-dark);
+      box-shadow:
+        4px 4px 0 0 var(--border-dark),
+        -4px -4px 0 0 var(--border-dark),
+        4px -4px 0 0 var(--border-dark),
+        -4px 4px 0 0 var(--border-dark);
+    }
+    .pixel-button {
+      background-color: var(--primary-light);
+      color: white;
+      border: 2px solid var(--border-light);
+      box-shadow: 2px 2px 0 0 var(--border-light);
+      position: relative;
+      transition: all 0.1s ease-in-out;
+    }
+    .pixel-button:hover {
+      box-shadow: 4px 4px 0 0 var(--border-light);
+      transform: translate(-2px, -2px);
+    }
+    .pixel-button:active {
+      box-shadow: 0px 0px 0 0 var(--border-light);
+      transform: translate(2px, 2px);
+    }
+    .dark .pixel-button {
+      background-color: var(--primary-dark);
+      color: var(--text-light);
+      border-color: var(--border-dark);
+      box-shadow: 2px 2px 0 0 var(--border-dark);
+    }
+    .dark .pixel-button:hover {
+      box-shadow: 4px 4px 0 0 var(--border-dark);
+    }
+    .dark .pixel-button:active {
+      box-shadow: 0px 0px 0 0 var(--border-dark);
+    }
+  </style>
+</head>
+
+<body
+  class="bg-[var(--background-light)] dark:bg-[var(--background-dark)] text-[var(--text-light)] dark:text-[var(--text-dark)] text-xl">
+  <div class="flex flex-col min-h-screen">
+    <header
+      class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
+      <div class="flex items-center gap-4">
+        <svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32"
+          xmlns="http://www.w3.org/2000/svg">
+          <path clip-rule="evenodd"
+            d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z"
+            fill="currentColor" fill-rule="evenodd"></path>
+        </svg>
+        <h2 class="text-xl font-bold text-pixel-text-color">TaskPixel</h2>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm">
+        <a class="text-black/70 hover:text-primary nav-link" href="index.html">主页</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
+      </div>
+      <!-- header right-side intentionally removed: notifications and avatar placeholders -->
+    </header>
+    </header>
+    <main class="flex-grow flex items-center justify-center p-4">
+      <div class="w-full max-w-2xl">
+        <div class="pixel-border p-8 bg-[var(--background-light)] dark:bg-gray-800">
+          <div class="text-center mb-10">
+            <h2 class="text-5xl font-bold mb-2">AI目标评估</h2>
+            <p class="text-lg text-gray-600 dark:text-gray-400">AI已分析了你的目标重要性</p>
+          </div>
+          <div class="space-y-8">
+            <div>
+              <label class="block text-2xl font-bold mb-2" for="goal">目标</label>
+              <div class="pixel-border p-4 bg-white dark:bg-gray-700">
+                <p class="text-xl" id="goal">市场研究</p>
+              </div>
+            </div>
+            <div>
+              <label class="block text-2xl font-bold mb-2" for="priority">AI生成的优先级</label>
+              <div class="pixel-border p-4 bg-red-200/50 dark:bg-red-400/20 flex items-center gap-3">
+                <span class="material-symbols-outlined text-red-500 dark:text-red-400 text-3xl">star</span>
+                <p class="text-2xl font-bold text-red-600 dark:text-red-300" id="priority">高优先级</p>
+              </div>
+            </div>
+            <div>
+              <label class="block text-2xl font-bold mb-2">原因</label>
+              <div class="pixel-border p-4 bg-white dark:bg-gray-700">
+                <p class="text-lg text-gray-700 dark:text-gray-300">
+                  此目标被评为高优先级，因为市场研究是项目成功的关键因素。完成此目标将提供关键数据，帮助制定有效的营销策略和产品定位，直接影响整体业务目标的实现。
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-12 text-center">
+            <a href="task_detail.html" class="pixel-button py-3 px-8 text-xl inline-block">
+              确认并返回
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 应用脚本 -->
+  <script src="js/core.js"></script>
+  <script>
+    // 初始化应用
+    document.addEventListener('DOMContentLoaded', function () {
+      // 初始化核心模块
+      TaskPixel.init();
+
+      // 从URL获取参数
+      const urlParams = new URLSearchParams(window.location.search);
+      const taskId = urlParams.get('taskId');
+      const goalId = urlParams.get('goalId');
+      const priority = urlParams.get('priority');
+      const reason = urlParams.get('reason');
+      const goalTitle = urlParams.get('goalTitle');
+
+      // 如果有参数，更新页面内容
+      if (goalTitle) {
+        document.getElementById('goal').textContent = decodeURIComponent(goalTitle);
+      }
+
+      if (priority) {
+        const priorityElem = document.getElementById('priority');
+        const decodedPriority = decodeURIComponent(priority).toLowerCase();
+
+        if (priorityElem) {
+          const parent = priorityElem.parentElement;
+          const star = parent ? parent.querySelector('.material-symbols-outlined') : null;
+
+          if (decodedPriority === 'high' || decodedPriority === '高') {
+            priorityElem.textContent = '高优先级';
+            if (parent) parent.className = 'pixel-border p-4 bg-red-200/50 dark:bg-red-400/20 flex items-center gap-3';
+            if (star) star.className = 'material-symbols-outlined text-red-500 dark:text-red-400 text-3xl';
+            if (priorityElem) priorityElem.className = 'text-2xl font-bold text-red-600 dark:text-red-300';
+          } else if (decodedPriority === 'low' || decodedPriority === '低') {
+            priorityElem.textContent = '低优先级';
+            if (parent) parent.className = 'pixel-border p-4 bg-blue-200/50 dark:bg-blue-400/20 flex items-center gap-3';
+            if (star) star.className = 'material-symbols-outlined text-blue-500 dark:text-blue-400 text-3xl';
+            if (priorityElem) priorityElem.className = 'text-2xl font-bold text-blue-600 dark:text-blue-300';
+          } else {
+            priorityElem.textContent = '中优先级';
+            if (parent) parent.className = 'pixel-border p-4 bg-yellow-200/50 dark:bg-yellow-400/20 flex items-center gap-3';
+            if (star) star.className = 'material-symbols-outlined text-yellow-500 dark:text-yellow-400 text-3xl';
+            if (priorityElem) priorityElem.className = 'text-2xl font-bold text-yellow-600 dark:text-yellow-300';
+          }
+        }
+      }
+
+      if (reason) {
+        const reasonContainer = document.querySelector('label[for="priority"]').nextElementSibling.nextElementSibling;
+        if (reasonContainer) {
+          reasonContainer.querySelector('p').textContent = decodeURIComponent(reason);
+        }
+      }
+
+      // 更新返回链接
+      if (taskId) {
+        const backButton = document.querySelector('.pixel-button');
+        if (backButton) {
+          backButton.href = `task_detail.html?id=${taskId}`;
+        }
+      }
+
+      // 更新用户头像（如果有）
+      const avatarElements = document.querySelectorAll('.user-avatar');
+      avatarElements.forEach(element => {
+        // 这里可以根据用户设置更新头像
+      });
+    });
+  </script>
+</body>
+
+</html>

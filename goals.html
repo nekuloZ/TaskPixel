@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>目标列表 - TaskPixel</title>
+
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <!-- Tailwind CSS (CDN) and shared configuration -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+
+    <!-- 应用样式 -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="bg-background-light font-display text-pixel-text-color">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="flex h-full grow flex-col">
+            <!-- 导航栏 -->
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
+                <div class="flex items-center gap-4">
+                    <svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd"
+                            d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z"
+                            fill="currentColor" fill-rule="evenodd"></path>
+                    </svg>
+                    <h2 class="text-xl font-bold text-pixel-text-color">TaskPixel</h2>
+                </div>
+                <div class="hidden md:flex items-center gap-8 text-sm">
+                    <a class="text-black/70 hover:text-primary nav-link" href="index.html">主页</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
+                    <a class="font-bold text-pixel-text-color nav-link active" href="goals.html">目标</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="data_management.html">数据管理</a>
+                </div>
+                <!-- header right-side intentionally removed: notifications and avatar placeholders -->
+            </header>
+
+            <!-- 主要内容区域 -->
+            <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div class="mb-10">
+                    <h1 class="text-3xl font-bold mb-6">所有目标</h1>
+                    <div class="flex items-center gap-4">
+                        <button id="ai-priority-button"
+                            class="pixel-button bg-primary hover:bg-primary-hover text-white text-sm font-bold py-3 px-6 flex items-center gap-2 opacity-50"
+                            disabled>
+                            <span class="material-symbols-outlined">auto_awesome</span>
+                            <span>选择至少2个目标</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 排序选项 -->
+                <div class="flex justify-end mb-6">
+                    <select id="sort-select" class="pixel-border p-2 bg-white" title="排序选项" aria-label="排序选项">
+                        <option value="priority">按优先级排序</option>
+                        <option value="alpha">按字母排序</option>
+                        <option value="task">按任务分组</option>
+                    </select>
+                </div>
+
+                <!-- 目标列表 -->
+                <div id="goals-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 目标将动态插入 -->
+                </div>
+
+                <!-- 无目标状态 -->
+                <div id="empty-goals"
+                    class="hidden text-center p-12 border-4 border-dashed border-gray-300 bg-gray-50 rounded-none">
+                    <p class="text-lg mb-4">没有找到匹配的目标</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 问卷对话框 -->
+    <div id="questionnaire-dialog"
+        class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="pixel-border bg-white p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4">目标优先级评估</h2>
+            <p class="text-gray-600 mb-6">请回答以下问题，以帮助我们评估所选目标的优先级</p>
+
+            <div id="questionnaire-container" class="mb-6 space-y-6">
+                <!-- 问卷将动态插入 -->
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <button id="cancel-questionnaire"
+                    class="pixel-button bg-pixel-secondary text-pixel-text-color text-sm font-bold py-3 px-6">
+                    取消
+                </button>
+                <button id="submit-questionnaire"
+                    class="pixel-button bg-primary hover:bg-primary-hover text-white text-sm font-bold py-3 px-6">
+                    提交评估
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/core.js"></script>
+    <script src="js/dataStoreAdapter.js"></script>
+    <script src="js/aiAssist.js"></script>
+    <script src="js/aiAssistExtended.js"></script>
+    <!-- 已移除调试脚本 consoleDebug.js -->
+    <script src="js/goals.js"></script>
+    <script>
+        // 安全初始化：确保 TaskPixel 和 Goals 模块在页面加载后被初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            try {
+                if (typeof TaskPixel?.init === 'function') {
+                    TaskPixel.init();
+                    console.log('TaskPixel.init() called from goals.html');
+                } else {
+                    console.warn('TaskPixel.init not available on goals.html');
+                }
+            } catch (e) {
+                console.error('Error calling TaskPixel.init on goals.html', e);
+            }
+
+            if (window.TaskPixel && TaskPixel.Goals && typeof TaskPixel.Goals.init === 'function') {
+                try {
+                    TaskPixel.Goals.init();
+                    console.log('TaskPixel.Goals.init() called');
+                } catch (e) {
+                    console.error('Error initializing TaskPixel.Goals', e);
+                }
+            } else {
+                console.warn('TaskPixel.Goals.init not found');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskPixel - 数据管理</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- Tailwind CSS (CDN) and shared configuration -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+</head>
+
+<body class="bg-pixel-bg">
+    <div class="min-h-screen flex flex-col">
+        <!-- 页面头部 -->
+        <header class="bg-white shadow-md">
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <h1 class="text-3xl font-bold text-primary">TaskPixel</h1>
+                        <span class="ml-4 text-gray-400">数据管理</span>
+                    </div>
+                    <nav>
+                        <ul class="flex space-x-6 nav-links">
+                            <li><a href="index.html" class="text-gray-600 hover:text-primary nav-link">主页</a></li>
+                            <li><a href="task_detail.html" class="text-gray-600 hover:text-primary nav-link">任务详情</a>
+                            </li>
+                            <li><a href="goals.html" class="text-gray-600 hover:text-primary nav-link">目标管理</a></li>
+                            <li><a href="settings.html" class="text-gray-600 hover:text-primary nav-link">设置</a></li>
+                            <li><a href="data_management.html"
+                                    class="text-gray-600 hover:text-primary nav-link">数据管理</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6">数据管理</h2>
+
+                <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold mb-4">数据清除</h3>
+                    <p class="text-gray-600 mb-6">此操作将清除TaskPixel系统中的所有用户数据，包括任务、目标、标签和设置。此操作不可撤销，请谨慎操作。</p>
+
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor"
+                                    aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                        d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">警告</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <p>清除数据后，所有信息将被永久删除，且无法恢复。系统将重置为初始状态。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="clear-all-data" class="pixel-button bg-red-500 hover:bg-red-600 text-white py-3 px-6">
+                        清除所有数据
+                    </button>
+                </div>
+
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4">数据统计</h3>
+                    <div id="data-stats" class="space-y-4">
+                        <p class="text-gray-600">加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="bg-gray-800 text-white py-6">
+            <div class="container mx-auto px-4">
+                <p class="text-center">TaskPixel &copy; 2025</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/core.js"></script>
+    <script src="js/clearData.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 初始化核心功能
+            if (typeof TaskPixel !== 'undefined' && TaskPixel.init) {
+                TaskPixel.init();
+            }
+
+            // 获取DOM元素
+            const clearDataButton = document.getElementById('clear-all-data');
+            const dataStatsContainer = document.getElementById('data-stats');
+
+            // 显示数据统计
+            function displayDataStats() {
+                if (!dataStatsContainer) return;
+
+                try {
+                    const taskPixelData = localStorage.getItem('taskpixel_data');
+
+                    if (taskPixelData) {
+                        const parsedData = JSON.parse(taskPixelData);
+                        const taskCount = parsedData.tasks ? parsedData.tasks.length : 0;
+
+                        // 计算目标数量
+                        let goalCount = 0;
+                        let tagCounts = {};
+
+                        if (parsedData.tasks) {
+                            parsedData.tasks.forEach(task => {
+                                if (task.goals) {
+                                    goalCount += task.goals.length;
+
+                                    // 统计标签
+                                    task.goals.forEach(goal => {
+                                        if (goal.tags && Array.isArray(goal.tags)) {
+                                            goal.tags.forEach(tag => {
+                                                tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+
+                        // 创建统计HTML
+                        let statsHTML = `
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <p class="text-2xl font-bold text-blue-600">${taskCount}</p>
+                                    <p class="text-sm text-gray-600">任务数量</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <p class="text-2xl font-bold text-green-600">${goalCount}</p>
+                                    <p class="text-sm text-gray-600">目标数量</p>
+                                </div>
+                                <div class="bg-purple-50 p-4 rounded-lg">
+                                    <p class="text-2xl font-bold text-purple-600">${Object.keys(tagCounts).length}</p>
+                                    <p class="text-sm text-gray-600">标签数量</p>
+                                </div>
+                            </div>
+                        `;
+
+                        // 添加标签列表（如果有）
+                        if (Object.keys(tagCounts).length > 0) {
+                            statsHTML += '<h4 class="text-lg font-medium mb-2">标签统计</h4><div class="flex flex-wrap gap-2">';
+
+                            Object.entries(tagCounts).forEach(([tag, count]) => {
+                                statsHTML += `
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        ${tag} <span class="ml-1 text-gray-500">(${count})</span>
+                                    </span>
+                                `;
+                            });
+
+                            statsHTML += '</div>';
+                        }
+
+                        dataStatsContainer.innerHTML = statsHTML;
+                    } else {
+                        dataStatsContainer.innerHTML = '<p class="text-gray-600">没有找到任何TaskPixel数据</p>';
+                    }
+                } catch (error) {
+                    dataStatsContainer.innerHTML = `<p class="text-red-500">数据统计出错: ${error.message}</p>`;
+                }
+            }
+
+            // 为页面内的“清除所有数据”按钮绑定处理逻辑，优先使用共享的 clearTaskPixelData 实现
+            if (clearDataButton) {
+                clearDataButton.addEventListener('click', function () {
+                    if (confirm('确定要清除所有TaskPixel数据吗？此操作不可撤销。')) {
+                        if (window.clearTaskPixelData && typeof window.clearTaskPixelData === 'function') {
+                            if (window.clearTaskPixelData()) {
+                                // 跳回首页
+                                window.location.href = 'index.html';
+                            }
+                        } else {
+                            alert('清理功能不可用，请检查 clearData.js 是否正确加载。');
+                        }
+                    }
+                });
+            }
+
+            // 显示初始数据统计
+            displayDataStats();
+        });
+    </script>
+    <script>
+        // 标记导航栏当前激活项
+        (function () {
+            const links = document.querySelectorAll('.nav-link');
+            const path = window.location.pathname.split('/').pop();
+            links.forEach((a) => {
+                const href = a.getAttribute('href');
+                if (href && href === path) {
+                    a.classList.add('font-bold', 'text-primary', 'nav-active');
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>
