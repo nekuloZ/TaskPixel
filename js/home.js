@@ -10,13 +10,24 @@ TaskPixel.Home = {
     newTaskButton: null,
     weeklyReviewButton: null,
     nextActionsContainer: null,
+    bulkActionsToolbar: null,
+    toggleBulkModeBtn: null,
+    bulkDeleteBtn: null,
+    cancelSelectionBtn: null,
+    selectedCountDisplay: null,
   },
+
+  // 批量操作状态
+  bulkMode: false,
+  selectedTasks: new Set(),
 
   // 初始化主页功能
   init: function () {
     this.cacheElements();
     this.bindEvents();
     this.renderTasks();
+    // 初始化拖拽排序（在渲染后）
+    this.initSortable();
     this.renderNextActions();
     console.log("主页功能模块初始化完成");
   },
@@ -35,6 +46,19 @@ TaskPixel.Home = {
     this.elements.nextActionsContainer =
       document.querySelector(".next-actions-container") ||
       document.querySelector(".space-y-6");
+
+    // 批量操作相关元素
+    this.elements.bulkActionsToolbar =
+      document.getElementById("bulkActionsToolbar");
+    this.elements.toggleBulkModeBtn = document.querySelector(
+      ".toggle-bulk-mode-btn"
+    );
+    this.elements.bulkDeleteBtn = document.querySelector(".bulk-delete-btn");
+    this.elements.cancelSelectionBtn = document.querySelector(
+      ".cancel-selection-btn"
+    );
+    this.elements.selectedCountDisplay =
+      document.querySelector(".selected-count");
   },
 
   // 绑定事件处理函数
@@ -60,6 +84,33 @@ TaskPixel.Home = {
     TaskPixel.EventBus.on("task:updated", this.renderTasks.bind(this));
     TaskPixel.EventBus.on("task:deleted", this.renderTasks.bind(this));
     TaskPixel.EventBus.on("data:imported", this.renderTasks.bind(this));
+
+    // 批量操作事件绑定
+    this.bindBulkActionEvents();
+  },
+
+  // 绑定批量操作事件
+  bindBulkActionEvents: function () {
+    // 切换批量管理模式
+    if (this.elements.toggleBulkModeBtn) {
+      this.elements.toggleBulkModeBtn.addEventListener("click", () => {
+        this.toggleBulkMode();
+      });
+    }
+
+    // 批量删除按钮
+    if (this.elements.bulkDeleteBtn) {
+      this.elements.bulkDeleteBtn.addEventListener("click", () => {
+        this.performBulkDelete();
+      });
+    }
+
+    // 取消选择按钮
+    if (this.elements.cancelSelectionBtn) {
+      this.elements.cancelSelectionBtn.addEventListener("click", () => {
+        this.clearSelection();
+      });
+    }
   },
 
   // 渲染任务列表
@@ -67,7 +118,9 @@ TaskPixel.Home = {
     if (!this.elements.taskContainer) return;
 
     // 获取所有任务
-    const tasks = TaskPixel.DataStore.getAllTasks();
+    const tasks = (TaskPixel.DataStore.getAllTasks() || []).slice();
+    // 按 order 字段排序（如果存在）
+    tasks.sort((a, b) => (a.order || 0) - (b.order || 0));
 
     // 如果没有任务容器，则创建一个
     if (!this.elements.taskContainer) {
@@ -105,6 +158,8 @@ TaskPixel.Home = {
 
     // 重新绑定事件到新渲染的元素
     this.bindTaskCardEvents();
+    // 重新初始化 Sortable（防止 DOM 替换后实例失效）
+    this.initSortable();
   },
 
   // 绑定任务卡片事件
@@ -122,6 +177,11 @@ TaskPixel.Home = {
       "click",
       this.handleTaskClick.bind(this)
     );
+
+    // 如果处于批量模式，绑定复选框事件
+    if (this.bulkMode) {
+      this.bindCheckboxEvents();
+    }
   },
 
   // 创建任务卡片元素
@@ -129,7 +189,7 @@ TaskPixel.Home = {
     // 创建卡片容器
     const cardElement = document.createElement("div");
     cardElement.className =
-      "pixel-card p-5 flex flex-col justify-between task-card";
+      "pixel-card p-5 flex flex-col justify-between task-card relative";
     cardElement.dataset.taskId = task.id;
 
     // 确定截止日期状态
@@ -198,6 +258,13 @@ TaskPixel.Home = {
 
     // 构建卡片内容
     const cardContent = `
+            <!-- 批量选择复选框 -->
+            <div class="task-checkbox-container absolute top-2 left-2 hidden">
+                <input type="checkbox" class="task-checkbox w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2" 
+                       data-task-id="${task.id}" />
+            </div>
+      <!-- 拖拽句柄 -->
+      <!-- 不再显示拖拽句柄：使用长按触发拖拽 -->
             <div>
                 <div class="flex justify-between items-center mb-2">
                     <p class="text-xs font-bold ${dueStatusClass}">${dueStatusText}</p>
@@ -228,7 +295,48 @@ TaskPixel.Home = {
         `;
 
     cardElement.innerHTML = cardContent;
+
+    // 长按触发拖拽，不再使用句柄，因此无需阻止句柄事件传播
     return cardElement;
+  },
+
+  // 初始化 Sortable（任务列表）
+  initSortable: function () {
+    if (!window.Sortable) {
+      console.warn("SortableJS 未加载，跳过可拖拽初始化");
+      return;
+    }
+
+    const container = document.querySelector(".task-container");
+    if (!container) return;
+
+    // 若已初始化则销毁后重建（防止重复绑定）
+    if (this._sortableInstance) {
+      try {
+        this._sortableInstance.destroy();
+      } catch (e) {
+        // ignore
+      }
+      this._sortableInstance = null;
+    }
+
+    // 使用 delay（长按）触发拖拽，用户按住一段时间后即可拖动整个项
+    this._sortableInstance = Sortable.create(container, {
+      delay: 220,
+      animation: 150,
+      onEnd: (evt) => {
+        try {
+          const ordered = Array.from(container.querySelectorAll(".task-card"))
+            .map((el) => el.dataset.taskId)
+            .filter(Boolean);
+          if (ordered && ordered.length) {
+            TaskPixel.DataStore.updateTaskOrder(ordered);
+          }
+        } catch (err) {
+          console.error("保存任务顺序失败", err);
+        }
+      },
+    });
   },
 
   // 渲染空状态
@@ -264,6 +372,15 @@ TaskPixel.Home = {
   handleTaskClick: function (e) {
     console.log("Task click handler triggered", e.target);
 
+    // 检查是否点击了复选框或复选框容器，如果是则不处理
+    if (
+      e.target.classList.contains("task-checkbox") ||
+      e.target.closest(".task-checkbox-container")
+    ) {
+      console.log("Checkbox clicked, ignoring card click");
+      return;
+    }
+
     // 检查是否点击了删除按钮
     if (e.target.classList.contains("delete-task-btn")) {
       e.preventDefault();
@@ -288,8 +405,6 @@ TaskPixel.Home = {
 
   // 删除任务
   deleteTask: function (taskId) {
-    console.log("Delete task called with ID:", taskId);
-
     if (!taskId) {
       alert("任务ID无效");
       return;
@@ -297,17 +412,16 @@ TaskPixel.Home = {
 
     if (confirm("确定要删除这个任务吗？此操作不能撤销。")) {
       try {
-        console.log("Attempting to delete task:", taskId);
         const result = TaskPixel.DataStore.deleteTask(taskId);
-        console.log("Delete result:", result);
 
-        // 触发任务删除事件
-        TaskPixel.EventBus.emit("task:deleted", { taskId });
-
-        // 重新渲染任务列表
-        this.renderTasks();
-
-        console.log("Task deleted successfully");
+        if (result) {
+          // 重新渲染任务列表（EventBus 事件会在 DataStore 中触发）
+          this.renderTasks();
+          alert("任务删除成功");
+        } else {
+          console.error("Task not found:", taskId);
+          alert("删除失败：未找到指定的任务");
+        }
       } catch (error) {
         console.error("Delete task error:", error);
         alert("删除任务失败: " + error.message);
@@ -595,5 +709,189 @@ TaskPixel.Home = {
 
       this.elements.nextActionsContainer.appendChild(actionCard);
     });
+  },
+
+  // ==================== 批量操作方法 ====================
+
+  // 切换批量管理模式
+  toggleBulkMode: function () {
+    this.bulkMode = !this.bulkMode;
+
+    if (this.bulkMode) {
+      this.enterBulkMode();
+    } else {
+      this.exitBulkMode();
+    }
+  },
+
+  // 进入批量管理模式
+  enterBulkMode: function () {
+    this.bulkMode = true;
+
+    // 显示所有复选框
+    const checkboxContainers = document.querySelectorAll(
+      ".task-checkbox-container"
+    );
+    checkboxContainers.forEach((container) => {
+      container.classList.remove("hidden");
+    });
+
+    // 更新按钮文本
+    if (this.elements.toggleBulkModeBtn) {
+      this.elements.toggleBulkModeBtn.textContent = "退出批量管理";
+      this.elements.toggleBulkModeBtn.classList.remove("bg-pixel-secondary");
+      this.elements.toggleBulkModeBtn.classList.add(
+        "bg-red-500",
+        "hover:bg-red-600",
+        "text-white"
+      );
+    }
+
+    // 绑定复选框事件
+    this.bindCheckboxEvents();
+  },
+
+  // 退出批量管理模式
+  exitBulkMode: function () {
+    this.bulkMode = false;
+
+    // 隐藏所有复选框
+    const checkboxContainers = document.querySelectorAll(
+      ".task-checkbox-container"
+    );
+    checkboxContainers.forEach((container) => {
+      container.classList.add("hidden");
+    });
+
+    // 隐藏批量操作工具栏
+    if (this.elements.bulkActionsToolbar) {
+      this.elements.bulkActionsToolbar.classList.add("hidden");
+    }
+
+    // 恢复按钮样式
+    if (this.elements.toggleBulkModeBtn) {
+      this.elements.toggleBulkModeBtn.textContent = "批量管理";
+      this.elements.toggleBulkModeBtn.classList.remove(
+        "bg-red-500",
+        "hover:bg-red-600",
+        "text-white"
+      );
+      this.elements.toggleBulkModeBtn.classList.add("bg-pixel-secondary");
+    }
+
+    // 清空选择
+    this.clearSelection();
+  },
+
+  // 绑定复选框事件
+  bindCheckboxEvents: function () {
+    const checkboxes = document.querySelectorAll(".task-checkbox");
+    checkboxes.forEach((checkbox) => {
+      // 同时绑定change和click事件来确保事件处理正确
+      checkbox.addEventListener("change", (e) => {
+        this.handleTaskSelection(e);
+      });
+
+      checkbox.addEventListener("click", (e) => {
+        // 阻止点击事件冒泡到卡片
+        e.stopPropagation();
+      });
+    });
+  },
+
+  // 处理任务选择
+  handleTaskSelection: function (event) {
+    // 阻止事件冒泡，避免触发卡片点击
+    event.stopPropagation();
+
+    const checkbox = event.target;
+    const taskId = checkbox.dataset.taskId;
+
+    if (checkbox.checked) {
+      this.selectedTasks.add(taskId);
+    } else {
+      this.selectedTasks.delete(taskId);
+    }
+
+    this.updateBulkActionUI();
+  },
+
+  // 更新批量操作UI
+  updateBulkActionUI: function () {
+    const selectedCount = this.selectedTasks.size;
+
+    // 更新选中数量显示
+    if (this.elements.selectedCountDisplay) {
+      this.elements.selectedCountDisplay.textContent = `已选择 ${selectedCount} 个任务`;
+    }
+
+    // 显示或隐藏批量操作工具栏
+    if (this.elements.bulkActionsToolbar) {
+      if (selectedCount > 0) {
+        this.elements.bulkActionsToolbar.classList.remove("hidden");
+      } else {
+        this.elements.bulkActionsToolbar.classList.add("hidden");
+      }
+    }
+  },
+
+  // 清空选择
+  clearSelection: function () {
+    this.selectedTasks.clear();
+
+    // 取消所有复选框的选中状态
+    const checkboxes = document.querySelectorAll(".task-checkbox");
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+
+    this.updateBulkActionUI();
+  },
+
+  // 执行批量删除
+  performBulkDelete: function () {
+    const selectedCount = this.selectedTasks.size;
+
+    if (selectedCount === 0) {
+      alert("请先选择要删除的任务");
+      return;
+    }
+
+    // 确认删除
+    const confirmMessage = `确定要删除选中的 ${selectedCount} 个任务吗？\n\n此操作不可撤销！`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    // 执行删除
+    let successCount = 0;
+    let failureCount = 0;
+
+    this.selectedTasks.forEach((taskId) => {
+      try {
+        TaskPixel.DataStore.deleteTask(taskId);
+        successCount++;
+      } catch (error) {
+        console.error(`删除任务 ${taskId} 失败:`, error);
+        failureCount++;
+      }
+    });
+
+    // 显示结果反馈
+    if (failureCount === 0) {
+      alert(`成功删除 ${successCount} 个任务！`);
+    } else {
+      alert(`删除完成！成功: ${successCount} 个，失败: ${failureCount} 个`);
+    }
+
+    // 清空选择并退出批量模式
+    this.clearSelection();
+    this.exitBulkMode();
+
+    // 重新渲染任务列表
+    this.renderTasks();
+
+    // 触发数据更新事件
+    TaskPixel.EventBus.emit("task:deleted");
   },
 };

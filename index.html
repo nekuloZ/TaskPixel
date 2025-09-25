@@ -16,8 +16,37 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="js/tailwind-config.js"></script>
 
-    <!-- 应用样式 -->
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- 应用样式 (带缓存版本号，方便强制刷新) -->
+    <link rel="stylesheet" href="assets/css/styles.css?v=20250924">
+    <!-- inline critical pixel styles (fallback for troubleshooting) -->
+    <style>
+        /* minimal critical styles to ensure pixel look while debugging external CSS load */
+        .pixel-button {
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            background: #4f46e5;
+            color: #fff;
+            padding: .5rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 700
+        }
+
+        .pixel-border {
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            background: #fff;
+            padding: 1rem
+        }
+
+        .pixel-card {
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            background: #fff;
+            padding: 1rem
+        }
+    </style>
 </head>
 
 <body class="bg-background-light font-display text-pixel-text-color">
@@ -38,6 +67,7 @@
                     <a class="font-bold text-pixel-text-color nav-link active" href="index.html">主页</a>
                     <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
                     <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="tags_management.html">标签管理</a>
                     <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
                     <a class="text-black/70 hover:text-primary nav-link" href="data_management.html">数据管理</a>
                 </div>
@@ -64,7 +94,28 @@
                     </div>
                 </div>
                 <div class="mb-12">
-                    <h2 class="text-2xl font-bold mb-6">我的任务</h2>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">我的任务</h2>
+                        <!-- 批量操作工具栏 -->
+                        <div class="bulk-actions-toolbar hidden" id="bulkActionsToolbar">
+                            <div class="flex items-center gap-4">
+                                <span class="text-sm text-gray-600 selected-count">已选择 0 个任务</span>
+                                <button
+                                    class="pixel-button bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-2 px-4 bulk-delete-btn">
+                                    批量删除
+                                </button>
+                                <button
+                                    class="pixel-button bg-gray-500 hover:bg-gray-600 text-white text-sm font-bold py-2 px-4 cancel-selection-btn">
+                                    取消选择
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 批量选择模式切换按钮 -->
+                        <button
+                            class="pixel-button bg-pixel-secondary text-pixel-text-color text-sm font-bold py-2 px-4 toggle-bulk-mode-btn">
+                            批量管理
+                        </button>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 task-container">
                         <!-- 任务卡片将通过JavaScript动态生成 -->
                     </div>
@@ -80,6 +131,8 @@
     </div>
 
     <!-- 应用脚本 -->
+    <!-- SortableJS for drag-and-drop ordering (loaded before page scripts) -->
+    <script src="https://unpkg.com/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="js/core.js"></script>
     <script src="js/dataStoreAdapter.js"></script>
     <script src="js/aiAssist.js"></script>

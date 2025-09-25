@@ -104,6 +104,8 @@ TaskPixel.TaskDetail = {
       // 尽管缺少元素，仍然继续加载
       this.loadTaskData();
       this.bindEvents();
+      // 初始化 Sortable（目标与子步骤）
+      this.initSortables();
 
       console.log("TaskDetail init: 任务详情页功能模块初始化完成");
     } catch (error) {
@@ -230,6 +232,19 @@ TaskPixel.TaskDetail = {
       if (progressText) {
         progressText.textContent = `${task.progress || 0}% 完成`;
       }
+
+      // 更新进度条内部标签（如果存在）
+      const progressLabel = document.querySelector(".progress-label");
+      if (progressLabel) {
+        const percentVal = task.progress || 0;
+        progressLabel.textContent = `${percentVal}%`;
+        // 居中显示样式通过CSS处理，使用类切换在小宽度下隐藏文字
+        if (percentVal < 10) {
+          progressLabel.classList.add("hidden-small");
+        } else {
+          progressLabel.classList.remove("hidden-small");
+        }
+      }
     }
 
     // 设置任务状态
@@ -334,9 +349,12 @@ TaskPixel.TaskDetail = {
       this.renderEmptyGoalsState();
       return;
     }
+    // 确保按 order 排序后再渲染
+    const sortedGoals = (goals || []).slice();
+    sortedGoals.sort((a, b) => (a.order || 0) - (b.order || 0));
 
     // 渲染每个目标
-    goals.forEach((goal) => {
+    sortedGoals.forEach((goal) => {
       const goalElement = this.createGoalElement(goal);
       this.elements.goalsContainer.appendChild(goalElement);
     });
@@ -351,6 +369,185 @@ TaskPixel.TaskDetail = {
         `;
 
     this.elements.goalsContainer.appendChild(addGoalButton);
+
+    // 每次渲染后（目标和子步骤都渲染完成），重新初始化 goals 与子步骤的 Sortable
+    this.initSortables();
+  },
+
+  // 初始化 Sortable 实例（goals 列表和子步骤）
+  initSortables: function () {
+    if (!window.Sortable) {
+      console.warn("SortableJS 未加载，跳过目标/子步骤拖拽初始化");
+      return;
+    }
+
+    // goals 容器整体（用于重新排序目标）
+    const goalsContainer = document.querySelector(".goals-container");
+    if (goalsContainer) {
+      if (this._goalsSortable) {
+        try {
+          this._goalsSortable.destroy();
+        } catch (e) {}
+        this._goalsSortable = null;
+      }
+
+      // 使用长按（delay）触发拖拽，避免显示额外的句柄元素
+      this._goalsSortable = Sortable.create(goalsContainer, {
+        delay: 200,
+        animation: 150,
+        onEnd: (evt) => {
+          try {
+            const ordered = Array.from(
+              goalsContainer.querySelectorAll("[data-goal-id]")
+            )
+              .map((el) => el.dataset.goalId)
+              .filter(Boolean);
+            if (ordered && ordered.length) {
+              TaskPixel.DataStore.updateGoalOrder(this.currentTaskId, ordered);
+            }
+          } catch (err) {
+            console.error("保存目标顺序失败", err);
+          }
+        },
+      });
+    }
+
+    // 为每个 goal 的 substeps 容器创建 Sortable（见 attachSubstepsSortables）
+    this.attachSubstepsSortables();
+    // 绑定句柄事件，防止冒泡
+    this.bindDragHandleEvents();
+  },
+
+  // 为已渲染的每个子步骤容器绑定 Sortable（在 renderGoals 后调用）
+  attachSubstepsSortables: function () {
+    if (!window.Sortable) return;
+
+    // 销毁之前可能存在的 substeps sortable 实例
+    if (this._substepsSortables) {
+      this._substepsSortables.forEach((inst) => {
+        try {
+          inst.destroy();
+        } catch (e) {}
+      });
+    }
+    this._substepsSortables = [];
+
+    const subContainers = document.querySelectorAll(".substeps-container");
+    subContainers.forEach((container) => {
+      const goalEl = container.closest("[data-goal-id]");
+      const goalId = goalEl ? goalEl.dataset.goalId : null;
+      if (!goalId) return;
+
+      const sortable = Sortable.create(container, {
+        // 用长按触发子步骤拖拽
+        delay: 180,
+        animation: 120,
+        onEnd: (evt) => {
+          try {
+            const ordered = Array.from(
+              container.querySelectorAll("[data-substep-id]")
+            )
+              .map((el) => el.dataset.substepId)
+              .filter(Boolean);
+            if (ordered && ordered.length) {
+              TaskPixel.DataStore.updateSubstepOrder(
+                this.currentTaskId,
+                goalId,
+                ordered
+              );
+            }
+          } catch (err) {
+            console.error("保存子步骤顺序失败", err);
+          }
+        },
+      });
+
+      this._substepsSortables.push(sortable);
+    });
+    // 句柄不再使用（改为长按），无需额外事件绑定
+  },
+
+  // 绑定所有拖拽句柄事件，防止冒泡触发其他点击行为
+  bindDragHandleEvents: function () {
+    const container = document.querySelector(".goals-container");
+    if (!container) return;
+    const handles = container.querySelectorAll(
+      ".drag-handle, [data-drag-handle]"
+    );
+    // (已移除调试日志)
+    handles.forEach((h) => {
+      // 防止句柄点击冒泡到目标或卡片上的按钮
+      h.addEventListener("mousedown", function (e) {
+        e.stopPropagation();
+      });
+      h.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+      // 可选：阻止双击影响（如果应用中有双击编辑）
+      h.addEventListener("dblclick", function (e) {
+        e.stopPropagation();
+      });
+    });
+  },
+
+  // 用户可通过按钮将目标上移/下移（键盘可访问）。direction: 'up' | 'down'
+  moveGoal: function (goalId, direction) {
+    try {
+      const container = document.querySelector(".goals-container");
+      if (!container) return;
+      const items = Array.from(container.querySelectorAll("[data-goal-id]"))
+        .map((el) => el.dataset.goalId)
+        .filter(Boolean);
+      const idx = items.indexOf(goalId);
+      if (idx === -1) return;
+      if (direction === "up" && idx > 0) {
+        const tmp = items[idx - 1];
+        items[idx - 1] = items[idx];
+        items[idx] = tmp;
+      } else if (direction === "down" && idx < items.length - 1) {
+        const tmp = items[idx + 1];
+        items[idx + 1] = items[idx];
+        items[idx] = tmp;
+      } else {
+        return;
+      }
+      // persist and re-render
+      TaskPixel.DataStore.updateGoalOrder(this.currentTaskId, items);
+      // reload data to reflect new ordering
+      this.loadTaskData();
+    } catch (e) {
+      console.error("moveGoal error", e);
+    }
+  },
+
+  // 将子步骤上移/下移
+  moveSubstep: function (goalId, substepId, direction) {
+    try {
+      const container = document.querySelector(
+        `[data-goal-id="${goalId}"] .substeps-container`
+      );
+      if (!container) return;
+      const items = Array.from(container.querySelectorAll("[data-substep-id]"))
+        .map((el) => el.dataset.substepId)
+        .filter(Boolean);
+      const idx = items.indexOf(substepId);
+      if (idx === -1) return;
+      if (direction === "up" && idx > 0) {
+        const tmp = items[idx - 1];
+        items[idx - 1] = items[idx];
+        items[idx] = tmp;
+      } else if (direction === "down" && idx < items.length - 1) {
+        const tmp = items[idx + 1];
+        items[idx + 1] = items[idx];
+        items[idx] = tmp;
+      } else {
+        return;
+      }
+      TaskPixel.DataStore.updateSubstepOrder(this.currentTaskId, goalId, items);
+      this.loadTaskData();
+    } catch (e) {
+      console.error("moveSubstep error", e);
+    }
   },
 
   // 创建目标元素
@@ -372,7 +569,16 @@ TaskPixel.TaskDetail = {
 
     // 构建目标HTML
     goalElement.innerHTML = `
-            <div class="flex items-start justify-between gap-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <!-- 键盘友好的上/下移动按钮 -->
+          <button class="pixel-button-sm move-goal-up" data-goal-id="${
+            goal.id
+          }" title="上移目标">↑</button>
+          <button class="pixel-button-sm move-goal-down" data-goal-id="${
+            goal.id
+          }" title="下移目标">↓</button>
+        </div>
                 <div>
                     <h4 class="font-display text-lg text-text-primary">${
                       goal.title
@@ -442,34 +648,50 @@ TaskPixel.TaskDetail = {
             }
             
             <div class="mt-4 space-y-3 pl-6 border-l-4 border-dashed border-border-color ml-3 substeps-container">
-                ${goal.substeps
-                  .map(
-                    (substep) => `
-                    <div class="flex items-center gap-x-4">
-                        <input type="checkbox" class="substep-checkbox" data-substep-id="${
-                          substep.id
-                        }" data-goal-id="${goal.id}" ${
-                      substep.completed ? "checked" : ""
-                    }>
-                        <span class="text-text-primary text-xl">${
-                          substep.content
-                        }</span>
-                        <div class="ml-auto flex gap-2">
-                            <button class="edit-substep-button text-accent-yellow" data-substep-id="${
-                              substep.id
-                            }" data-goal-id="${goal.id}">
-                                <span class="material-symbols-outlined text-sm">edit</span>
-                            </button>
-                            <button class="delete-substep-button text-accent-red" data-substep-id="${
-                              substep.id
-                            }" data-goal-id="${goal.id}">
-                                <span class="material-symbols-outlined text-sm">delete</span>
-                            </button>
-                        </div>
-                    </div>
-                `
-                  )
-                  .join("")}
+                ${(() => {
+                  const subs = (goal.substeps || []).slice();
+                  subs.sort((a, b) => (a.order || 0) - (b.order || 0));
+                  return subs
+                    .map(
+                      (substep) => `
+                      <div class="flex items-center gap-x-4" data-substep-id="${
+                        substep.id
+                      }" data-goal-id="${goal.id}">
+                          <input type="checkbox" class="substep-checkbox" data-substep-id="${
+                            substep.id
+                          }" data-goal-id="${goal.id}" ${
+                        substep.completed ? "checked" : ""
+                      }>
+                          <span class="text-text-primary text-xl">${
+                            substep.content
+                          }</span>
+                          <div class="ml-auto flex gap-2 items-center">
+                              <button class="pixel-button-flat bg-gray-200 text-black px-2 py-1 text-xs move-substep-up" data-substep-id="${
+                                substep.id
+                              }" data-goal-id="${
+                        goal.id
+                      }" title="上移子步骤">↑</button>
+                              <button class="pixel-button-flat bg-gray-200 text-black px-2 py-1 text-xs move-substep-down" data-substep-id="${
+                                substep.id
+                              }" data-goal-id="${
+                        goal.id
+                      }" title="下移子步骤">↓</button>
+                              <button class="edit-substep-button text-accent-yellow" data-substep-id="${
+                                substep.id
+                              }" data-goal-id="${goal.id}">
+                                  <span class="material-symbols-outlined text-sm">edit</span>
+                              </button>
+                              <button class="delete-substep-button text-accent-red" data-substep-id="${
+                                substep.id
+                              }" data-goal-id="${goal.id}">
+                                  <span class="material-symbols-outlined text-sm">delete</span>
+                              </button>
+                          </div>
+                      </div>
+                  `
+                    )
+                    .join("");
+                })()}
             </div>
         `;
 
@@ -663,6 +885,39 @@ TaskPixel.TaskDetail = {
 
       if (substepId && goalId) {
         this.confirmDeleteSubstep(goalId, substepId);
+      }
+      return;
+    }
+
+    // 目标上移/下移
+    if (
+      e.target.closest(".move-goal-up") ||
+      e.target.closest(".move-goal-down")
+    ) {
+      const btn =
+        e.target.closest(".move-goal-up") ||
+        e.target.closest(".move-goal-down");
+      const goalId = btn.dataset.goalId;
+      const dir = btn.classList.contains("move-goal-up") ? "up" : "down";
+      if (goalId) {
+        this.moveGoal(goalId, dir);
+      }
+      return;
+    }
+
+    // 子步骤上移/下移
+    if (
+      e.target.closest(".move-substep-up") ||
+      e.target.closest(".move-substep-down")
+    ) {
+      const btn =
+        e.target.closest(".move-substep-up") ||
+        e.target.closest(".move-substep-down");
+      const substepId = btn.dataset.substepId;
+      const goalId = btn.dataset.goalId;
+      const dir = btn.classList.contains("move-substep-up") ? "up" : "down";
+      if (substepId && goalId) {
+        this.moveSubstep(goalId, substepId, dir);
       }
       return;
     }

@@ -43,10 +43,10 @@ TaskPixel.TaskCreation = {
   bindEvents: function () {
     // 确保元素存在再绑定事件
     if (this.elements.createTaskButton) {
-      this.elements.createTaskButton.addEventListener(
-        "click",
-        this.openDialog.bind(this)
-      );
+      this.elements.createTaskButton.addEventListener("click", () => {
+        console.log("点击新任务按钮");
+        this.createNewTask(); // 使用专门的创建方法
+      });
     }
 
     if (this.elements.taskForm) {
@@ -129,18 +129,41 @@ TaskPixel.TaskCreation = {
     }
   },
 
+  // 公共方法：创建新任务
+  createNewTask: function () {
+    console.log("调用创建新任务方法");
+    this.openDialog(); // 明确调用无参数版本
+  },
+
+  // 公共方法：编辑任务
+  editTask: function (taskId) {
+    console.log("调用编辑任务方法, taskId:", taskId);
+    this.openDialog(taskId);
+  },
+
   // 打开任务创建对话框
   openDialog: function (taskId = null) {
-    // 设置编辑模式
-    this.currentEditingTaskId = taskId;
+    console.log("打开对话框, taskId:", taskId);
+
+    // 首先重置编辑状态，确保从干净状态开始
+    this.currentEditingTaskId = null;
+
+    // 然后设置编辑模式（如果有taskId）
+    if (taskId) {
+      this.currentEditingTaskId = taskId;
+    }
+
+    console.log("设置 currentEditingTaskId:", this.currentEditingTaskId);
 
     // 确保对话框HTML已创建
     this.createDialogHTML();
 
     // 如果是编辑模式，填充现有数据
     if (taskId) {
+      console.log("编辑模式，填充数据");
       this.fillEditData(taskId);
     } else {
+      console.log("创建模式，清除表单");
       this.clearForm();
     }
 
@@ -178,8 +201,15 @@ TaskPixel.TaskCreation = {
 
   // 清空表单
   clearForm: function () {
+    console.log("清空表单");
+
     this.elements.taskTitleInput.value = "";
     this.elements.taskDescriptionInput.value = "";
+
+    // 确保重置编辑状态
+    this.currentEditingTaskId = null;
+
+    console.log("清空后 currentEditingTaskId:", this.currentEditingTaskId);
 
     // 重置对话框标题和按钮文本
     const dialogTitle = this.elements.taskDialog.querySelector("h2");
@@ -197,6 +227,8 @@ TaskPixel.TaskCreation = {
 
   // 关闭任务创建对话框
   closeDialog: function () {
+    console.log("关闭对话框");
+
     if (this.elements.taskDialog) {
       this.elements.taskDialog.classList.add("hidden");
       this.elements.taskDialog.classList.remove("active");
@@ -209,6 +241,8 @@ TaskPixel.TaskCreation = {
       // 清除编辑状态
       this.currentEditingTaskId = null;
 
+      console.log("关闭后 currentEditingTaskId:", this.currentEditingTaskId);
+
       // 重置对话框标题和按钮文本
       this.clearForm();
     }
@@ -218,11 +252,16 @@ TaskPixel.TaskCreation = {
   handleSubmit: function (e) {
     e.preventDefault();
 
+    console.log("表单提交开始");
+    console.log("当前编辑任务ID:", this.currentEditingTaskId);
+
     // 获取表单数据
     const taskData = {
       title: this.elements.taskTitleInput.value.trim(),
       description: this.elements.taskDescriptionInput.value.trim(),
     };
+
+    console.log("表单数据:", taskData);
 
     // 表单验证
     if (!this.validateForm(taskData)) {
@@ -231,8 +270,10 @@ TaskPixel.TaskCreation = {
 
     // 根据模式创建或更新任务
     if (this.currentEditingTaskId) {
+      console.log("执行更新任务:", this.currentEditingTaskId);
       this.updateTask(this.currentEditingTaskId, taskData);
     } else {
+      console.log("执行创建任务");
       this.createTask(taskData);
     }
   },
@@ -251,6 +292,25 @@ TaskPixel.TaskCreation = {
   // 创建任务
   createTask: function (taskData) {
     try {
+      console.log("开始创建任务:", taskData);
+
+      // 检查任务数据是否有效
+      if (!taskData || !taskData.title) {
+        console.error("无效的任务数据");
+        alert("任务数据无效，请检查输入");
+        return;
+      }
+
+      // 检查 DataStore 是否可用
+      if (
+        !TaskPixel.DataStore ||
+        typeof TaskPixel.DataStore.addTask !== "function"
+      ) {
+        console.error("DataStore.addTask 不可用");
+        alert("数据存储模块不可用，请刷新页面重试");
+        return;
+      }
+
       // 调用数据存储模块创建任务
       const taskId = TaskPixel.DataStore.addTask(taskData);
 
@@ -264,7 +324,10 @@ TaskPixel.TaskCreation = {
         this.showSuccessMessage("任务创建成功");
 
         // 刷新任务列表（如果在主页）
-        if (TaskPixel.Navigation.currentPage === "home") {
+        if (
+          TaskPixel.Navigation &&
+          TaskPixel.Navigation.currentPage === "home"
+        ) {
           if (
             typeof TaskPixel.Home !== "undefined" &&
             typeof TaskPixel.Home.renderTasks === "function"
@@ -273,7 +336,12 @@ TaskPixel.TaskCreation = {
           }
         } else {
           // 如果不在主页，则导航到主页
-          TaskPixel.Navigation.navigateTo("home");
+          if (
+            TaskPixel.Navigation &&
+            typeof TaskPixel.Navigation.navigateTo === "function"
+          ) {
+            TaskPixel.Navigation.navigateTo("home");
+          }
         }
       } else {
         console.error("任务创建失败");
@@ -288,6 +356,25 @@ TaskPixel.TaskCreation = {
   // 更新任务
   updateTask: function (taskId, taskData) {
     try {
+      console.log("开始更新任务:", taskId, taskData);
+
+      // 检查 taskId 是否有效
+      if (!taskId) {
+        console.error("无效的任务ID");
+        alert("无效的任务ID，请重试");
+        return;
+      }
+
+      // 检查 DataStore 是否可用
+      if (
+        !TaskPixel.DataStore ||
+        typeof TaskPixel.DataStore.updateTask !== "function"
+      ) {
+        console.error("DataStore.updateTask 不可用");
+        alert("数据存储模块不可用，请刷新页面重试");
+        return;
+      }
+
       // 调用数据存储模块更新任务
       const success = TaskPixel.DataStore.updateTask(taskId, taskData);
 
@@ -301,10 +388,18 @@ TaskPixel.TaskCreation = {
         this.showSuccessMessage("任务更新成功");
 
         // 触发任务更新事件
-        TaskPixel.EventBus.emit("task:updated", { taskId });
+        if (
+          TaskPixel.EventBus &&
+          typeof TaskPixel.EventBus.emit === "function"
+        ) {
+          TaskPixel.EventBus.emit("task:updated", { taskId });
+        }
 
         // 刷新任务列表（如果在主页）
-        if (TaskPixel.Navigation.currentPage === "home") {
+        if (
+          TaskPixel.Navigation &&
+          TaskPixel.Navigation.currentPage === "home"
+        ) {
           if (
             typeof TaskPixel.Home !== "undefined" &&
             typeof TaskPixel.Home.renderTasks === "function"

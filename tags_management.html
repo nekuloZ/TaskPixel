@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>TaskPixel - 标签管理</title>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Press+Start+2P&amp;family=VT323"
+        onload="this.rel='stylesheet'" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link href="assets/css/styles.css" rel="stylesheet" />
+    <link href="assets/css/tags.css" rel="stylesheet" />
+</head>
+
+<body class="bg-background-light font-display text-pixel-text-color">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="flex h-full grow flex-col">
+            <!-- Navigation Header -->
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
+                <div class="flex items-center gap-4">
+                    <svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd"
+                            d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z"
+                            fill="currentColor" fill-rule="evenodd"></path>
+                    </svg>
+                    <h2 class="text-xl font-bold text-pixel-text-color">TaskPixel</h2>
+                </div>
+                <div class="hidden md:flex items-center gap-8 text-sm">
+                    <a class="text-black/70 hover:text-primary nav-link" href="index.html">主页</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
+                    <a class="font-bold text-pixel-text-color nav-link active" href="tags_management.html">标签管理</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="data_management.html">数据管理</a>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div class="mx-auto max-w-4xl space-y-8">
+                    <!-- Tag Management Section -->
+                    <div class="pixel-border bg-gray-100 p-6">
+                        <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                            <div>
+                                <h2 class="font-display text-2xl text-black">标签管理</h2>
+                                <p class="text-gray-600 text-xl mt-2">点击选择，双击编辑，悬停删除。</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <p class="text-gray-600 text-xl whitespace-nowrap">总计: <span
+                                        id="total-tags-count">0</span></p>
+                                <button id="new-tag-btn" class="pixel-button h-12 px-4 text-lg whitespace-nowrap">
+                                    <span class="material-symbols-outlined mr-2">add</span>新建标签
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-6 flex flex-col sm:flex-row gap-4">
+                            <div class="flex-1 relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-2xl text-gray-600">search</span>
+                                <input id="tag-search" class="pixel-input w-full pl-12" placeholder="搜索标签..."
+                                    type="text" />
+                            </div>
+                            <select id="tag-sort" class="pixel-select">
+                                <option value="name">按名称排序</option>
+                                <option value="usage">按使用频率</option>
+                                <option value="created">按创建时间</option>
+                            </select>
+                        </div>
+                        <!-- 动态标签容器 -->
+                        <div id="tags-container" class="flex flex-wrap gap-4">
+                            <!-- 标签将通过JavaScript动态生成 -->
+                        </div>
+
+                        <!-- 空状态 -->
+                        <div id="empty-tags" class="text-center py-12 hidden">
+                            <div class="text-6xl mb-4">🏷️</div>
+                            <h3 class="text-xl font-bold mb-2">还没有标签</h3>
+                            <p class="text-gray-600 mb-4">创建你的第一个标签来开始分类管理目标</p>
+                            <button class="pixel-button bg-primary text-white create-first-tag">创建标签</button>
+                        </div>
+                    </div>
+
+                    <!-- Selected Results Section -->
+                    <div class="bg-gray-100 p-6 pixel-border">
+                        <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+                            <div>
+                                <h2 class="font-display text-2xl text-black">筛选结果</h2>
+                                <div class="text-gray-600 text-xl mt-2">
+                                    <span id="filter-description">显示标记为：</span>
+                                    <div id="selected-tags-display" class="inline-flex flex-wrap gap-2 mt-2">
+                                        <span class="text-gray-500">未选择任何标签</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <p class="text-gray-600 text-xl whitespace-nowrap">结果: <span
+                                        id="filter-results-count">0</span></p>
+                                <button id="clear-filter" class="pixel-button bg-gray-500 text-white">清除筛选</button>
+                            </div>
+                        </div>
+                        <div x-data="{ activeTab: 'tasks' }">
+                            <div class="flex items-end">
+                                <button :class="{ 'active': activeTab === 'tasks' }" @click="activeTab = 'tasks'"
+                                    class="pixel-tab active">任务</button>
+                                <button :class="{ 'active': activeTab === 'goals' }" @click="activeTab = 'goals'"
+                                    class="pixel-tab">目标</button>
+                            </div>
+                            <div class="border-4 border-black bg-white p-4">
+                                <div x-show="activeTab === 'tasks'" id="filtered-tasks-container">
+                                    <p class="text-gray-500 text-center py-4">请选择标签进行筛选</p>
+                                    <!-- <ul class="space-y-3">
+                                        <li
+                                            class="flex justify-between items-center py-2 border-b-2 border-dashed border-black/30">
+                                            <div class="flex items-center gap-4">
+                                                <span
+                                                    class="material-symbols-outlined text-3xl text-green-600">check_circle</span>
+                                                <a href="task_detail.html"
+                                                    class="text-xl text-black hover:text-blue-600 transition-colors duration-200">重构认证模块</a>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <div
+                                                    class="pixel-tag shadow-tag-shadow-orange bg-white !text-base !cursor-default !py-1 !px-2">
+                                                    <span class="text-tag-orange">#开发</span>
+                                                </div>
+                                                <div
+                                                    class="pixel-tag shadow-tag-shadow-blue bg-white !text-base !cursor-default !py-1 !px-2">
+                                                    <span class="text-tag-blue">#工作</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li
+                                            class="flex justify-between items-center py-2 border-b-2 border-dashed border-black/30">
+                                            <div class="flex items-center gap-4">
+                                                <span
+                                                    class="material-symbols-outlined text-3xl text-gray-600">radio_button_unchecked</span>
+                                                <a href="task_detail.html"
+                                                    class="text-xl text-black hover:text-blue-600 transition-colors duration-200">制定Q3营销计划</a>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <div
+                                                    class="pixel-tag shadow-tag-shadow-lime bg-white !text-base !cursor-default !py-1 !px-2">
+                                                    <span class="text-tag-lime">#营销</span>
+                                                </div>
+                                                <div
+                                                    class="pixel-tag shadow-tag-shadow-blue bg-white !text-base !cursor-default !py-1 !px-2">
+                                                    <span class="text-tag-blue">#工作</span>
+                                                </div>
+                                            </div>
+                                        </li> -->
+                                </div>
+                                <div class="space-y-2" x-show="activeTab === 'goals'" id="filtered-goals-container">
+                                    <p class="text-gray-500 text-center py-4">请选择标签进行筛选</p>
+                                    <!-- <div class="space-y-2">
+                                    <details class="group" open="">
+                                        <summary
+                                            class="flex justify-between items-center py-2 border-b-2 border-dashed border-black/30 cursor-pointer">
+                                            <div class="flex items-center gap-4">
+                                                <span
+                                                    class="material-symbols-outlined text-yellow-600 text-3xl">rocket_launch</span>
+                                                <p class="text-xl text-black">启动项目凤凰</p>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="pixel-tag shadow-tag-shadow-pink bg-white !text-base !py-1 !px-2">
+                                                        <span class="text-tag-pink">#项目凤凰</span>
+                                                    </span>
+                                                    <span
+                                                        class="pixel-tag shadow-tag-shadow-blue bg-white !text-base !py-1 !px-2">
+                                                        <span class="text-tag-blue">#工作</span>
+                                                    </span>
+                                                </div>
+                                                <span
+                                                    class="material-symbols-outlined text-3xl text-gray-600 transition-transform duration-200 expand-icon">chevron_right</span>
+                                            </div>
+                                        </summary>
+                                        <div
+                                            class="pl-12 pt-4 pb-2 bg-gray-50 -mx-4 px-8 mt-2 border-y-2 border-dashed border-black/30">
+                                            <ul class="space-y-3">
+                                                <li class="flex items-center gap-3">
+                                                    <span
+                                                        class="material-symbols-outlined text-2xl text-green-600">check_circle</span>
+                                                    <p class="text-lg text-black">完善后端API</p>
+                                                </li>
+                                                <li class="flex items-center gap-3">
+                                                    <span
+                                                        class="material-symbols-outlined text-2xl text-gray-600">radio_button_unchecked</span>
+                                                    <p class="text-lg text-black">部署到测试服务器</p>
+                                                </li>
+                                                <li class="flex items-center gap-3">
+                                                    <span
+                                                        class="material-symbols-outlined text-2xl text-gray-600">radio_button_unchecked</span>
+                                                    <p class="text-lg text-black">运行最终QA测试</p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </details>
+                                    <details class="group" open="">
+                                        <summary
+                                            class="flex justify-between items-center py-2 border-b-2 border-dashed border-black/30 cursor-pointer">
+                                            <div class="flex items-center gap-4">
+                                                <span
+                                                    class="material-symbols-outlined text-yellow-600 text-3xl">rocket_launch</span>
+                                                <p class="text-xl text-black">开发新功能</p>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="pixel-tag shadow-tag-shadow-orange bg-white !text-base !py-1 !px-2">
+                                                        <span class="text-tag-orange">#开发</span>
+                                                    </span>
+                                                    <span
+                                                        class="pixel-tag shadow-tag-shadow-blue bg-white !text-base !py-1 !px-2">
+                                                        <span class="text-tag-blue">#工作</span>
+                                                    </span>
+                                                </div>
+                                                <span
+                                                    class="material-symbols-outlined text-3xl text-gray-600 transition-transform duration-200 expand-icon">chevron_right</span>
+                                            </div>
+                                        </summary>
+                                        <div
+                                            class="pl-12 pt-4 pb-2 bg-gray-50 -mx-4 px-8 mt-2 border-y-2 border-dashed border-black/30">
+                                            <ul class="space-y-3">
+                                                <li class="flex items-center gap-3">
+                                                    <span
+                                                        class="material-symbols-outlined text-2xl text-green-600">check_circle</span>
+                                                    <p class="text-lg text-black">创建用户故事</p>
+                                                </li>
+                                                <li class="flex items-center gap-3">
+                                                    <span
+                                                        class="material-symbols-outlined text-2xl text-green-600">check_circle</span>
+                                                    <p class="text-lg text-black">设计UI原型</p>
+                                                </li>
+                                                <li class="flex items-center gap-3">
+                                                    <span
+                                                        class="material-symbols-outlined text-2xl text-gray-600">radio_button_unchecked</span>
+                                                    <p class="text-lg text-black">实现前端逻辑</p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </details> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <!-- 应用脚本 -->
+        <script src="js/core.js"></script>
+        <script src="js/taskCreation.js"></script>
+        <script src="js/tagManager.js"></script>
+        <script src="js/tagDisplay.js"></script>
+        <script src="js/tagSelector.js"></script>
+        <script src="js/tagsManagement.js"></script>
+        <script src="js/debugTask.js"></script>
+        <script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <script>
+            // 初始化应用
+            document.addEventListener('DOMContentLoaded', function () {
+                TaskPixel.init();
+                TaskPixel.TagManager.init();
+                TaskPixel.TaskCreation.init();
+
+                TaskPixel.TagsManagement.init();
+            });
+        </script>
+</body>
+
+</html>

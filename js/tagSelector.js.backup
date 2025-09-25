@@ -1,0 +1,226 @@
+/**
+ * TaskPixel 标签选择器组件
+ * 提供可复用的标签选择界面
+ */
+
+TaskPixel.TagSelector = {
+  // 创建标签选择器
+  create: function (selectedTags = [], options = {}) {
+    const container = document.createElement("div");
+    container.className = "tag-selector";
+
+    const allTags = TaskPixel.TagManager.getAllTags();
+
+    container.innerHTML = `
+      <div class="tag-selector-header flex justify-between items-center mb-3">
+        <label class="font-display text-lg">选择标签</label>
+        <button class="create-tag-btn pixel-button-sm bg-primary text-white">
+          <span class="material-symbols-outlined text-sm">add</span>
+          新建标签
+        </button>
+      </div>
+      <div class="mb-3">
+        <input type="text" class="tag-search pixel-input w-full" placeholder="搜索标签..." id="tag-search-input">
+      </div>
+      <div class="tag-list flex flex-wrap gap-2 mb-3">
+        ${allTags
+          .map(
+            (tag) => `
+          <label class="tag-option flex items-center cursor-pointer">
+            <input type="checkbox" value="${tag.id}" 
+                   ${selectedTags.includes(tag.id) ? "checked" : ""} 
+                   class="hidden tag-checkbox">
+            <span class="tag-badge pixel-border px-3 py-1 text-sm font-bold font-display transition-all
+                         ${
+                           selectedTags.includes(tag.id)
+                             ? "bg-pixel-accent shadow-pixel-glow"
+                             : "bg-white hover:bg-gray-50"
+                         }"
+                  style="border-color: ${tag.color}; color: ${tag.color}; 
+                         ${
+                           selectedTags.includes(tag.id)
+                             ? `box-shadow: 0 0 10px ${tag.color}40;`
+                             : ""
+                         }">
+              ${tag.display_text}
+            </span>
+          </label>
+        `
+          )
+          .join("")}
+      </div>
+      ${
+        allTags.length === 0
+          ? '<p class="text-gray-500 text-center py-4">暂无标签，点击"新建标签"创建第一个标签</p>'
+          : ""
+      }
+    `;
+
+    // 绑定事件
+    this.bindEvents(container);
+
+    return container;
+  },
+
+  // 绑定事件
+  bindEvents: function (container) {
+    // 标签选择事件
+    container.addEventListener("change", (e) => {
+      if (e.target.classList.contains("tag-checkbox")) {
+        const tagBadge = e.target.nextElementSibling;
+        if (e.target.checked) {
+          tagBadge.classList.add("bg-pixel-accent", "shadow-pixel-glow");
+          tagBadge.classList.remove("bg-white", "hover:bg-gray-50");
+          const tag = TaskPixel.TagManager.getAllTags().find(
+            (t) => t.id === e.target.value
+          );
+          if (tag) {
+            tagBadge.style.boxShadow = `0 0 10px ${tag.color}40`;
+          }
+        } else {
+          tagBadge.classList.remove("bg-pixel-accent", "shadow-pixel-glow");
+          tagBadge.classList.add("bg-white", "hover:bg-gray-50");
+          tagBadge.style.boxShadow = "";
+        }
+      }
+    });
+
+    // 标签搜索功能
+    const searchInput = container.querySelector("#tag-search-input");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        this.filterTags(container, e.target.value);
+      });
+    }
+
+    // 新建标签按钮
+    const createBtn = container.querySelector(".create-tag-btn");
+    if (createBtn) {
+      createBtn.addEventListener("click", () => {
+        this.showCreateTagDialog((newTag) => {
+          // 刷新标签选择器
+          const selectedTags = this.getSelectedTags(container);
+          const newContainer = this.create(selectedTags);
+          container.parentNode.replaceChild(newContainer, container);
+        });
+      });
+    }
+  },
+
+  // 筛选标签
+  filterTags: function (container, query) {
+    const tagOptions = container.querySelectorAll(".tag-option");
+    const searchTerm = query.toLowerCase().replace(/^#/, "");
+
+    tagOptions.forEach((option) => {
+      const tagBadge = option.querySelector(".tag-badge");
+      const tagText = tagBadge.textContent.toLowerCase().replace(/^#/, "");
+
+      if (tagText.includes(searchTerm)) {
+        option.style.display = "flex";
+      } else {
+        option.style.display = "none";
+      }
+    });
+  },
+
+  // 获取选中的标签
+  getSelectedTags: function (container) {
+    const checkboxes = container.querySelectorAll(".tag-checkbox:checked");
+    return Array.from(checkboxes).map((cb) => cb.value);
+  },
+
+  // 显示创建标签对话框
+  showCreateTagDialog: function (onSuccess) {
+    const dialog = document.createElement("div");
+    dialog.className =
+      "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50";
+
+    dialog.innerHTML = `
+      <div class="pixel-border bg-white p-6 w-full max-w-md">
+        <h2 class="text-2xl font-display mb-6">创建新标签</h2>
+        <form id="create-tag-form">
+          <div class="mb-4">
+            <label class="block font-display text-lg mb-2">标签名称</label>
+            <input type="text" id="tag-name" class="w-full pixel-input" required 
+                   placeholder="例如: 前端开发 或 #学习">
+            <p class="text-sm text-gray-600 mt-1">输入标签名称，可以包含或不包含 # 前缀</p>
+          </div>
+          <div class="mb-4">
+            <label class="block font-display text-lg mb-2">标签颜色</label>
+            <div class="color-picker flex flex-wrap gap-2">
+              ${TaskPixel.TagManager.defaultColors
+                .map(
+                  (color) => `
+                <button type="button" class="color-option w-8 h-8 pixel-border border-2 border-gray-300 
+                                           hover:shadow-pixel-glow transition-all"
+                        style="background-color: ${color}; box-shadow: inset 0 0 10px ${color}80;" 
+                        data-color="${color}"></button>
+              `
+                )
+                .join("")}
+            </div>
+            <input type="hidden" id="tag-color" value="${
+              TaskPixel.TagManager.defaultColors[0]
+            }">
+          </div>
+          <div class="mb-6">
+            <label class="block font-display text-lg mb-2">描述（可选）</label>
+            <textarea id="tag-description" class="w-full h-20 pixel-input" placeholder="输入标签描述"></textarea>
+          </div>
+          <div class="flex justify-end gap-4">
+            <button type="button" class="cancel-btn pixel-button">取消</button>
+            <button type="submit" class="pixel-button bg-primary text-white">创建</button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    document.body.appendChild(dialog);
+
+    // 颜色选择
+    dialog.addEventListener("click", (e) => {
+      if (e.target.classList.contains("color-option")) {
+        dialog
+          .querySelectorAll(".color-option")
+          .forEach((btn) => btn.classList.remove("border-gray-800"));
+        e.target.classList.add("border-gray-800");
+        document.getElementById("tag-color").value = e.target.dataset.color;
+      }
+    });
+
+    // 表单提交
+    dialog.querySelector("#create-tag-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const tagData = {
+        name: document.getElementById("tag-name").value.trim(),
+        color: document.getElementById("tag-color").value,
+        description: document.getElementById("tag-description").value.trim(),
+      };
+
+      const result = TaskPixel.TagManager.createTag(tagData);
+      if (result.success) {
+        document.body.removeChild(dialog);
+        if (onSuccess) onSuccess(tagData);
+      } else if (result.reason === "tag_exists") {
+        alert("标签已存在！");
+      } else {
+        alert("创建标签失败，请重试");
+      }
+    });
+
+    // 取消按钮
+    dialog.querySelector(".cancel-btn").addEventListener("click", () => {
+      document.body.removeChild(dialog);
+    });
+
+    // 默认选中第一个颜色
+    dialog.querySelector(".color-option").classList.add("border-gray-800");
+
+    // 聚焦输入框
+    setTimeout(() => {
+      document.getElementById("tag-name").focus();
+    }, 100);
+  },
+};

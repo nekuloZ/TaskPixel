@@ -243,6 +243,63 @@ input[type="checkbox"]:checked::after {
   width: 100%;
 }
 
+/* 进度条容器与文本样式修复 */
+.progress-bar {
+  width: 100%;
+  height: 24px; /* 稍高以适配像素化方块 */
+  background: #ffffff;
+  border: 3px solid #000000; /* 粗黑边框，像素感 */
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 4px 4px 0 #e5e7eb, inset -4px -4px 0 #ffffff;
+  image-rendering: pixelated;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  display: block;
+  /* 方块化填充：使用重复线性渐变模拟像素块 */
+  background-image: repeating-linear-gradient(
+    90deg,
+    #00a3c4 0,
+    #00a3c4 12px,
+    #2b6ef6 12px,
+    #2b6ef6 24px
+  );
+  transition: width 200ms steps(4);
+  image-rendering: pixelated;
+}
+
+.progress-text {
+  margin-top: 6px;
+  text-align: right;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: "Press Start 2P", monospace;
+  letter-spacing: 0.05em;
+}
+
+/* 内部进度标签 (位于进度条中央) */
+.progress-bar.with-text .progress-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  color: #ffffff;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  text-shadow: 1px 1px 0 #000000;
+  white-space: nowrap;
+}
+
+/* 当填充不足（比如宽度小于40px）时隐藏内部标签，避免被裁剪 */
+.progress-bar.with-text .progress-label.hidden-small {
+  display: none;
+}
+
 /* 标签样式 - # 标签高亮 */
 .hashtag {
   display: inline-block;
@@ -282,4 +339,136 @@ input[type="checkbox"]:checked::after {
   width: 100%;
   height: 3px;
   background-color: rgba(79, 70, 229, 0.2);
+}
+
+/* 标签管理页面的像素标签样式 */
+.pixel-tag {
+  border: 2px solid #000000;
+  transition: all 0.1s ease-out;
+  will-change: transform, box-shadow;
+  background-color: #ffffff;
+  image-rendering: pixelated;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 1.125rem;
+  font-family: "VT323", monospace;
+}
+
+.pixel-tag:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #000000 !important;
+}
+
+.pixel-tag .delete-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  border: 2px solid #000000;
+  background-color: #ef4444;
+  color: white;
+  font-family: "Press Start 2P", cursive;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.pixel-tag:hover .delete-btn {
+  display: flex;
+}
+
+.pixel-tag .delete-btn:hover {
+  background-color: #dc2626;
+}
+
+/* 标签颜色样式 */
+.text-tag-blue {
+  color: #00f6ff;
+}
+
+.text-tag-pink {
+  color: #ff00ff;
+}
+
+.text-tag-lime {
+  color: #00ff00;
+}
+
+.text-tag-orange {
+  color: #ff8c00;
+}
+
+.shadow-tag-shadow-blue {
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.shadow-tag-shadow-pink {
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.shadow-tag-shadow-lime {
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.shadow-tag-shadow-orange {
+  box-shadow: 2px 2px 0px #000000;
+}
+
+/* 像素输入框样式 */
+.pixel-input {
+  border: 4px solid #000000;
+  background-color: #ffffff;
+  box-shadow: inset 2px 2px 0px #616161, inset -2px -2px 0px #e0e0e0;
+  padding: 0.5rem 1rem;
+  font-size: 1.25rem;
+  color: #000000;
+  caret-color: #4f46e5;
+  font-family: "VT323", monospace;
+}
+
+.pixel-input::placeholder {
+  color: #9e9e9e;
+}
+
+.pixel-input:focus {
+  outline: none;
+  box-shadow: inset 2px 2px 0px #000000, inset -2px -2px 0px #e0e0e0,
+    0 0 0 4px #4f46e5;
+}
+
+/* 像素标签页样式 */
+.pixel-tab {
+  border-top: 4px solid #000000;
+  border-left: 4px solid #000000;
+  border-right: 4px solid #000000;
+  padding: 0.5rem 1.5rem;
+  font-family: "Press Start 2P", cursive;
+  color: #616161;
+  background-color: #e0e0e0;
+  margin-bottom: -4px;
+  position: relative;
+  bottom: -4px;
+  font-size: 0.75rem;
+}
+
+.pixel-tab.active {
+  background-color: #ffffff;
+  color: #000000;
+  border-bottom: 4px solid #ffffff;
+}
+
+/* Details 展开图标动画 */
+details > summary {
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] > summary .expand-icon {
+  transform: rotate(90deg);
 }

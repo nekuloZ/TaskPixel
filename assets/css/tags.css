@@ -1,0 +1,311 @@
+/* 标签管理页面专用样式 */
+
+/* 像素风格输入框 */
+.pixel-input {
+  border: 2px solid #000;
+  padding: 8px 12px;
+  font-family: "VT323", monospace;
+  font-size: 16px;
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+.pixel-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #4f46e5;
+  border-color: #4f46e5;
+}
+
+/* 像素风格选择框 */
+.pixel-select {
+  border: 2px solid #000;
+  padding: 8px 12px;
+  font-family: "VT323", monospace;
+  font-size: 14px;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 8px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+  appearance: none;
+}
+
+.pixel-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #4f46e5;
+  border-color: #4f46e5;
+}
+
+/* 标签基础样式 */
+.tag-badge {
+  display: inline-block;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+}
+
+/* 交互式标签样式（类似任务详情页面） */
+.interactive-tag-badge {
+  display: inline-block;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "VT323", monospace;
+  font-weight: bold;
+}
+
+.interactive-tag-badge:hover {
+  text-shadow: 0 0 8px currentColor;
+  transform: scale(1.05);
+}
+
+/* 标签管理页面的标签样式 - 与任务详情页面完全一致 */
+.management-tag {
+  font-family: "VT323", monospace;
+  font-size: 16px;
+  font-weight: bold;
+  margin-right: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-user-select: none;
+  user-select: none;
+  display: inline-block;
+  padding: 4px 8px;
+  border: 2px solid;
+  border-radius: 0;
+}
+
+.management-tag:hover {
+  text-shadow: 0 0 8px currentColor;
+  transform: scale(1.05);
+}
+
+.management-tag:hover::after {
+  content: " ×";
+  color: #ef4444;
+  font-weight: bold;
+}
+
+/* 选中状态的标签 */
+.management-tag.selected {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+}
+
+/* 像素风格边框 */
+.pixel-border {
+  border-width: 2px;
+  border-style: solid;
+}
+
+/* 荧光发光效果 */
+.shadow-pixel-glow {
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* 标签选择器样式 */
+.tag-selector {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.tag-selector::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tag-selector::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border: 2px solid #000;
+}
+
+.tag-selector::-webkit-scrollbar-thumb {
+  background: #888;
+  border: 1px solid #000;
+}
+
+.tag-selector::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* 颜色选择器样式 */
+.color-option {
+  position: relative;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+}
+
+.color-option.border-gray-800 {
+  border-color: #1f2937 !important;
+  transform: scale(1.2);
+}
+
+.color-option::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.color-option.border-gray-800::after {
+  opacity: 1;
+}
+
+/* 标签动画效果 */
+@keyframes tag-glow {
+  0% {
+    box-shadow: inset 0 0 5px currentColor;
+  }
+  50% {
+    box-shadow: inset 0 0 10px currentColor, 0 0 15px currentColor;
+  }
+  100% {
+    box-shadow: inset 0 0 5px currentColor;
+  }
+}
+
+.tag-badge.animate-glow {
+  animation: tag-glow 2s ease-in-out infinite;
+}
+
+/* 标签搜索框样式 */
+.tag-search {
+  border: 2px solid #000;
+  padding: 8px 12px;
+  font-family: "VT323", monospace;
+  font-size: 14px;
+  background-color: #fff;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.tag-search:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #4f46e5;
+  border-color: #4f46e5;
+}
+
+/* 删除按钮样式 */
+.delete-btn {
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+}
+
+.delete-btn:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .pixel-input,
+  .pixel-select {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .tag-badge {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .color-picker {
+    gap: 8px;
+  }
+
+  .color-option {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* 加载动画 */
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #000;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 空状态样式 */
+#empty-tags {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+/* 搜索高亮 */
+.search-highlight {
+  background-color: #ffff0080;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+/* 选中状态样式 */
+.pixel-tag.selected {
+  box-shadow: 0 0 0 2px #4f46e5;
+  transform: scale(1.05);
+}
+
+/* 筛选结果样式 */
+.expand-icon {
+  transition: transform 0.2s ease;
+}
+
+details[open] .expand-icon {
+  transform: rotate(90deg);
+}
+
+/* 标签页样式 */
+.pixel-tab {
+  border: 2px solid #000;
+  border-bottom: none;
+  background-color: #f3f4f6;
+  padding: 8px 16px;
+  font-family: "VT323", monospace;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pixel-tab:hover {
+  background-color: #e5e7eb;
+}
+
+.pixel-tab.active {
+  background-color: #fff;
+  border-bottom: 2px solid #fff;
+  margin-bottom: -2px;
+  z-index: 1;
+  position: relative;
+}

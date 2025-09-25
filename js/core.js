@@ -31,6 +31,7 @@ const TaskPixel = {
         username: "Sarah",
         email: "",
       },
+      tags: [], // 新增：全局标签列表
     },
 
     // 初始化数据存储
@@ -46,12 +47,78 @@ const TaskPixel = {
         if (savedData) {
           this.data = JSON.parse(savedData);
           console.log("数据加载成功");
+
+          // 检查是否需要数据迁移
+          const currentVersion = this.detectDataVersion();
+          if (currentVersion !== this.DATA_VERSION) {
+            console.log("检测到旧版本数据，开始迁移...");
+            const migrationResult = this.migrateData();
+            if (migrationResult.success) {
+              console.log(migrationResult.message);
+            } else {
+              console.error("数据迁移失败:", migrationResult.error);
+            }
+          }
+
+          // 验证数据完整性
+          const integrityReport = this.validateDataIntegrity();
+          if (!integrityReport.isValid) {
+            console.warn("数据完整性检查发现问题:", integrityReport.issues);
+            if (integrityReport.fixes.length > 0) {
+              console.log("自动修复:", integrityReport.fixes);
+            }
+          }
+
+          // 触发数据加载事件
+          TaskPixel.EventBus.emit("data:loaded", this.data);
         } else {
           console.log("未找到已保存的数据，使用默认数据");
+          // 设置版本号
+          this.data.version = this.DATA_VERSION;
         }
       } catch (error) {
         console.error("加载数据出错:", error);
+        // 尝试恢复备份
+        this._attemptDataRecovery();
       }
+    },
+
+    // 尝试数据恢复
+    _attemptDataRecovery: function () {
+      try {
+        // 查找最新的备份
+        const backupKeys = Object.keys(localStorage)
+          .filter((key) => key.startsWith(this.STORAGE_KEY + "_backup_"))
+          .sort()
+          .reverse();
+
+        if (backupKeys.length > 0) {
+          const latestBackup = localStorage.getItem(backupKeys[0]);
+          if (latestBackup) {
+            this.data = JSON.parse(latestBackup);
+            console.log("从备份恢复数据成功:", backupKeys[0]);
+            this.saveToStorage(); // 保存恢复的数据
+            return true;
+          }
+        }
+      } catch (error) {
+        console.error("数据恢复失败:", error);
+      }
+
+      // 如果恢复失败，使用默认数据
+      console.log("使用默认数据结构");
+      this.data = {
+        tasks: [],
+        settings: {
+          theme: "light",
+          notifications: "all",
+          username: "Sarah",
+          email: "",
+        },
+        tags: [],
+        version: this.DATA_VERSION,
+      };
+      return false;
     },
 
     // 保存数据到localStorage
@@ -88,6 +155,7 @@ const TaskPixel = {
         due_date: taskData.due_date || null,
         progress: 0,
         goals: [],
+        order: this.data.tasks ? this.data.tasks.length : 0,
         timeline: [],
       };
 
@@ -95,6 +163,21 @@ const TaskPixel = {
       this.saveToStorage();
       TaskPixel.EventBus.emit("task:added", newTask);
       return taskId;
+    },
+
+    // 批量更新任务顺序（接受按新顺序排列的任务ID数组）
+    updateTaskOrder: function (orderedTaskIds) {
+      if (!Array.isArray(orderedTaskIds)) return false;
+      // 创建一个映射到索引
+      orderedTaskIds.forEach((taskId, idx) => {
+        const t = this.getTaskById(taskId);
+        if (t) t.order = idx;
+      });
+      // 按 order 排序以保持内部数组一致
+      this.data.tasks.sort((a, b) => (a.order || 0) - (b.order || 0));
+      this.saveToStorage();
+      TaskPixel.EventBus.emit("tasks:reordered", this.data.tasks);
+      return true;
     },
 
     // 更新任务
@@ -114,7 +197,10 @@ const TaskPixel = {
     // 删除任务
     deleteTask: function (taskId) {
       const taskIndex = this.data.tasks.findIndex((task) => task.id === taskId);
-      if (taskIndex === -1) return false;
+      if (taskIndex === -1) {
+        console.warn("Task not found with ID:", taskId);
+        return false;
+      }
 
       const deletedTask = this.data.tasks[taskIndex];
       this.data.tasks.splice(taskIndex, 1);
@@ -142,6 +228,7 @@ const TaskPixel = {
         priority: goalData.priority || "",
         priority_reason: goalData.priority_reason || "",
         substeps: [],
+        order: task.goals ? task.goals.length : 0,
       };
 
       task.goals.push(newGoal);
@@ -184,6 +271,7 @@ const TaskPixel = {
         id: substepId,
         content: substepContent,
         completed: false,
+        order: goal.substeps ? goal.substeps.length : 0,
       };
 
       goal.substeps.push(newSubstep);
@@ -194,6 +282,40 @@ const TaskPixel = {
         substep: newSubstep,
       });
       return substepId;
+    },
+
+    // 更新目标顺序（接受 taskId 和按新顺序的 goalId 数组）
+    updateGoalOrder: function (taskId, orderedGoalIds) {
+      const task = this.getTaskById(taskId);
+      if (!task || !Array.isArray(orderedGoalIds)) return false;
+      orderedGoalIds.forEach((goalId, idx) => {
+        const g = task.goals.find((gg) => gg.id === goalId);
+        if (g) g.order = idx;
+      });
+      task.goals.sort((a, b) => (a.order || 0) - (b.order || 0));
+      this.saveToStorage();
+      TaskPixel.EventBus.emit("goals:reordered", { taskId, goals: task.goals });
+      return true;
+    },
+
+    // 更新子步骤顺序（taskId, goalId, orderedSubstepIds）
+    updateSubstepOrder: function (taskId, goalId, orderedSubstepIds) {
+      const task = this.getTaskById(taskId);
+      if (!task || !Array.isArray(orderedSubstepIds)) return false;
+      const goal = task.goals.find((g) => g.id === goalId);
+      if (!goal) return false;
+      orderedSubstepIds.forEach((sid, idx) => {
+        const s = goal.substeps.find((ss) => ss.id === sid);
+        if (s) s.order = idx;
+      });
+      goal.substeps.sort((a, b) => (a.order || 0) - (b.order || 0));
+      this.saveToStorage();
+      TaskPixel.EventBus.emit("substeps:reordered", {
+        taskId,
+        goalId,
+        substeps: goal.substeps,
+      });
+      return true;
     },
 
     // 更新子步骤状态
@@ -359,6 +481,373 @@ const TaskPixel = {
       return this.data.settings;
     },
 
+    // 为目标添加标签（改进版本）
+    addTagsToGoal: function (taskId, goalId, tagIds) {
+      try {
+        // 参数验证
+        if (
+          !taskId ||
+          !goalId ||
+          !Array.isArray(tagIds) ||
+          tagIds.length === 0
+        ) {
+          console.warn("addTagsToGoal: 无效参数", { taskId, goalId, tagIds });
+          return false;
+        }
+
+        const task = this.getTaskById(taskId);
+        if (!task) {
+          console.warn("addTagsToGoal: 任务不存在", taskId);
+          return false;
+        }
+
+        const goal = task.goals.find((g) => g.id === goalId);
+        if (!goal) {
+          console.warn("addTagsToGoal: 目标不存在", goalId);
+          return false;
+        }
+
+        // 确保标签数组存在
+        if (!goal.tags) goal.tags = [];
+
+        // 验证标签是否存在
+        const validTagIds = tagIds.filter((tagId) => {
+          const tagExists =
+            this.data.tags && this.data.tags.some((tag) => tag.id === tagId);
+          if (!tagExists) {
+            console.warn("addTagsToGoal: 标签不存在", tagId);
+          }
+          return tagExists;
+        });
+
+        if (validTagIds.length === 0) {
+          console.warn("addTagsToGoal: 没有有效的标签ID");
+          return false;
+        }
+
+        // 添加新标签，避免重复
+        let addedCount = 0;
+        validTagIds.forEach((tagId) => {
+          if (!goal.tags.includes(tagId)) {
+            goal.tags.push(tagId);
+            addedCount++;
+          }
+        });
+
+        if (addedCount > 0) {
+          // 添加元数据
+          if (!goal.tag_metadata) goal.tag_metadata = {};
+          validTagIds.forEach((tagId) => {
+            if (!goal.tag_metadata[tagId]) {
+              goal.tag_metadata[tagId] = {
+                added_at: new Date().toISOString(),
+              };
+            }
+          });
+
+          this.saveToStorage();
+          TaskPixel.EventBus.emit("goal:tags_updated", {
+            taskId,
+            goalId,
+            tags: goal.tags,
+            addedTags: validTagIds,
+          });
+        }
+
+        return true;
+      } catch (error) {
+        console.error("addTagsToGoal: 发生错误", error);
+        return false;
+      }
+    },
+
+    // 从目标移除标签（改进版本）
+    removeTagsFromGoal: function (taskId, goalId, tagIds) {
+      try {
+        // 参数验证
+        if (
+          !taskId ||
+          !goalId ||
+          !Array.isArray(tagIds) ||
+          tagIds.length === 0
+        ) {
+          console.warn("removeTagsFromGoal: 无效参数", {
+            taskId,
+            goalId,
+            tagIds,
+          });
+          return false;
+        }
+
+        const task = this.getTaskById(taskId);
+        if (!task) {
+          console.warn("removeTagsFromGoal: 任务不存在", taskId);
+          return false;
+        }
+
+        const goal = task.goals.find((g) => g.id === goalId);
+        if (!goal || !goal.tags) {
+          console.warn("removeTagsFromGoal: 目标不存在或没有标签", goalId);
+          return false;
+        }
+
+        const originalLength = goal.tags.length;
+        const removedTags = [];
+
+        // 移除标签并记录被移除的标签
+        goal.tags = goal.tags.filter((tagId) => {
+          const shouldRemove = tagIds.includes(tagId);
+          if (shouldRemove) {
+            removedTags.push(tagId);
+          }
+          return !shouldRemove;
+        });
+
+        if (removedTags.length > 0) {
+          // 清理元数据
+          if (goal.tag_metadata) {
+            removedTags.forEach((tagId) => {
+              delete goal.tag_metadata[tagId];
+            });
+          }
+
+          this.saveToStorage();
+          TaskPixel.EventBus.emit("goal:tags_updated", {
+            taskId,
+            goalId,
+            tags: goal.tags,
+            removedTags: removedTags,
+          });
+        }
+
+        return true;
+      } catch (error) {
+        console.error("removeTagsFromGoal: 发生错误", error);
+        return false;
+      }
+    },
+
+    // 获取目标的标签对象（改进版本）
+    getGoalTags: function (taskId, goalId) {
+      try {
+        if (!taskId || !goalId) {
+          console.warn("getGoalTags: 缺少必要参数", { taskId, goalId });
+          return [];
+        }
+
+        const task = this.getTaskById(taskId);
+        if (!task) {
+          console.warn("getGoalTags: 任务不存在", taskId);
+          return [];
+        }
+
+        const goal = task.goals.find((g) => g.id === goalId);
+        if (!goal || !goal.tags) {
+          return [];
+        }
+
+        const tags = [];
+        const orphanedTagIds = [];
+
+        // 获取标签对象，同时检测孤立的标签引用
+        goal.tags.forEach((tagId) => {
+          const tag =
+            this.data.tags && this.data.tags.find((tag) => tag.id === tagId);
+          if (tag) {
+            tags.push(tag);
+          } else {
+            orphanedTagIds.push(tagId);
+            console.warn("getGoalTags: 发现孤立的标签引用", tagId);
+          }
+        });
+
+        // 自动清理孤立的标签引用
+        if (orphanedTagIds.length > 0) {
+          goal.tags = goal.tags.filter(
+            (tagId) => !orphanedTagIds.includes(tagId)
+          );
+          if (goal.tag_metadata) {
+            orphanedTagIds.forEach((tagId) => {
+              delete goal.tag_metadata[tagId];
+            });
+          }
+          this.saveToStorage();
+          console.log("getGoalTags: 自动清理了孤立的标签引用", orphanedTagIds);
+        }
+
+        return tags;
+      } catch (error) {
+        console.error("getGoalTags: 发生错误", error);
+        return [];
+      }
+    },
+
+    // 为任务添加标签（改进版本）
+    addTagsToTask: function (taskId, tagIds) {
+      try {
+        // 参数验证
+        if (!taskId || !Array.isArray(tagIds) || tagIds.length === 0) {
+          console.warn("addTagsToTask: 无效参数", { taskId, tagIds });
+          return false;
+        }
+
+        const task = this.getTaskById(taskId);
+        if (!task) {
+          console.warn("addTagsToTask: 任务不存在", taskId);
+          return false;
+        }
+
+        // 确保标签数组存在
+        if (!task.tags) task.tags = [];
+
+        // 验证标签是否存在
+        const validTagIds = tagIds.filter((tagId) => {
+          const tagExists =
+            this.data.tags && this.data.tags.some((tag) => tag.id === tagId);
+          if (!tagExists) {
+            console.warn("addTagsToTask: 标签不存在", tagId);
+          }
+          return tagExists;
+        });
+
+        if (validTagIds.length === 0) {
+          console.warn("addTagsToTask: 没有有效的标签ID");
+          return false;
+        }
+
+        // 添加新标签，避免重复
+        let addedCount = 0;
+        validTagIds.forEach((tagId) => {
+          if (!task.tags.includes(tagId)) {
+            task.tags.push(tagId);
+            addedCount++;
+          }
+        });
+
+        if (addedCount > 0) {
+          // 添加元数据
+          if (!task.tag_metadata) task.tag_metadata = {};
+          validTagIds.forEach((tagId) => {
+            if (!task.tag_metadata[tagId]) {
+              task.tag_metadata[tagId] = {
+                added_at: new Date().toISOString(),
+              };
+            }
+          });
+
+          this.saveToStorage();
+          TaskPixel.EventBus.emit("task:tags_updated", {
+            taskId,
+            tags: task.tags,
+            addedTags: validTagIds,
+          });
+        }
+
+        return true;
+      } catch (error) {
+        console.error("addTagsToTask: 发生错误", error);
+        return false;
+      }
+    },
+
+    // 从任务移除标签（改进版本）
+    removeTagsFromTask: function (taskId, tagIds) {
+      try {
+        // 参数验证
+        if (!taskId || !Array.isArray(tagIds) || tagIds.length === 0) {
+          console.warn("removeTagsFromTask: 无效参数", { taskId, tagIds });
+          return false;
+        }
+
+        const task = this.getTaskById(taskId);
+        if (!task || !task.tags) {
+          console.warn("removeTagsFromTask: 任务不存在或没有标签", taskId);
+          return false;
+        }
+
+        const removedTags = [];
+
+        // 移除标签并记录被移除的标签
+        task.tags = task.tags.filter((tagId) => {
+          const shouldRemove = tagIds.includes(tagId);
+          if (shouldRemove) {
+            removedTags.push(tagId);
+          }
+          return !shouldRemove;
+        });
+
+        if (removedTags.length > 0) {
+          // 清理元数据
+          if (task.tag_metadata) {
+            removedTags.forEach((tagId) => {
+              delete task.tag_metadata[tagId];
+            });
+          }
+
+          this.saveToStorage();
+          TaskPixel.EventBus.emit("task:tags_updated", {
+            taskId,
+            tags: task.tags,
+            removedTags: removedTags,
+          });
+        }
+
+        return true;
+      } catch (error) {
+        console.error("removeTagsFromTask: 发生错误", error);
+        return false;
+      }
+    },
+
+    // 获取任务的标签对象（改进版本）
+    getTaskTags: function (taskId) {
+      try {
+        if (!taskId) {
+          console.warn("getTaskTags: 缺少任务ID");
+          return [];
+        }
+
+        const task = this.getTaskById(taskId);
+        if (!task || !task.tags) {
+          return [];
+        }
+
+        const tags = [];
+        const orphanedTagIds = [];
+
+        // 获取标签对象，同时检测孤立的标签引用
+        task.tags.forEach((tagId) => {
+          const tag =
+            this.data.tags && this.data.tags.find((tag) => tag.id === tagId);
+          if (tag) {
+            tags.push(tag);
+          } else {
+            orphanedTagIds.push(tagId);
+            console.warn("getTaskTags: 发现孤立的标签引用", tagId);
+          }
+        });
+
+        // 自动清理孤立的标签引用
+        if (orphanedTagIds.length > 0) {
+          task.tags = task.tags.filter(
+            (tagId) => !orphanedTagIds.includes(tagId)
+          );
+          if (task.tag_metadata) {
+            orphanedTagIds.forEach((tagId) => {
+              delete task.tag_metadata[tagId];
+            });
+          }
+          this.saveToStorage();
+          console.log("getTaskTags: 自动清理了孤立的标签引用", orphanedTagIds);
+        }
+
+        return tags;
+      } catch (error) {
+        console.error("getTaskTags: 发生错误", error);
+        return [];
+      }
+    },
+
     // 生成唯一ID
     generateId: function () {
       return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
@@ -387,6 +876,243 @@ const TaskPixel = {
       }
     },
 
+    // 数据迁移和版本管理
+    DATA_VERSION: "2.0.0",
+
+    // 检测数据版本
+    detectDataVersion: function () {
+      return this.data.version || "1.0.0";
+    },
+
+    // 迁移数据到最新版本
+    migrateData: function () {
+      try {
+        const currentVersion = this.detectDataVersion();
+
+        if (currentVersion === this.DATA_VERSION) {
+          return { success: true, message: "数据已是最新版本" };
+        }
+
+        console.log(`开始数据迁移: ${currentVersion} -> ${this.DATA_VERSION}`);
+
+        // 备份当前数据
+        const backup = JSON.stringify(this.data);
+        localStorage.setItem(
+          this.STORAGE_KEY + "_backup_" + Date.now(),
+          backup
+        );
+
+        // 执行迁移
+        if (currentVersion === "1.0.0") {
+          this._migrateFromV1();
+        }
+
+        // 更新版本号
+        this.data.version = this.DATA_VERSION;
+        this.saveToStorage();
+
+        console.log("数据迁移完成");
+        return {
+          success: true,
+          message: `数据已迁移到版本 ${this.DATA_VERSION}`,
+        };
+      } catch (error) {
+        console.error("数据迁移失败:", error);
+        return { success: false, error: error.message };
+      }
+    },
+
+    // 从V1.0迁移
+    _migrateFromV1: function () {
+      // 确保标签数组存在
+      if (!this.data.tags) {
+        this.data.tags = [];
+      }
+
+      // 为现有标签添加缺失字段
+      this.data.tags.forEach((tag) => {
+        if (!tag.updated_at) {
+          tag.updated_at = tag.created_at || new Date().toISOString();
+        }
+        if (!tag.display_text) {
+          tag.display_text = "#" + tag.name;
+        }
+        if (typeof tag.usage_count !== "number") {
+          tag.usage_count = 0;
+        }
+      });
+
+      // 为任务和目标添加标签元数据
+      this.data.tasks.forEach((task) => {
+        if (task.tags && task.tags.length > 0 && !task.tag_metadata) {
+          task.tag_metadata = {};
+          task.tags.forEach((tagId) => {
+            task.tag_metadata[tagId] = {
+              added_at: task.created_at || new Date().toISOString(),
+            };
+          });
+        }
+
+        if (task.goals) {
+          task.goals.forEach((goal) => {
+            if (goal.tags && goal.tags.length > 0 && !goal.tag_metadata) {
+              goal.tag_metadata = {};
+              goal.tags.forEach((tagId) => {
+                goal.tag_metadata[tagId] = {
+                  added_at:
+                    goal.created_at ||
+                    task.created_at ||
+                    new Date().toISOString(),
+                };
+              });
+            }
+          });
+        }
+      });
+
+      console.log("V1.0 -> V2.0 迁移完成");
+    },
+
+    // 验证数据完整性
+    validateDataIntegrity: function () {
+      const issues = [];
+      const fixes = [];
+
+      try {
+        // 检查基本结构
+        if (!this.data.tasks) {
+          this.data.tasks = [];
+          fixes.push("修复缺失的tasks数组");
+        }
+        if (!this.data.tags) {
+          this.data.tags = [];
+          fixes.push("修复缺失的tags数组");
+        }
+        if (!this.data.settings) {
+          this.data.settings = {};
+          fixes.push("修复缺失的settings对象");
+        }
+
+        // 检查标签完整性
+        this.data.tags.forEach((tag, index) => {
+          if (!tag.id) {
+            issues.push(`标签[${index}]缺少ID`);
+          }
+          if (!tag.name) {
+            issues.push(`标签[${index}]缺少名称`);
+          }
+          if (!tag.display_text) {
+            tag.display_text = "#" + (tag.name || "未知");
+            fixes.push(`修复标签[${index}]的显示文本`);
+          }
+        });
+
+        // 检查任务和目标的标签引用
+        this.data.tasks.forEach((task, taskIndex) => {
+          if (task.tags) {
+            task.tags.forEach((tagId) => {
+              const tagExists = this.data.tags.some((tag) => tag.id === tagId);
+              if (!tagExists) {
+                issues.push(`任务[${taskIndex}]引用了不存在的标签: ${tagId}`);
+              }
+            });
+          }
+
+          if (task.goals) {
+            task.goals.forEach((goal, goalIndex) => {
+              if (goal.tags) {
+                goal.tags.forEach((tagId) => {
+                  const tagExists = this.data.tags.some(
+                    (tag) => tag.id === tagId
+                  );
+                  if (!tagExists) {
+                    issues.push(
+                      `任务[${taskIndex}]目标[${goalIndex}]引用了不存在的标签: ${tagId}`
+                    );
+                  }
+                });
+              }
+            });
+          }
+        });
+
+        // 如果有修复，保存数据
+        if (fixes.length > 0) {
+          this.saveToStorage();
+        }
+
+        return {
+          isValid: issues.length === 0,
+          issues: issues,
+          fixes: fixes,
+        };
+      } catch (error) {
+        console.error("验证数据完整性时发生错误:", error);
+        return {
+          isValid: false,
+          issues: [`验证过程出错: ${error.message}`],
+          fixes: [],
+        };
+      }
+    },
+
+    // 清理孤立的标签引用
+    cleanupOrphanedTagReferences: function () {
+      let cleanedCount = 0;
+
+      try {
+        this.data.tasks.forEach((task) => {
+          if (task.tags) {
+            const originalLength = task.tags.length;
+            task.tags = task.tags.filter((tagId) =>
+              this.data.tags.some((tag) => tag.id === tagId)
+            );
+            cleanedCount += originalLength - task.tags.length;
+
+            // 清理元数据
+            if (task.tag_metadata) {
+              Object.keys(task.tag_metadata).forEach((tagId) => {
+                if (!task.tags.includes(tagId)) {
+                  delete task.tag_metadata[tagId];
+                }
+              });
+            }
+          }
+
+          if (task.goals) {
+            task.goals.forEach((goal) => {
+              if (goal.tags) {
+                const originalLength = goal.tags.length;
+                goal.tags = goal.tags.filter((tagId) =>
+                  this.data.tags.some((tag) => tag.id === tagId)
+                );
+                cleanedCount += originalLength - goal.tags.length;
+
+                // 清理元数据
+                if (goal.tag_metadata) {
+                  Object.keys(goal.tag_metadata).forEach((tagId) => {
+                    if (!goal.tags.includes(tagId)) {
+                      delete goal.tag_metadata[tagId];
+                    }
+                  });
+                }
+              }
+            });
+          }
+        });
+
+        if (cleanedCount > 0) {
+          this.saveToStorage();
+          console.log(`清理了 ${cleanedCount} 个孤立的标签引用`);
+        }
+
+        return { success: true, cleanedCount: cleanedCount };
+      } catch (error) {
+        console.error("清理孤立标签引用时发生错误:", error);
+        return { success: false, error: error.message };
+      }
+    },
+
     // 导入数据
     importData: function (jsonData) {
       try {
@@ -412,53 +1138,348 @@ const TaskPixel = {
 
   /**
    * 事件总线模块 - 发布-订阅模式实现组件间通信
+   * 扩展版本，支持标签相关事件和高级功能
    */
   EventBus: {
     events: {},
+    eventHistory: [],
+    maxHistorySize: 100,
+    debugMode: false,
+
+    // 标签相关事件类型定义
+    TagEvents: {
+      CREATED: "tag:created",
+      UPDATED: "tag:updated",
+      DELETED: "tag:deleted",
+      USAGE_UPDATED: "tag:usage_updated",
+      TASK_TAGS_UPDATED: "task:tags_updated",
+      GOAL_TAGS_UPDATED: "goal:tags_updated",
+      TAGS_SYNCED: "tags:synced",
+      TAG_VALIDATION_FAILED: "tag:validation_failed",
+    },
 
     init: function () {
       this.events = {};
+      this.eventHistory = [];
+
+      // 设置标签相关事件的自动同步
+      this._setupTagEventHandlers();
+
       console.log("事件总线初始化完成");
     },
 
     // 订阅事件
-    on: function (eventName, callback) {
-      if (!this.events[eventName]) {
-        this.events[eventName] = [];
-      }
+    on: function (eventName, callback, options = {}) {
+      try {
+        if (!eventName || typeof callback !== "function") {
+          console.warn("EventBus.on: 无效参数", { eventName, callback });
+          return false;
+        }
 
-      this.events[eventName].push(callback);
-      return true;
+        if (!this.events[eventName]) {
+          this.events[eventName] = [];
+        }
+
+        // 包装回调函数以支持选项
+        const wrappedCallback = {
+          fn: callback,
+          once: options.once || false,
+          priority: options.priority || 0,
+          context: options.context || null,
+        };
+
+        this.events[eventName].push(wrappedCallback);
+
+        // 按优先级排序
+        this.events[eventName].sort((a, b) => b.priority - a.priority);
+
+        if (this.debugMode) {
+          console.log(`EventBus: 订阅事件 ${eventName}`, options);
+        }
+
+        return true;
+      } catch (error) {
+        console.error("EventBus.on: 订阅事件失败", error);
+        return false;
+      }
+    },
+
+    // 一次性订阅事件
+    once: function (eventName, callback, options = {}) {
+      return this.on(eventName, callback, { ...options, once: true });
     },
 
     // 取消订阅
     off: function (eventName, callback) {
-      if (!this.events[eventName]) return false;
+      try {
+        if (!this.events[eventName]) return false;
 
-      if (callback) {
-        // 移除特定回调
-        this.events[eventName] = this.events[eventName].filter(
-          (cb) => cb !== callback
-        );
-      } else {
-        // 移除所有回调
-        delete this.events[eventName];
+        if (callback) {
+          // 移除特定回调
+          this.events[eventName] = this.events[eventName].filter(
+            (wrapper) => wrapper.fn !== callback
+          );
+        } else {
+          // 移除所有回调
+          delete this.events[eventName];
+        }
+
+        if (this.debugMode) {
+          console.log(`EventBus: 取消订阅事件 ${eventName}`);
+        }
+
+        return true;
+      } catch (error) {
+        console.error("EventBus.off: 取消订阅失败", error);
+        return false;
       }
-
-      return true;
     },
 
     // 触发事件
-    emit: function (eventName, data) {
-      if (!this.events[eventName]) return false;
+    emit: function (eventName, data, options = {}) {
+      try {
+        if (!this.events[eventName]) {
+          if (this.debugMode) {
+            console.log(`EventBus: 没有监听器的事件 ${eventName}`);
+          }
+          return false;
+        }
 
-      this.events[eventName].forEach((callback) => {
-        setTimeout(() => {
-          callback(data);
-        }, 0);
+        const eventData = {
+          name: eventName,
+          data: data,
+          timestamp: new Date().toISOString(),
+          source: options.source || "unknown",
+        };
+
+        // 记录事件历史
+        this._recordEvent(eventData);
+
+        // 执行回调
+        const callbacks = [...this.events[eventName]]; // 复制数组避免修改问题
+        let executedCount = 0;
+
+        callbacks.forEach((wrapper) => {
+          try {
+            // 异步执行回调
+            setTimeout(() => {
+              if (wrapper.context) {
+                wrapper.fn.call(wrapper.context, data, eventData);
+              } else {
+                wrapper.fn(data, eventData);
+              }
+            }, 0);
+
+            executedCount++;
+
+            // 如果是一次性监听器，移除它
+            if (wrapper.once) {
+              this.events[eventName] = this.events[eventName].filter(
+                (w) => w !== wrapper
+              );
+            }
+          } catch (callbackError) {
+            console.error(`EventBus: 回调执行失败 ${eventName}`, callbackError);
+          }
+        });
+
+        if (this.debugMode) {
+          console.log(`EventBus: 触发事件 ${eventName}`, {
+            data,
+            listenersCount: executedCount,
+          });
+        }
+
+        return true;
+      } catch (error) {
+        console.error("EventBus.emit: 触发事件失败", error);
+        return false;
+      }
+    },
+
+    // 等待事件触发
+    waitFor: function (eventName, timeout = 5000) {
+      return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          this.off(eventName, handler);
+          reject(new Error(`等待事件 ${eventName} 超时`));
+        }, timeout);
+
+        const handler = (data) => {
+          clearTimeout(timeoutId);
+          resolve(data);
+        };
+
+        this.once(eventName, handler);
+      });
+    },
+
+    // 批量触发事件
+    emitBatch: function (events) {
+      try {
+        if (!Array.isArray(events)) {
+          console.warn("EventBus.emitBatch: events必须是数组");
+          return false;
+        }
+
+        events.forEach(({ name, data, options }) => {
+          this.emit(name, data, options);
+        });
+
+        return true;
+      } catch (error) {
+        console.error("EventBus.emitBatch: 批量触发失败", error);
+        return false;
+      }
+    },
+
+    // 获取事件统计
+    getEventStats: function () {
+      try {
+        const stats = {
+          totalEvents: Object.keys(this.events).length,
+          totalListeners: 0,
+          eventHistory: this.eventHistory.length,
+          events: {},
+        };
+
+        Object.keys(this.events).forEach((eventName) => {
+          const listeners = this.events[eventName].length;
+          stats.totalListeners += listeners;
+          stats.events[eventName] = listeners;
+        });
+
+        return stats;
+      } catch (error) {
+        console.error("EventBus.getEventStats: 获取统计失败", error);
+        return {
+          totalEvents: 0,
+          totalListeners: 0,
+          eventHistory: 0,
+          events: {},
+        };
+      }
+    },
+
+    // 清理事件历史
+    clearHistory: function () {
+      this.eventHistory = [];
+      console.log("EventBus: 事件历史已清理");
+    },
+
+    // 启用/禁用调试模式
+    setDebugMode: function (enabled) {
+      this.debugMode = enabled;
+      console.log(`EventBus: 调试模式 ${enabled ? "启用" : "禁用"}`);
+    },
+
+    // 私有方法：记录事件历史
+    _recordEvent: function (eventData) {
+      this.eventHistory.push(eventData);
+
+      // 限制历史记录大小
+      if (this.eventHistory.length > this.maxHistorySize) {
+        this.eventHistory = this.eventHistory.slice(-this.maxHistorySize);
+      }
+    },
+
+    // 私有方法：设置标签事件处理器
+    _setupTagEventHandlers: function () {
+      // 标签创建事件处理
+      this.on(this.TagEvents.CREATED, (tagData) => {
+        if (this.debugMode) {
+          console.log("标签创建事件:", tagData);
+        }
+        // 触发同步事件
+        this.emit(this.TagEvents.TAGS_SYNCED, {
+          action: "created",
+          tag: tagData,
+        });
       });
 
-      return true;
+      // 标签更新事件处理
+      this.on(this.TagEvents.UPDATED, (tagData) => {
+        if (this.debugMode) {
+          console.log("标签更新事件:", tagData);
+        }
+        // 触发同步事件
+        this.emit(this.TagEvents.TAGS_SYNCED, {
+          action: "updated",
+          tag: tagData,
+        });
+      });
+
+      // 标签删除事件处理
+      this.on(this.TagEvents.DELETED, (tagData) => {
+        if (this.debugMode) {
+          console.log("标签删除事件:", tagData);
+        }
+        // 触发同步事件
+        this.emit(this.TagEvents.TAGS_SYNCED, {
+          action: "deleted",
+          tag: tagData,
+        });
+      });
+
+      // 任务标签更新事件处理
+      this.on(this.TagEvents.TASK_TAGS_UPDATED, (data) => {
+        if (this.debugMode) {
+          console.log("任务标签更新事件:", data);
+        }
+        // 更新标签使用统计
+        if (data.addedTags && data.addedTags.length > 0) {
+          this.emit(this.TagEvents.USAGE_UPDATED, {
+            tagIds: data.addedTags,
+            action: "increment",
+          });
+        }
+      });
+
+      // 目标标签更新事件处理
+      this.on(this.TagEvents.GOAL_TAGS_UPDATED, (data) => {
+        if (this.debugMode) {
+          console.log("目标标签更新事件:", data);
+        }
+        // 更新标签使用统计
+        if (data.addedTags && data.addedTags.length > 0) {
+          this.emit(this.TagEvents.USAGE_UPDATED, {
+            tagIds: data.addedTags,
+            action: "increment",
+          });
+        }
+      });
+
+      // 跨页面数据同步
+      this.on(this.TagEvents.TAGS_SYNCED, (data) => {
+        // 通知所有组件更新
+        this._notifyComponentsUpdate(data);
+      });
+    },
+
+    // 私有方法：通知组件更新
+    _notifyComponentsUpdate: function (data) {
+      try {
+        // 通知TagManager刷新缓存
+        if (window.TaskPixel && window.TaskPixel.TagManager) {
+          TaskPixel.TagManager.invalidateCache();
+        }
+
+        // 通知TagDisplay组件刷新
+        if (window.TaskPixel && window.TaskPixel.TagDisplay) {
+          // 可以添加刷新逻辑
+        }
+
+        // 通知TagInput组件刷新建议
+        if (window.TaskPixel && window.TaskPixel.TagInput) {
+          // 可以添加刷新逻辑
+        }
+
+        if (this.debugMode) {
+          console.log("组件更新通知已发送:", data);
+        }
+      } catch (error) {
+        console.error("通知组件更新失败:", error);
+      }
     },
   },
 

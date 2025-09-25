@@ -13,159 +13,122 @@
   <link rel="stylesheet" href="assets/css/styles.css">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="js/tailwind-config.js"></script>
+  <!-- SortableJS for drag-and-drop ordering -->
+  <script src="https://unpkg.com/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
-    body {
-      font-family: 'VT323', monospace;
-      background-color: #f0f0f0;
-    }
+    /* 页面特定的标签相关样式 */
 
-    .goal-item {
-      color: #212121;
-    }
-
-    .pixel-border {
-      border: 4px solid #212121;
-      box-shadow: 4px 4px 0px #212121;
-    }
-
-    .pixel-button {
-      border: 4px solid #212121;
-      box-shadow: 4px 4px 0px #212121;
-      transition: all 0.1s ease-out;
-      will-change: transform, box-shadow;
-      background-color: #ffffff;
-      color: #212121;
-      image-rendering: pixelated;
-    }
-
-    .pixel-button:hover {
-      transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0px #212121;
-    }
-
-    .pixel-button:active {
-      transform: translate(4px, 4px);
-      box-shadow: 0px 0px 0px #212121;
-    }
-
-    .pixel-button-sm {
-      border: 2px solid #212121;
-      box-shadow: 2px 2px 0px #212121;
-      transition: all 0.1s ease-out;
-      will-change: transform, box-shadow;
-    }
-
-    .pixel-button-sm:hover {
-      transform: translate(1px, 1px);
-      box-shadow: 1px 1px 0px #212121;
-    }
-
-    .pixel-button-sm:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0px 0px 0px #212121;
-    }
-
-    /* 目标和子步骤卡片内的无阴影按钮 */
-    .pixel-button-flat {
-      border: 2px solid #212121;
-      box-shadow: none;
-      transition: all 0.1s ease-out;
-      image-rendering: pixelated;
-    }
-
-    .pixel-button-flat:hover {
-      transform: none;
-      box-shadow: none;
-      opacity: 0.8;
-    }
-
-    .pixel-button-flat:active {
-      transform: none;
-      box-shadow: none;
-      opacity: 0.6;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    textarea {
-      border: 4px solid #212121;
-      box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
-      background-color: #ffffff;
-      font-family: 'VT323', monospace;
-      font-size: 1.25rem;
-      padding: 0.5rem;
-      color: #212121;
-      width: 100%;
-    }
-
-    input[type="checkbox"] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 24px;
-      height: 24px;
-      border: 4px solid #212121;
-      background-color: #fff;
-      image-rendering: pixelated;
-      box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
+    /* 标签功能样式 */
+    .tags-input-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
       position: relative;
+    }
+
+    .add-tags-btn {
+      font-family: 'VT323', monospace;
+      font-size: 12px;
+      border: none;
+      background: transparent;
+      color: #4F46E5;
+      padding: 2px 6px;
       cursor: pointer;
-      flex-shrink: 0;
+      transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
-    input[type="checkbox"]:checked::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 12px;
-      height: 12px;
-      background-color: #212121;
-      transform: translate(-50%, -50%);
-      image-rendering: pixelated;
+    .add-tags-btn:hover {
+      background: #4F46E5;
+      color: white;
+      box-shadow: 0 0 8px #4F46E5;
     }
 
-    .text-shadow-sm {
-      text-shadow: 2px 2px 0 #a0a0a0;
+    .tag-input-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
-    .progress-bar {
-      height: 24px;
-      border: 4px solid #212121;
-      background-color: #e0e0e0;
-      box-shadow: inset 2px 2px 0px #a0a0a0, inset -2px -2px 0px #ffffff;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      background-color: #22c55e;
-      height: 100%;
-      image-rendering: pixelated;
-      box-shadow: 2px 0 0 #16a34a;
-    }
-
-    /* 按钮图标样式 */
-    .pixel-button {
+    .tag-input-field {
+      font-family: 'VT323', monospace;
       font-size: 14px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border: 2px solid #4F46E5;
+      padding: 4px 8px;
+      background: white;
+      color: #212121;
+      min-width: 120px;
+      outline: none;
     }
 
-    .pixel-button-sm {
-      font-size: 12px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .tag-input-field:focus {
+      box-shadow: 0 0 8px #4F46E5;
     }
 
-    .pixel-button-flat {
-      font-size: 12px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .tag-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #4F46E5;
+      border-top: none;
+      max-height: 120px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .tag-suggestion-item {
+      padding: 4px 8px;
+      font-family: 'VT323', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .tag-suggestion-item:hover,
+    .tag-suggestion-item.selected {
+      background: #4F46E5;
+      color: white;
+    }
+
+    .tag-suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .task-tag {
+      font-family: 'VT323', monospace;
+      font-size: 14px;
+      font-weight: bold;
+      margin-right: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .task-tag:hover {
+      text-shadow: 0 0 8px currentColor;
+      transform: scale(1.05);
+    }
+
+    .task-tag:hover::after {
+      content: ' ×';
+      color: #ef4444;
+      font-weight: bold;
+    }
+
+    .task-tags-section {
+      border-top: 1px dashed #ccc;
+      border-bottom: 1px dashed #ccc;
+      padding: 12px 0;
+    }
+
+    .goal-tags-section {
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 8px;
+      margin-bottom: 12px;
     }
   </style>
 </head>
@@ -187,10 +150,10 @@
         <a class="text-black/70 hover:text-primary nav-link" href="index.html">主页</a>
         <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
         <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="tags_management.html">标签管理</a>
         <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
         <a class="text-black/70 hover:text-primary nav-link" href="data_management.html">数据管理</a>
       </div>
-      <!-- header right-side intentionally removed: notifications and avatar placeholders -->
     </header>
     <main class="w-full flex-1 p-4 sm:p-6 md:p-10">
       <div class="mx-auto max-w-7xl">
@@ -200,7 +163,7 @@
           <!-- 左侧栏 -->
           <div class="space-y-8">
             <!-- 任务卡片 -->
-            <div class="pixel-border bg-surface p-6">
+            <div class="pixel-border p-6" style="background-color: #F3F4F6;">
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                 <h2 class="font-display text-2xl text-text-primary mb-4 sm:mb-0 task-title"></h2>
                 <div class="flex items-center gap-2">
@@ -213,10 +176,27 @@
                   <label class="block font-display text-lg text-text-primary mb-2" for="task-description">描述</label>
                   <p class="text-xl text-text-secondary task-description"></p>
                 </div>
+                <!-- 标签区域 -->
+                <div class="task-tags-section mt-4">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <div class="task-tags-display flex flex-wrap gap-1">
+                      <!-- 任务标签显示区域 -->
+                    </div>
+                    <div class="tags-input-container" data-target="task" data-task-id="">
+                      <button class="add-tags-btn">+Tags</button>
+                      <div class="tag-input-wrapper hidden">
+                        <input type="text" class="tag-input-field" placeholder="输入标签名称..." autocomplete="off">
+                        <div class="tag-suggestions hidden"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="mt-4">
                   <label class="block font-display text-lg text-text-primary mb-2" for="task-progress">进度</label>
-                  <div class="progress-bar">
+                  <div class="progress-bar with-text">
                     <div class="progress-bar-fill"></div>
+                    <div class="progress-label" aria-hidden="true"></div>
                   </div>
                   <p class="text-right text-text-secondary text-lg mt-1 progress-text"></p>
                 </div>
@@ -241,7 +221,7 @@
             </div>
 
             <!-- 目标和子步骤 -->
-            <div class="pixel-border bg-surface p-6">
+            <div class="pixel-border p-6" style="background-color: #F3F4F6;">
               <div class="space-y-6 goals-container">
                 <!-- 目标和子步骤将通过JavaScript动态渲染 -->
               </div>
@@ -251,7 +231,7 @@
           <!-- 右侧栏 -->
           <div class="space-y-8">
             <!-- 记录工作进度 -->
-            <div class="pixel-border bg-surface p-6">
+            <div class="pixel-border p-6" style="background-color: #F3F4F6;">
               <h3 class="font-display text-2xl text-text-primary mb-6">记录工作进度</h3>
               <form id="timeline-form" class="space-y-6">
                 <div>
@@ -274,7 +254,7 @@
             </div>
 
             <!-- 进度历史 -->
-            <div class="pixel-border bg-surface p-6">
+            <div class="pixel-border p-6" style="background-color: #F3F4F6;">
               <h3 class="font-display text-2xl text-text-primary mb-6">进度历史</h3>
               <div class="space-y-4 timeline-container">
                 <!-- 时间线记录将通过JavaScript动态渲染 -->
@@ -298,6 +278,8 @@
         return;
       }
 
+      let data, task;
+
       try {
         const raw = localStorage.getItem('taskpixel_data');
         if (!raw) {
@@ -305,14 +287,21 @@
           return;
         }
 
-        const data = JSON.parse(raw);
-        const task = data.tasks.find(t => t.id === taskId);
+        data = JSON.parse(raw);
+        task = data.tasks.find(t => t.id === taskId);
 
         if (!task) {
           alert('未找到指定任务');
           return;
         }
 
+      } catch (parseError) {
+        console.error('读取任务数据错误:', parseError);
+        alert('读取任务数据失败: ' + parseError.message);
+        return;
+      }
+
+      try {
         // 创建编辑对话框
         const dialogElement = document.createElement('div');
         dialogElement.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
@@ -371,47 +360,63 @@
         document.getElementById('edit-task-form').addEventListener('submit', function (e) {
           e.preventDefault();
 
-          const title = document.getElementById('edit-task-title').value.trim();
-          const description = document.getElementById('edit-task-description').value.trim();
+          try {
+            const title = document.getElementById('edit-task-title').value.trim();
+            const description = document.getElementById('edit-task-description').value.trim();
 
-          if (!title) {
-            alert('任务标题不能为空');
-            return;
+            if (!title) {
+              alert('任务标题不能为空');
+              return;
+            }
+
+            // 确定最终状态
+            let finalStatus;
+            const progress = window.TaskPixel?.DataStoreAdapter?.getTaskProgress(taskId) || task.progress || 0;
+
+            if (progress >= 100) {
+              finalStatus = 'completed';
+            } else {
+              const statusSelect = document.getElementById('edit-task-status');
+              finalStatus = statusSelect ? statusSelect.value : 'in-progress';
+            }
+
+            // 更新任务数据
+            task.title = title;
+            task.description = description;
+            task.status = finalStatus;
+
+            // 保存到localStorage
+            localStorage.setItem('taskpixel_data', JSON.stringify(data));
+
+            // 显示成功消息
+            alert('任务更新成功！');
+
+            // 关闭对话框
+            const dialogElement = document.getElementById('edit-task-dialog');
+            if (dialogElement) {
+              dialogElement.remove();
+            }
+
+            // 刷新页面
+            location.reload();
+
+          } catch (submitError) {
+            console.error('表单提交错误:', submitError);
+            alert('保存任务时出现错误，请重试：' + submitError.message);
           }
-
-          // 确定最终状态
-          let finalStatus;
-          const progress = window.TaskPixel?.DataStoreAdapter?.getTaskProgress(taskId) || task.progress || 0;
-
-          if (progress >= 100) {
-            finalStatus = 'completed';
-          } else {
-            const statusSelect = document.getElementById('edit-task-status');
-            finalStatus = statusSelect ? statusSelect.value : 'in-progress';
-          }
-
-          // 更新任务数据
-          task.title = title;
-          task.description = description;
-          task.status = finalStatus;
-
-          // 保存到localStorage
-          localStorage.setItem('taskpixel_data', JSON.stringify(data));
-
-          // 关闭对话框
-          document.getElementById('edit-task-dialog').remove();
-
-          // 刷新页面
-          location.reload();
         });
 
         // 绑定取消按钮
         document.getElementById('cancel-edit-task').addEventListener('click', function () {
-          document.getElementById('edit-task-dialog').remove();
+          const dialogElement = document.getElementById('edit-task-dialog');
+          if (dialogElement) {
+            dialogElement.remove();
+          }
         });
 
-      } catch (e) {
-        alert('编辑任务出错: ' + e.message);
+      } catch (dialogError) {
+        console.error('创建编辑对话框错误:', dialogError);
+        alert('创建编辑对话框失败: ' + dialogError.message);
       }
     }
 
@@ -438,6 +443,7 @@
         }
 
         // 切换完成状态
+        const oldStatus = task.status;
         task.status = task.status === 'completed' ? 'in-progress' : 'completed';
 
         // 如果标记为完成，设置进度为100%
@@ -448,10 +454,15 @@
         // 保存到localStorage
         localStorage.setItem('taskpixel_data', JSON.stringify(data));
 
+        // 显示成功消息
+        const statusText = task.status === 'completed' ? '已完成' : '进行中';
+        alert(`任务状态已更新为：${statusText}`);
+
         // 刷新页面
         location.reload();
 
       } catch (e) {
+        console.error('更新任务状态错误:', e);
         alert('更新任务状态时出错: ' + e.message);
       }
     }
@@ -561,11 +572,9 @@
   </script>
   <script src="js/core.js"></script>
   <script src="js/dataStoreAdapter.js"></script>
+  <script src="js/tagManager.js"></script>
   <script src="js/aiAssist.js"></script>
   <script src="js/taskDetail.js"></script>
-  <script src="js/taskDetailFix-clean.js"></script>
-  <script src="js/taskProgressFix-clean.js"></script>
-  <script src="js/goalsFix-clean.js"></script>
   <script>
     // 简化的初始化脚本 - 移除所有调试输出
     document.addEventListener('DOMContentLoaded', function () {
@@ -624,6 +633,8 @@
         // 静默处理错误
       }
 
+      // 内联标签管理器将在定义后初始化
+
       // 备用数据显示逻辑 - 确保任务信息能够显示
       setTimeout(function () {
         const taskId = new URLSearchParams(window.location.search).get('id');
@@ -639,6 +650,19 @@
                 const titleEl = document.querySelector('.task-title');
                 if (titleEl && !titleEl.textContent.includes(task.title)) {
                   titleEl.textContent = '任务: ' + task.title;
+                }
+
+                // 设置任务标签容器的 task-id
+                const taskTagContainer = document.querySelector('[data-target="task"]');
+                if (taskTagContainer) {
+                  taskTagContainer.dataset.taskId = taskId;
+                }
+
+                // 渲染任务标签（仅在容器为空时）
+                const taskTagsDisplay = document.querySelector('.task-tags-display');
+                if (typeof InlineTagManager !== 'undefined' && InlineTagManager.renderTaskTags &&
+                  taskTagsDisplay && taskTagsDisplay.children.length === 0) {
+                  InlineTagManager.renderTaskTags(taskId);
                 }
 
                 // 更新描述
@@ -725,6 +749,13 @@
           goals.forEach(goal => {
             const goalCard = createGoalCard(goal, taskId);
             goalsContainer.appendChild(goalCard);
+
+            // 渲染目标标签（仅在容器为空时）
+            const goalTagsDisplay = goalCard.querySelector('.goal-tags-display');
+            if (typeof InlineTagManager !== 'undefined' && InlineTagManager.renderGoalTags &&
+              goalTagsDisplay && goalTagsDisplay.children.length === 0) {
+              InlineTagManager.renderGoalTags(goal.id);
+            }
           });
 
           // 添加"添加新目标"按钮
@@ -761,7 +792,11 @@
 
         card.innerHTML = `
           <div class="flex items-start justify-between mb-4">
-            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <button class="pixel-button-flat bg-gray-200 text-black px-3 py-1 text-xs move-goal-up" data-goal-id="${goal.id}" title="上移目标">↑</button>
+                <button class="pixel-button-flat bg-gray-200 text-black px-3 py-1 text-xs move-goal-down" data-goal-id="${goal.id}" title="下移目标">↓</button>
+              </div>
+              <div class="flex-1">
               <h4 class="font-display text-lg font-bold mb-2">${goal.title || '未命名目标'}</h4>
               <p class="text-gray-600 text-sm mb-2">${goal.description || ''}</p>
             </div>
@@ -774,6 +809,22 @@
                       data-goal-id="${goal.id}" title="删除目标">🗑️</button>
             </div>
           </div>
+
+          <!-- 目标标签区域 -->
+          <div class="goal-tags-section mt-2 mb-3">
+            <div class="flex items-center gap-2 mb-1">
+              <div class="tags-input-container" data-target="goal" data-goal-id="${goal.id}" data-task-id="${taskId}">
+                <button class="add-tags-btn">+Tags</button>
+                <div class="tag-input-wrapper hidden">
+                  <input type="text" class="tag-input-field" placeholder="输入标签..." autocomplete="off">
+                  <div class="tag-suggestions hidden"></div>
+                </div>
+              </div>
+            </div>
+            <div class="goal-tags-display flex flex-wrap gap-1">
+              <!-- 目标标签显示区域 -->
+            </div>
+          </div>
           
           <div class="substeps-container">
             ${goal.substeps ? goal.substeps.map(substep => `
@@ -783,7 +834,9 @@
                        data-goal-id="${goal.id}" 
                        data-substep-id="${substep.id}">
                 <span class="flex-1 ${substep.completed ? 'line-through text-gray-500' : ''}">${substep.content || substep.title}</span>
-                <div class="flex gap-1">
+                <div class="flex gap-1 items-center">
+                  <button class="pixel-button-flat bg-gray-200 text-black px-2 py-1 text-xs move-substep-up" data-substep-id="${substep.id}" data-goal-id="${goal.id}" title="上移子步骤">↑</button>
+                  <button class="pixel-button-flat bg-gray-200 text-black px-2 py-1 text-xs move-substep-down" data-substep-id="${substep.id}" data-goal-id="${goal.id}" title="下移子步骤">↓</button>
                   <button class="pixel-button-flat bg-green-500 text-white px-2 py-1 text-xs edit-substep-btn" 
                           data-goal-id="${goal.id}" 
                           data-substep-id="${substep.id}" title="修改子步骤">✏️</button>
@@ -856,6 +909,119 @@
             }
           });
         });
+
+        // 目标上移/下移按钮
+        const moveUpBtn = card.querySelector('.move-goal-up');
+        const moveDownBtn = card.querySelector('.move-goal-down');
+        if (moveUpBtn) moveUpBtn.addEventListener('click', () => moveGoal(taskId, goal.id, 'up'));
+        if (moveDownBtn) moveDownBtn.addEventListener('click', () => moveGoal(taskId, goal.id, 'down'));
+
+        // 子步骤上移/下移按钮
+        const moveSubUp = card.querySelectorAll('.move-substep-up');
+        const moveSubDown = card.querySelectorAll('.move-substep-down');
+        moveSubUp.forEach(btn => btn.addEventListener('click', () => moveSubstep(taskId, btn.dataset.goalId, btn.dataset.substepId, 'up')));
+        moveSubDown.forEach(btn => btn.addEventListener('click', () => moveSubstep(taskId, btn.dataset.goalId, btn.dataset.substepId, 'down')));
+      }
+
+      // 本地实现的移动函数（如果存在 TaskPixel.TaskDetail 则优先使用它）
+      function moveGoal(taskId, goalId, direction) {
+        // 优先使用统一的 DataStore API
+        try {
+          if (window.TaskPixel && TaskPixel.DataStore && typeof TaskPixel.DataStore.updateGoalOrder === 'function') {
+            const task = TaskPixel.DataStore.getTaskById(taskId);
+            if (!task || !task.goals) return;
+            const ids = (task.goals || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0)).map(g => g.id);
+            const idx = ids.indexOf(goalId);
+            if (idx === -1) return;
+            if (direction === 'up' && idx > 0) {
+              const tmp = ids[idx - 1]; ids[idx - 1] = ids[idx]; ids[idx] = tmp;
+            } else if (direction === 'down' && idx < ids.length - 1) {
+              const tmp = ids[idx + 1]; ids[idx + 1] = ids[idx]; ids[idx] = tmp;
+            } else {
+              return;
+            }
+            TaskPixel.DataStore.updateGoalOrder(taskId, ids);
+            // 重新渲染最新数据
+            const refreshed = TaskPixel.DataStore.getTaskById(taskId);
+            if (refreshed) renderGoals(refreshed.goals || [], taskId);
+            return;
+          }
+        } catch (e) {
+          console.error('moveGoal via DataStore failed', e);
+        }
+
+        // 备用回退（旧的 localStorage 操作）
+        try {
+          const raw = localStorage.getItem('taskpixel_data');
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          const task = data.tasks.find(t => t.id === taskId);
+          if (!task || !task.goals) return;
+          const ids = task.goals.map(g => g.id);
+          const idx = ids.indexOf(goalId);
+          if (idx === -1) return;
+          if (direction === 'up' && idx > 0) {
+            const tmp = task.goals[idx - 1]; task.goals[idx - 1] = task.goals[idx]; task.goals[idx] = tmp;
+          } else if (direction === 'down' && idx < task.goals.length - 1) {
+            const tmp = task.goals[idx + 1]; task.goals[idx + 1] = task.goals[idx]; task.goals[idx] = tmp;
+          }
+          task.goals.forEach((g, i) => g.order = i);
+          localStorage.setItem('taskpixel_data', JSON.stringify(data));
+          renderGoals(task.goals, taskId);
+        } catch (e) {
+          console.error('moveGoal fallback error', e);
+        }
+      }
+
+      function moveSubstep(taskId, goalId, substepId, direction) {
+        try {
+          if (window.TaskPixel && TaskPixel.DataStore && typeof TaskPixel.DataStore.updateSubstepOrder === 'function') {
+            const task = TaskPixel.DataStore.getTaskById(taskId);
+            if (!task) return;
+            const goal = (task.goals || []).find(g => g.id === goalId);
+            if (!goal || !goal.substeps) return;
+            const ids = (goal.substeps || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0)).map(s => s.id);
+            const idx = ids.indexOf(substepId);
+            if (idx === -1) return;
+            if (direction === 'up' && idx > 0) {
+              const tmp = ids[idx - 1]; ids[idx - 1] = ids[idx]; ids[idx] = tmp;
+            } else if (direction === 'down' && idx < ids.length - 1) {
+              const tmp = ids[idx + 1]; ids[idx + 1] = ids[idx]; ids[idx] = tmp;
+            } else {
+              return;
+            }
+            TaskPixel.DataStore.updateSubstepOrder(taskId, goalId, ids);
+            const refreshed = TaskPixel.DataStore.getTaskById(taskId);
+            if (refreshed) renderGoals(refreshed.goals || [], taskId);
+            return;
+          }
+        } catch (e) {
+          console.error('moveSubstep via DataStore failed', e);
+        }
+
+        // 备用回退
+        try {
+          const raw = localStorage.getItem('taskpixel_data');
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          const task = data.tasks.find(t => t.id === taskId);
+          if (!task || !task.goals) return;
+          const goal = task.goals.find(g => g.id === goalId);
+          if (!goal || !goal.substeps) return;
+          const ids = goal.substeps.map(s => s.id);
+          const idx = ids.indexOf(substepId);
+          if (idx === -1) return;
+          if (direction === 'up' && idx > 0) {
+            const tmp = goal.substeps[idx - 1]; goal.substeps[idx - 1] = goal.substeps[idx]; goal.substeps[idx] = tmp;
+          } else if (direction === 'down' && idx < goal.substeps.length - 1) {
+            const tmp = goal.substeps[idx + 1]; goal.substeps[idx + 1] = goal.substeps[idx]; goal.substeps[idx] = tmp;
+          }
+          goal.substeps.forEach((s, i) => s.order = i);
+          localStorage.setItem('taskpixel_data', JSON.stringify(data));
+          renderGoals(task.goals, taskId);
+        } catch (e) {
+          console.error('moveSubstep fallback error', e);
+        }
       }
 
       // 绑定添加目标事件
@@ -1254,6 +1420,476 @@
         }
       }
 
+      // 内联标签管理器
+      const InlineTagManager = {
+        activeInput: null,
+
+        init: function () {
+          this.bindEvents();
+          console.log('内联标签管理器初始化完成');
+        },
+
+        bindEvents: function () {
+          // +Tags 按钮点击事件
+          document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('add-tags-btn')) {
+              this.showTagInput(e.target);
+            }
+          });
+
+          // 输入框输入事件
+          document.addEventListener('input', (e) => {
+            if (e.target.classList.contains('tag-input-field')) {
+              this.handleTagInput(e.target);
+            }
+          });
+
+          // 键盘事件
+          document.addEventListener('keydown', (e) => {
+            if (e.target.classList.contains('tag-input-field')) {
+              this.handleKeydown(e);
+            }
+          });
+
+          // 点击其他地方关闭输入框
+          document.addEventListener('click', (e) => {
+            if (!e.target.closest('.tags-input-container')) {
+              this.hideAllTagInputs();
+            }
+          });
+        },
+
+        // 显示标签输入框
+        showTagInput: function (button) {
+          this.hideAllTagInputs();
+
+          const container = button.closest('.tags-input-container');
+          const wrapper = container.querySelector('.tag-input-wrapper');
+          const input = wrapper.querySelector('.tag-input-field');
+
+          button.classList.add('hidden');
+          wrapper.classList.remove('hidden');
+
+          setTimeout(() => {
+            input.focus();
+            this.activeInput = input;
+          }, 50);
+        },
+
+        // 隐藏所有标签输入框
+        hideAllTagInputs: function () {
+          document.querySelectorAll('.tags-input-container').forEach(container => {
+            const button = container.querySelector('.add-tags-btn');
+            const wrapper = container.querySelector('.tag-input-wrapper');
+            const input = wrapper.querySelector('.tag-input-field');
+            const suggestions = wrapper.querySelector('.tag-suggestions');
+
+            button.classList.remove('hidden');
+            wrapper.classList.add('hidden');
+            suggestions.classList.add('hidden');
+            input.value = '';
+          });
+
+          this.activeInput = null;
+        },
+
+        // 处理标签输入
+        handleTagInput: function (input) {
+          const query = input.value.trim();
+          if (query.length === 0) {
+            this.hideSuggestions(input);
+            return;
+          }
+
+          // 获取现有标签进行搜索
+          const existingTags = this.getAllTags();
+          const filteredTags = existingTags.filter(tag =>
+            tag.name.toLowerCase().includes(query.toLowerCase())
+          );
+
+          this.showSuggestions(input, filteredTags, query);
+        },
+
+        // 处理键盘事件
+        handleKeydown: function (e) {
+          const input = e.target;
+          const suggestions = input.parentElement.querySelector('.tag-suggestions');
+
+          if (e.key === 'Escape') {
+            this.hideAllTagInputs();
+            return;
+          }
+
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const selectedItem = suggestions.querySelector('.tag-suggestion-item.selected');
+
+            if (selectedItem) {
+              if (selectedItem.dataset.tagId === 'create-new') {
+                this.createAndAddTag(input, selectedItem.dataset.tagName);
+              } else {
+                this.selectTag(input, selectedItem.dataset.tagId);
+              }
+            } else {
+              const query = input.value.trim();
+              if (query) {
+                this.createAndAddTag(input, query);
+              }
+            }
+            return;
+          }
+
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            this.navigateSuggestions(suggestions, e.key === 'ArrowDown');
+            return;
+          }
+        },
+
+        // 显示建议
+        showSuggestions: function (input, tags, query) {
+          const suggestions = input.parentElement.querySelector('.tag-suggestions');
+          suggestions.innerHTML = '';
+
+          // 添加现有标签建议
+          tags.forEach(tag => {
+            const item = document.createElement('div');
+            item.className = 'tag-suggestion-item';
+            item.dataset.tagId = tag.id;
+            // 使用 fallback 机制确保标签显示
+            const displayText = tag.display_text || '#' + tag.name || '#' + tag.id;
+            item.innerHTML = `<span style="color: ${tag.color || '#374151'}">${displayText}</span>`;
+            item.addEventListener('click', () => this.selectTag(input, tag.id));
+            suggestions.appendChild(item);
+          });
+
+          // 检查是否已存在完全匹配的标签
+          const existingTags = this.getAllTags();
+          const exactMatch = existingTags.find(tag =>
+            tag.name.toLowerCase() === query.toLowerCase()
+          );
+
+          // 如果没有匹配的标签且没有完全匹配的标签，显示创建新标签选项
+          if (tags.length === 0 && query && !exactMatch) {
+            const createItem = document.createElement('div');
+            createItem.className = 'tag-suggestion-item';
+            createItem.dataset.tagId = 'create-new';
+            createItem.dataset.tagName = query;
+            createItem.innerHTML = `创建新标签: <strong>#${query}</strong>`;
+            createItem.addEventListener('click', () => this.createAndAddTag(input, query));
+            suggestions.appendChild(createItem);
+          } else if (exactMatch && tags.length === 0) {
+            // 如果有完全匹配但不在过滤结果中，显示该标签
+            const item = document.createElement('div');
+            item.className = 'tag-suggestion-item';
+            item.dataset.tagId = exactMatch.id;
+            item.innerHTML = `<span style="color: ${exactMatch.color || '#374151'}">#${exactMatch.name}</span>`;
+            item.addEventListener('click', () => this.selectTag(input, exactMatch.id));
+            suggestions.appendChild(item);
+          }
+
+          suggestions.classList.remove('hidden');
+        },
+
+        // 隐藏建议
+        hideSuggestions: function (input) {
+          const suggestions = input.parentElement.querySelector('.tag-suggestions');
+          suggestions.classList.add('hidden');
+        },
+
+        // 导航建议列表
+        navigateSuggestions: function (suggestions, isDown) {
+          const items = suggestions.querySelectorAll('.tag-suggestion-item');
+          if (items.length === 0) return;
+
+          const currentSelected = suggestions.querySelector('.tag-suggestion-item.selected');
+          let newIndex = 0;
+
+          if (currentSelected) {
+            currentSelected.classList.remove('selected');
+            const currentIndex = Array.from(items).indexOf(currentSelected);
+
+            if (isDown) {
+              newIndex = (currentIndex + 1) % items.length;
+            } else {
+              newIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1;
+            }
+          }
+
+          items[newIndex].classList.add('selected');
+        },
+
+        // 选择标签
+        selectTag: function (input, tagId) {
+          const container = input.closest('.tags-input-container');
+          const target = container.dataset.target;
+          const taskId = container.dataset.taskId;
+          const goalId = container.dataset.goalId;
+
+          if (target === 'task') {
+            this.addTagToTask(taskId, tagId);
+          } else if (target === 'goal') {
+            this.addTagToGoal(taskId, goalId, tagId);
+          }
+
+          this.hideAllTagInputs();
+        },
+
+        // 创建并添加新标签
+        createAndAddTag: function (input, tagName) {
+          // 使用TagManager创建新标签
+          if (window.TaskPixel && window.TaskPixel.TagManager) {
+            const result = window.TaskPixel.TagManager.createTag({ name: tagName });
+            if (result.success) {
+              this.selectTag(input, result.tagId);
+            } else if (result.reason === 'tag_exists') {
+              this.selectTag(input, result.tagId);
+            } else {
+              alert('创建标签失败，请重试');
+            }
+          } else {
+            // 备用方案：直接创建简单标签
+            const cleanTagName = tagName.replace(/^#/, "").trim();
+
+            // 检查标签是否已存在
+            const data = JSON.parse(localStorage.getItem('taskpixel_data') || '{}');
+            if (!data.tags) data.tags = [];
+
+            const existingTag = data.tags.find(tag => tag.name.toLowerCase() === cleanTagName.toLowerCase());
+            if (existingTag) {
+              // 如果标签已存在，直接选择现有标签
+              this.selectTag(input, existingTag.id);
+              return;
+            }
+
+            const newTag = {
+              id: 'tag-' + Date.now(),
+              name: cleanTagName,
+              display_text: '#' + cleanTagName,
+              color: this.getRandomTagColor(),
+              created_at: new Date().toISOString(),
+              usage_count: 0
+            };
+
+            data.tags.push(newTag);
+            localStorage.setItem('taskpixel_data', JSON.stringify(data));
+
+            // 通知 DataStore 重新加载数据
+            if (typeof TaskPixel !== 'undefined' && TaskPixel.DataStore) {
+              TaskPixel.DataStore.loadFromStorage();
+            }
+
+            // 使 TagManager 缓存失效
+            if (typeof TaskPixel !== 'undefined' && TaskPixel.TagManager) {
+              TaskPixel.TagManager.invalidateCache();
+            }
+
+            this.selectTag(input, newTag.id);
+          }
+        },
+
+        // 获取所有标签
+        getAllTags: function () {
+          try {
+            const data = JSON.parse(localStorage.getItem('taskpixel_data') || '{}');
+            return data.tags || [];
+          } catch (e) {
+            return [];
+          }
+        },
+
+        // 获取随机标签颜色
+        getRandomTagColor: function () {
+          const colors = ['#374151', '#6B7280', '#4B5563', '#1F2937', '#065F46', '#7C2D12', '#581C87', '#92400E'];
+          return colors[Math.floor(Math.random() * colors.length)];
+        },
+
+        // 添加标签到任务
+        addTagToTask: function (taskId, tagId) {
+          try {
+            const data = JSON.parse(localStorage.getItem('taskpixel_data') || '{}');
+            const task = data.tasks?.find(t => t.id === taskId);
+
+            if (task) {
+              if (!task.tags) task.tags = [];
+              if (!task.tags.includes(tagId)) {
+                task.tags.push(tagId);
+                localStorage.setItem('taskpixel_data', JSON.stringify(data));
+
+                // 通知 DataStore 重新加载数据
+                if (typeof TaskPixel !== 'undefined' && TaskPixel.DataStore) {
+                  TaskPixel.DataStore.loadFromStorage();
+                }
+
+                this.renderTaskTags(taskId);
+              }
+            }
+          } catch (e) {
+            console.error('添加任务标签失败:', e);
+          }
+        },
+
+        // 添加标签到目标
+        addTagToGoal: function (taskId, goalId, tagId) {
+          try {
+            const data = JSON.parse(localStorage.getItem('taskpixel_data') || '{}');
+            const task = data.tasks?.find(t => t.id === taskId);
+            const goal = task?.goals?.find(g => g.id === goalId);
+
+            if (goal) {
+              if (!goal.tags) goal.tags = [];
+              if (!goal.tags.includes(tagId)) {
+                goal.tags.push(tagId);
+                localStorage.setItem('taskpixel_data', JSON.stringify(data));
+
+                // 通知 DataStore 重新加载数据
+                if (typeof TaskPixel !== 'undefined' && TaskPixel.DataStore) {
+                  TaskPixel.DataStore.loadFromStorage();
+                }
+
+                this.renderGoalTags(goalId);
+              }
+            }
+          } catch (e) {
+            console.error('添加目标标签失败:', e);
+          }
+        },
+
+        // 渲染任务标签
+        renderTaskTags: function (taskId) {
+          try {
+            const data = JSON.parse(localStorage.getItem('taskpixel_data') || '{}');
+            const task = data.tasks?.find(t => t.id === taskId);
+            const allTags = data.tags || [];
+
+            const container = document.querySelector('.task-tags-display');
+            if (!container || !task) return;
+
+            container.innerHTML = '';
+
+            if (task.tags && task.tags.length > 0) {
+              task.tags.forEach(tagId => {
+                const tag = allTags.find(t => t.id === tagId);
+                if (tag) {
+                  const tagElement = this.createTagElement(tag, () => this.removeTagFromTask(taskId, tagId));
+                  container.appendChild(tagElement);
+                }
+              });
+            }
+          } catch (e) {
+            console.error('渲染任务标签失败:', e);
+          }
+        },
+
+        // 渲染目标标签
+        renderGoalTags: function (goalId) {
+          try {
+            const data = JSON.parse(localStorage.getItem('taskpixel_data') || '{}');
+            const allTags = data.tags || [];
+
+            // 找到目标
+            let goal = null;
+            for (const task of data.tasks || []) {
+              const foundGoal = task.goals?.find(g => g.id === goalId);
+              if (foundGoal) {
+                goal = foundGoal;
+                break;
+              }
+            }
+
+            const container = document.querySelector(`[data-goal-id="${goalId}"] .goal-tags-display`);
+            if (!container || !goal) return;
+
+            container.innerHTML = '';
+
+            if (goal.tags && goal.tags.length > 0) {
+              goal.tags.forEach(tagId => {
+                const tag = allTags.find(t => t.id === tagId);
+                if (tag) {
+                  const tagElement = this.createTagElement(tag, () => this.removeTagFromGoal(goalId, tagId));
+                  container.appendChild(tagElement);
+                }
+              });
+            }
+          } catch (e) {
+            console.error('渲染目标标签失败:', e);
+          }
+        },
+
+        // 创建标签元素
+        createTagElement: function (tag, onRemove) {
+          const tagElement = document.createElement('span');
+          tagElement.className = 'task-tag';
+          tagElement.style.color = tag.color || '#374151';
+          // 使用 fallback 机制确保标签显示
+          const displayText = tag.display_text || '#' + tag.name || '#' + tag.id;
+          tagElement.textContent = displayText;
+          tagElement.title = '点击从任务中移除此标签';
+
+          tagElement.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm(`确定要从此任务中移除标签 ${displayText} 吗？\n\n注意：这只会从当前任务中移除标签，不会删除标签本身。`)) {
+              onRemove();
+            }
+          });
+
+          return tagElement;
+        },
+
+        // 从任务移除标签
+        removeTagFromTask: function (taskId, tagId) {
+          try {
+            // 使用 DataStore API 而不是直接操作 localStorage
+            const task = TaskPixel.DataStore.getTaskById(taskId);
+
+            if (task && task.tags) {
+              task.tags = task.tags.filter(id => id !== tagId);
+              // 使用 DataStore 的保存方法，确保数据同步
+              TaskPixel.DataStore.saveToStorage();
+              this.renderTaskTags(taskId);
+
+              // 触发事件通知其他组件
+              TaskPixel.EventBus.emit("task:tags_updated", {
+                taskId: taskId,
+                tags: task.tags,
+              });
+            }
+          } catch (e) {
+            console.error('移除任务标签失败:', e);
+          }
+        },
+
+        // 从目标移除标签
+        removeTagFromGoal: function (goalId, tagId) {
+          try {
+            // 使用 DataStore API 而不是直接操作 localStorage
+            const tasks = TaskPixel.DataStore.getAllTasks();
+
+            // 找到并更新目标
+            for (const task of tasks) {
+              const goal = task.goals?.find(g => g.id === goalId);
+              if (goal && goal.tags) {
+                goal.tags = goal.tags.filter(id => id !== tagId);
+                // 使用 DataStore 的保存方法，确保数据同步
+                TaskPixel.DataStore.saveToStorage();
+                this.renderGoalTags(goalId);
+
+                // 触发事件通知其他组件
+                TaskPixel.EventBus.emit("goal:tags_updated", {
+                  goalId: goalId,
+                  tags: goal.tags,
+                });
+                break;
+              }
+            }
+          } catch (e) {
+            console.error('移除目标标签失败:', e);
+          }
+        }
+      };
+
+      // 内联标签管理器初始化将在定义后进行
+
       // 更新进度条
       function updateProgressBar(taskId) {
         if (!taskId) {
@@ -1307,14 +1943,25 @@
             if (progressTextEl) {
               progressTextEl.textContent = actualProgress + '% 完成';
             }
-
-            console.log(`Progress updated for task ${taskId}: ${actualProgress}%`);
+            // 更新内部标签（若存在）
+            const progressLabelEl = document.querySelector('.progress-label');
+            if (progressLabelEl) {
+              progressLabelEl.textContent = actualProgress + '%';
+              if (actualProgress < 10) {
+                progressLabelEl.classList.add('hidden-small');
+              } else {
+                progressLabelEl.classList.remove('hidden-small');
+              }
+            }
 
           } catch (e) {
             console.error('Error updating progress bar:', e);
           }
         }, 100);
       }
+
+      // 初始化内联标签管理器
+      InlineTagManager.init();
 
     });
   </script>
