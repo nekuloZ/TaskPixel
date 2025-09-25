@@ -119,6 +119,22 @@
       font-weight: bold;
     }
 
+    /* 折叠子步骤样式 */
+    .toggle-substeps-btn {
+      border: 2px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+    }
+    .toggle-substeps-btn:focus {
+      outline: 2px dashed #4F46E5;
+      outline-offset: 3px;
+    }
+    .substeps-container[data-collapsed="true"] {
+      display: none;
+    }
+
     .task-tags-section {
       border-top: 1px dashed #ccc;
       border-bottom: 1px dashed #ccc;
@@ -778,6 +794,30 @@
 
         // 绑定添加目标按钮
         bindAddGoalEvents(taskId);
+
+        // 应用已保存的折叠首选项（如果有），并初始化子步骤的 Sortable 实例
+        try {
+          const raw = localStorage.getItem('taskpixel_ui');
+          const prefs = raw ? JSON.parse(raw) : {};
+          const collapsed = (prefs && prefs.collapsedGoals) ? prefs.collapsedGoals[taskId] || {} : {};
+          document.querySelectorAll('.substeps-wrapper').forEach(wrapper => {
+            const gid = wrapper.dataset.goalId;
+            const container = wrapper.querySelector('.substeps-container');
+            if (!container) return;
+            const isCollapsed = !!collapsed[gid];
+            container.setAttribute('data-collapsed', isCollapsed ? 'true' : 'false');
+            container.style.display = isCollapsed ? 'none' : '';
+            const toggle = wrapper.querySelector('.toggle-substeps-btn');
+            if (toggle) toggle.textContent = isCollapsed ? '▸' : '▾';
+          });
+
+          // 初始化模块化 TaskDetail 的子步骤 sortable（如果存在）
+          if (window.TaskPixel && TaskPixel.TaskDetail && typeof TaskPixel.TaskDetail.attachSubstepsSortables === 'function') {
+            TaskPixel.TaskDetail.attachSubstepsSortables();
+          }
+        } catch (e) {
+          console.error('应用折叠首选项/初始化子步骤 sortable 时出错', e);
+        }
       }
 
       // 创建目标卡片
@@ -797,7 +837,10 @@
                 <button class="pixel-button-flat bg-gray-200 text-black px-3 py-1 text-xs move-goal-down" data-goal-id="${goal.id}" title="下移目标">↓</button>
               </div>
               <div class="flex-1">
-              <h4 class="font-display text-lg font-bold mb-2">${goal.title || '未命名目标'}</h4>
+              <div class="flex items-center justify-between">
+                <h4 class="font-display text-lg font-bold mb-2">${goal.title || '未命名目标'}</h4>
+                <button class="toggle-substeps-btn pixel-button-flat bg-transparent text-black px-2 py-1 text-sm" data-goal-id="${goal.id}" title="展开/折叠子步骤">▾</button>
+              </div>
               <p class="text-gray-600 text-sm mb-2">${goal.description || ''}</p>
             </div>
             <div class="flex gap-2">
@@ -826,7 +869,8 @@
             </div>
           </div>
           
-          <div class="substeps-container">
+          <div class="substeps-wrapper" data-goal-id="${goal.id}">
+            <div class="substeps-container" role="region" aria-label="子步骤列表" data-collapsed="false">
             ${goal.substeps ? goal.substeps.map(substep => `
               <div class="flex items-center gap-3 py-2 px-3 hover:bg-gray-50 substep-item" data-substep-id="${substep.id}">
                 <input type="checkbox" ${substep.completed ? 'checked' : ''} 
@@ -846,6 +890,7 @@
                 </div>
               </div>
             `).join('') : ''}
+            </div>
           </div>
         `;
 
@@ -921,6 +966,52 @@
         const moveSubDown = card.querySelectorAll('.move-substep-down');
         moveSubUp.forEach(btn => btn.addEventListener('click', () => moveSubstep(taskId, btn.dataset.goalId, btn.dataset.substepId, 'up')));
         moveSubDown.forEach(btn => btn.addEventListener('click', () => moveSubstep(taskId, btn.dataset.goalId, btn.dataset.substepId, 'down')));
+
+        // 折叠/展开子步骤功能
+        try {
+          const toggleBtn = card.querySelector('.toggle-substeps-btn');
+          const wrapper = card.querySelector('.substeps-wrapper');
+          const container = wrapper && wrapper.querySelector('.substeps-container');
+
+          // helper: 读取/写入 UI prefs
+          function getUIPrefs() {
+            try {
+              const raw = localStorage.getItem('taskpixel_ui');
+              return raw ? JSON.parse(raw) : {};
+            } catch (e) { return {}; }
+          }
+          function setUIPrefs(prefs) {
+            try { localStorage.setItem('taskpixel_ui', JSON.stringify(prefs)); } catch (e) { }
+          }
+
+          if (toggleBtn && container) {
+            // 初始化折叠状态（优先从 taskpixel_ui 中读取）
+            const prefs = getUIPrefs();
+            prefs.collapsedGoals = prefs.collapsedGoals || {};
+            prefs.collapsedGoals[taskId] = prefs.collapsedGoals[taskId] || {};
+            const collapsed = !!prefs.collapsedGoals[taskId][goal.id];
+            container.setAttribute('data-collapsed', collapsed ? 'true' : 'false');
+            if (collapsed) container.style.display = 'none';
+
+            toggleBtn.addEventListener('click', () => {
+              const isCollapsed = container.getAttribute('data-collapsed') === 'true';
+              if (isCollapsed) {
+                container.setAttribute('data-collapsed', 'false');
+                container.style.display = '';
+                toggleBtn.textContent = '▾';
+                prefs.collapsedGoals[taskId][goal.id] = false;
+              } else {
+                container.setAttribute('data-collapsed', 'true');
+                container.style.display = 'none';
+                toggleBtn.textContent = '▸';
+                prefs.collapsedGoals[taskId][goal.id] = true;
+              }
+              setUIPrefs(prefs);
+            });
+          }
+        } catch (e) {
+          console.error('初始化折叠子步骤失败', e);
+        }
       }
 
       // 本地实现的移动函数（如果存在 TaskPixel.TaskDetail 则优先使用它）
