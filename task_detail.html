@@ -135,6 +135,38 @@
       display: none;
     }
 
+    /* 保证标签显示区域和 +Tags 按钮在同一行（在窄屏下回退为垂直布局） */
+    .task-tags-section .task-tags-display,
+    .goal-tags-section .goal-tags-display {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex: 1 1 auto;
+      min-width: 0; /* allow flex children to shrink */
+      overflow-x: auto;
+    }
+
+    .task-tags-section .tags-input-container,
+    .goal-tags-section .tags-input-container {
+      flex: 0 0 auto;
+      margin-left: 0.5rem;
+    }
+
+    /* 小屏幕：让 tags 区域占满一行，按钮回到下一行以避免拥挤 */
+    @media (max-width: 640px) {
+      .task-tags-section .task-tags-display,
+      .goal-tags-section .goal-tags-display {
+        display: block;
+        width: 100%;
+      }
+      .task-tags-section .tags-input-container,
+      .goal-tags-section .tags-input-container {
+        display: block;
+        margin-left: 0;
+        margin-top: 0.5rem;
+      }
+    }
+
     .task-tags-section {
       border-top: 1px dashed #ccc;
       border-bottom: 1px dashed #ccc;
