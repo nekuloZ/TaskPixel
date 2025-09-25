@@ -28,6 +28,11 @@
   box-shadow: 4px 4px 0px 0px #000000;
 }
 
+/* Panel background used in task_detail and similar pages to avoid inline styles */
+.panel-bg {
+  background-color: #F3F4F6;
+}
+
 /* 像素按钮样式 */
 .pixel-button {
   border: 4px solid #000000;
