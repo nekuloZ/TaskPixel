@@ -137,6 +137,21 @@
       display: none;
     }
 
+    /* 像素化的折叠图标样式：使用小 SVG 并通过 .collapsed 旋转 */
+    .pixel-toggle-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      transition: transform 120ms steps(1);
+      transform-origin: 50% 50%;
+      shape-rendering: crispEdges;
+      fill: currentColor;
+    }
+
+    .pixel-toggle-icon.collapsed {
+      transform: rotate(-90deg);
+    }
+
     /* 保证标签显示区域和 +Tags 按钮在同一行（在窄屏下回退为垂直布局） */
     .task-tags-section .task-tags-display,
     .goal-tags-section .goal-tags-display {
@@ -845,7 +860,11 @@
             container.setAttribute('data-collapsed', isCollapsed ? 'true' : 'false');
             container.style.display = isCollapsed ? 'none' : '';
             const toggle = wrapper.querySelector('.toggle-substeps-btn');
-            if (toggle) toggle.textContent = isCollapsed ? '▸' : '▾';
+            const icon = toggle && toggle.querySelector('.pixel-toggle-icon');
+            if (toggle) toggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+            if (icon) {
+              if (isCollapsed) icon.classList.add('collapsed'); else icon.classList.remove('collapsed');
+            }
           });
 
           // 初始化模块化 TaskDetail 的子步骤 sortable（如果存在）
@@ -876,7 +895,11 @@
               <div class="flex-1">
               <div class="flex items-center justify-between">
                 <h4 class="font-display text-lg font-bold mb-2">${goal.title || '未命名目标'}</h4>
-                <button class="toggle-substeps-btn pixel-button-flat bg-transparent text-black px-2 py-1 text-sm" data-goal-id="${goal.id}" title="展开/折叠子步骤">▾</button>
+                <button class="toggle-substeps-btn pixel-button-flat bg-transparent text-black px-2 py-1 text-sm" data-goal-id="${goal.id}" title="展开/折叠子步骤" aria-expanded="false">
+                  <svg class="pixel-toggle-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M6 4 L10 8 L6 12 Z" />
+                  </svg>
+                </button>
               </div>
               <p class="text-gray-600 text-sm mb-2">${goal.description || ''}</p>
             </div>
@@ -1021,7 +1044,7 @@
             try { localStorage.setItem('taskpixel_ui', JSON.stringify(prefs)); } catch (e) { }
           }
 
-          if (toggleBtn && container) {
+            if (toggleBtn && container) {
             // 初始化折叠状态（优先从 taskpixel_ui 中读取）
             const prefs = getUIPrefs();
             prefs.collapsedGoals = prefs.collapsedGoals || {};
@@ -1029,20 +1052,28 @@
             const collapsed = !!prefs.collapsedGoals[taskId][goal.id];
             container.setAttribute('data-collapsed', collapsed ? 'true' : 'false');
             if (collapsed) container.style.display = 'none';
+            // ensure icon reflects initial state
+            const icon = toggleBtn.querySelector('.pixel-toggle-icon');
+            if (icon) {
+              if (collapsed) icon.classList.add('collapsed'); else icon.classList.remove('collapsed');
+              toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            }
 
             toggleBtn.addEventListener('click', () => {
               const isCollapsed = container.getAttribute('data-collapsed') === 'true';
               if (isCollapsed) {
                 container.setAttribute('data-collapsed', 'false');
                 container.style.display = '';
-                toggleBtn.textContent = '▾';
                 prefs.collapsedGoals[taskId][goal.id] = false;
               } else {
                 container.setAttribute('data-collapsed', 'true');
                 container.style.display = 'none';
-                toggleBtn.textContent = '▸';
                 prefs.collapsedGoals[taskId][goal.id] = true;
               }
+              // toggle icon and aria
+              const icon = toggleBtn.querySelector('.pixel-toggle-icon');
+              if (icon) icon.classList.toggle('collapsed');
+              toggleBtn.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
               setUIPrefs(prefs);
             });
           }
