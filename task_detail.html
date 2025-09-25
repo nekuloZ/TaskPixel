@@ -127,10 +127,12 @@
       font-size: 14px;
       line-height: 1;
     }
+
     .toggle-substeps-btn:focus {
       outline: 2px dashed #4F46E5;
       outline-offset: 3px;
     }
+
     .substeps-container[data-collapsed="true"] {
       display: none;
     }
@@ -142,7 +144,8 @@
       align-items: center;
       gap: 0.25rem;
       flex: 1 1 auto;
-      min-width: 0; /* allow flex children to shrink */
+      min-width: 0;
+      /* allow flex children to shrink */
       overflow-x: auto;
     }
 
@@ -154,11 +157,13 @@
 
     /* 小屏幕：让 tags 区域占满一行，按钮回到下一行以避免拥挤 */
     @media (max-width: 640px) {
+
       .task-tags-section .task-tags-display,
       .goal-tags-section .goal-tags-display {
         display: block;
         width: 100%;
       }
+
       .task-tags-section .tags-input-container,
       .goal-tags-section .tags-input-container {
         display: block;
@@ -885,9 +890,12 @@
             </div>
           </div>
 
-          <!-- 目标标签区域 -->
+          <!-- 目标标签区域（标签显示区与 +Tags 按钮同行，窄屏回退） -->
           <div class="goal-tags-section mt-2 mb-3">
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="goal-tags-display flex flex-wrap gap-1">
+                <!-- 目标标签显示区域 -->
+              </div>
               <div class="tags-input-container" data-target="goal" data-goal-id="${goal.id}" data-task-id="${taskId}">
                 <button class="add-tags-btn">+Tags</button>
                 <div class="tag-input-wrapper hidden">
@@ -895,9 +903,6 @@
                   <div class="tag-suggestions hidden"></div>
                 </div>
               </div>
-            </div>
-            <div class="goal-tags-display flex flex-wrap gap-1">
-              <!-- 目标标签显示区域 -->
             </div>
           </div>
           
