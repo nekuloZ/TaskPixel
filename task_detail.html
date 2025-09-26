@@ -137,19 +137,103 @@
       display: none;
     }
 
-    /* 像素化的折叠图标样式：使用小 SVG 并通过 .collapsed 旋转 */
-    .pixel-toggle-icon {
-      width: 18px;
-      height: 18px;
-      display: inline-block;
-      transition: transform 120ms steps(1);
-      transform-origin: 50% 50%;
-      shape-rendering: crispEdges;
-      fill: currentColor;
+
+
+    /* 像素风格折叠按钮 - 简洁统一 */
+    .pixel-toggle-btn {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0 #000;
+      background: #ffffff;
+      color: #000;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      cursor: pointer;
+      transition: none;
+      line-height: 1;
     }
 
-    .pixel-toggle-icon.collapsed {
-      transform: rotate(-90deg);
+    .pixel-toggle-btn:hover {
+      background: #f8f8f8;
+    }
+
+    .pixel-toggle-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    .pixel-toggle-btn:focus {
+      outline: 2px dashed #4F46E5;
+      outline-offset: 2px;
+    }
+
+    /* 箭头图标：展开时向下，折叠时向右 */
+    .pixel-toggle-btn::before {
+      content: "▼";
+      font-family: monospace;
+      font-size: 14px;
+      font-weight: normal;
+    }
+
+    .pixel-toggle-btn[aria-expanded="false"]::before {
+      content: "▶";
+    }
+
+    /* 统一操作按钮样式（图标风格） */
+    .action-btn {
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      background: #fff;
+      color: #111827;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 8px;
+      font-size: 13px;
+      min-width: 36px;
+      line-height: 1;
+    }
+
+    .action-btn--small {
+      padding: 4px 6px;
+      font-size: 12px;
+      min-width: 30px;
+    }
+
+    .action-icon {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      vertical-align: middle;
+      shape-rendering: crispEdges;
+      image-rendering: pixelated;
+    }
+
+    /* 允许保留原有的 Tailwind bg-* 类作为颜色变体 */
+    .action-btn.bg-green-500 {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .action-btn.bg-blue-500 {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .action-btn.bg-red-500 {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .action-btn.bg-gray-200 {
+      background: #e5e7eb;
+      color: #111827;
     }
 
     /* 保证标签显示区域和 +Tags 按钮在同一行（在窄屏下回退为垂直布局） */
@@ -860,11 +944,7 @@
             container.setAttribute('data-collapsed', isCollapsed ? 'true' : 'false');
             container.style.display = isCollapsed ? 'none' : '';
             const toggle = wrapper.querySelector('.toggle-substeps-btn');
-            const icon = toggle && toggle.querySelector('.pixel-toggle-icon');
             if (toggle) toggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
-            if (icon) {
-              if (isCollapsed) icon.classList.add('collapsed'); else icon.classList.remove('collapsed');
-            }
           });
 
           // 初始化模块化 TaskDetail 的子步骤 sortable（如果存在）
@@ -889,26 +969,22 @@
         card.innerHTML = `
           <div class="flex items-start justify-between mb-4">
               <div class="flex items-center gap-2">
-                <button class="pixel-button-flat bg-gray-200 text-black px-3 py-1 text-xs move-goal-up" data-goal-id="${goal.id}" title="上移目标">↑</button>
-                <button class="pixel-button-flat bg-gray-200 text-black px-3 py-1 text-xs move-goal-down" data-goal-id="${goal.id}" title="下移目标">↓</button>
+                <button class="action-btn action-btn--small bg-gray-200 move-goal-up" data-goal-id="${goal.id}" title="上移目标">↑</button>
+                <button class="action-btn action-btn--small bg-gray-200 move-goal-down" data-goal-id="${goal.id}" title="下移目标">↓</button>
               </div>
               <div class="flex-1">
               <div class="flex items-center justify-between">
                 <h4 class="font-display text-lg font-bold mb-2">${goal.title || '未命名目标'}</h4>
-                <button class="toggle-substeps-btn pixel-button-flat bg-transparent text-black px-2 py-1 text-sm" data-goal-id="${goal.id}" title="展开/折叠子步骤" aria-expanded="false">
-                  <svg class="pixel-toggle-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M6 4 L10 8 L6 12 Z" />
-                  </svg>
-                </button>
+                <button class="toggle-substeps-btn pixel-toggle-btn" data-goal-id="${goal.id}" title="展开/折叠子步骤" aria-expanded="false"></button>
               </div>
               <p class="text-gray-600 text-sm mb-2">${goal.description || ''}</p>
             </div>
             <div class="flex gap-2">
-              <button class="pixel-button-flat bg-green-500 text-white px-3 py-1 text-xs edit-goal-btn" 
+        <button class="action-btn bg-green-500 edit-goal-btn" 
                       data-goal-id="${goal.id}" title="修改目标">✏️</button>
-              <button class="pixel-button-flat bg-blue-500 text-white px-3 py-1 text-xs add-substep-btn" 
+        <button class="action-btn bg-blue-500 add-substep-btn" 
                       data-goal-id="${goal.id}" title="添加子步骤">➕</button>
-              <button class="pixel-button-flat bg-red-500 text-white px-3 py-1 text-xs delete-goal-btn" 
+        <button class="action-btn bg-red-500 delete-goal-btn" 
                       data-goal-id="${goal.id}" title="删除目标">🗑️</button>
             </div>
           </div>
@@ -939,12 +1015,12 @@
                        data-substep-id="${substep.id}">
                 <span class="flex-1 ${substep.completed ? 'line-through text-gray-500' : ''}">${substep.content || substep.title}</span>
                 <div class="flex gap-1 items-center">
-                  <button class="pixel-button-flat bg-gray-200 text-black px-2 py-1 text-xs move-substep-up" data-substep-id="${substep.id}" data-goal-id="${goal.id}" title="上移子步骤">↑</button>
-                  <button class="pixel-button-flat bg-gray-200 text-black px-2 py-1 text-xs move-substep-down" data-substep-id="${substep.id}" data-goal-id="${goal.id}" title="下移子步骤">↓</button>
-                  <button class="pixel-button-flat bg-green-500 text-white px-2 py-1 text-xs edit-substep-btn" 
+      <button class="action-btn action-btn--small bg-gray-200 move-substep-up" data-substep-id="${substep.id}" data-goal-id="${goal.id}" title="上移子步骤">↑</button>
+      <button class="action-btn action-btn--small bg-gray-200 move-substep-down" data-substep-id="${substep.id}" data-goal-id="${goal.id}" title="下移子步骤">↓</button>
+      <button class="action-btn bg-green-500 edit-substep-btn" 
                           data-goal-id="${goal.id}" 
                           data-substep-id="${substep.id}" title="修改子步骤">✏️</button>
-                  <button class="pixel-button-flat bg-red-500 text-white px-2 py-1 text-xs delete-substep-btn" 
+      <button class="action-btn bg-red-500 delete-substep-btn" 
                           data-goal-id="${goal.id}" 
                           data-substep-id="${substep.id}" title="删除子步骤">🗑️</button>
                 </div>
@@ -1044,7 +1120,7 @@
             try { localStorage.setItem('taskpixel_ui', JSON.stringify(prefs)); } catch (e) { }
           }
 
-            if (toggleBtn && container) {
+          if (toggleBtn && container) {
             // 初始化折叠状态（优先从 taskpixel_ui 中读取）
             const prefs = getUIPrefs();
             prefs.collapsedGoals = prefs.collapsedGoals || {};
@@ -1052,12 +1128,8 @@
             const collapsed = !!prefs.collapsedGoals[taskId][goal.id];
             container.setAttribute('data-collapsed', collapsed ? 'true' : 'false');
             if (collapsed) container.style.display = 'none';
-            // ensure icon reflects initial state
-            const icon = toggleBtn.querySelector('.pixel-toggle-icon');
-            if (icon) {
-              if (collapsed) icon.classList.add('collapsed'); else icon.classList.remove('collapsed');
-              toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-            }
+            // 设置初始状态
+            toggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
 
             toggleBtn.addEventListener('click', () => {
               const isCollapsed = container.getAttribute('data-collapsed') === 'true';
@@ -1070,9 +1142,7 @@
                 container.style.display = 'none';
                 prefs.collapsedGoals[taskId][goal.id] = true;
               }
-              // toggle icon and aria
-              const icon = toggleBtn.querySelector('.pixel-toggle-icon');
-              if (icon) icon.classList.toggle('collapsed');
+              // 更新 aria-expanded 属性，CSS 会自动更新箭头方向
               toggleBtn.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
               setUIPrefs(prefs);
             });

@@ -4,15 +4,29 @@
  */
 
 const TaskCreationDebug = {
+  // 调试配置
+  config: {
+    autoCreateTestTask: false, // 是否自动创建测试任务
+    enableConsoleLogging: true, // 是否启用控制台日志
+  },
+
   init: function () {
-    console.log("=== 任务创建调试开始 ===");
+    if (this.config.enableConsoleLogging) {
+      console.log("=== 任务创建调试开始 ===");
+    }
     this.checkElements();
     this.checkDataStore();
-    this.testTaskCreation();
+
+    // 只有在配置允许时才自动创建测试任务
+    if (this.config.autoCreateTestTask) {
+      this.testTaskCreation();
+    }
   },
 
   // 检查DOM元素
   checkElements: function () {
+    if (!this.config.enableConsoleLogging) return;
+
     console.log("--- 检查DOM元素 ---");
 
     const elements = {
@@ -33,6 +47,8 @@ const TaskCreationDebug = {
 
   // 检查数据存储模块
   checkDataStore: function () {
+    if (!this.config.enableConsoleLogging) return;
+
     console.log("--- 检查数据存储模块 ---");
 
     if (typeof TaskPixel === "undefined") {
@@ -49,7 +65,7 @@ const TaskCreationDebug = {
     console.log("当前任务数量:", TaskPixel.DataStore.data.tasks.length);
   },
 
-  // 测试任务创建
+  // 测试任务创建（手动调用）
   testTaskCreation: function () {
     console.log("--- 测试任务创建 ---");
 
@@ -73,6 +89,12 @@ const TaskCreationDebug = {
     }
   },
 
+  // 手动触发测试任务创建（仅用于调试）
+  manualTestTaskCreation: function () {
+    console.log("手动触发测试任务创建");
+    this.testTaskCreation();
+  },
+
   // 检查localStorage
   checkLocalStorage: function () {
     console.log("--- 检查localStorage ---");
@@ -91,7 +113,7 @@ const TaskCreationDebug = {
   },
 };
 
-// 页面加载完成后运行调试
+// 页面加载完成后运行调试（仅检查，不创建测试任务）
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => TaskCreationDebug.init(), 1000);
@@ -99,3 +121,9 @@ if (document.readyState === "loading") {
 } else {
   setTimeout(() => TaskCreationDebug.init(), 1000);
 }
+
+// 调试工具使用说明：
+// 1. 启用自动测试任务创建：TaskCreationDebug.config.autoCreateTestTask = true
+// 2. 禁用控制台日志：TaskCreationDebug.config.enableConsoleLogging = false
+// 3. 手动创建测试任务：TaskCreationDebug.manualTestTaskCreation()
+// 4. 重新运行完整调试：TaskCreationDebug.init()

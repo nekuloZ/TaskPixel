@@ -1,6 +1,5 @@
 {
-  "kiroAgent.configureMCP": "Disabled"
-  ,
+  "kiroAgent.configureMCP": "Disabled",
   "cSpell.enabled": true,
   "cSpell.workspaceLanguage": "en",
   "cSpell.dictionaryDefinitions": [
@@ -10,5 +9,13 @@
       "description": "Project-level words for TaskPixel"
     }
   ],
-  "cSpell.enabledLanguageIds": ["javascript", "javascriptreact", "typescript", "typescriptreact", "html", "css", "json"]
+  "cSpell.enabledFileTypes": {
+    "js": true,
+    "jsx": true,
+    "ts": true,
+    "tsx": true,
+    "html": true,
+    "css": true,
+    "json": true
+  }
 }

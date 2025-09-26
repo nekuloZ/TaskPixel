@@ -263,8 +263,23 @@ TaskPixel.Home = {
                 <input type="checkbox" class="task-checkbox w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2" 
                        data-task-id="${task.id}" />
             </div>
-      <!-- 拖拽句柄 -->
-      <!-- 不再显示拖拽句柄：使用长按触发拖拽 -->
+            <!-- 拖拽提示图标 -->
+            <div class="drag-handle absolute top-3 right-3 text-gray-400 hover:text-gray-700 cursor-grab transition-colors ${
+              this.bulkMode ? "hidden" : ""
+            }" title="长按拖拽排序">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                    <!-- 使用更明显的网格点图标 -->
+                    <circle cx="4" cy="4" r="1.5"/>
+                    <circle cx="9" cy="4" r="1.5"/>
+                    <circle cx="14" cy="4" r="1.5"/>
+                    <circle cx="4" cy="9" r="1.5"/>
+                    <circle cx="9" cy="9" r="1.5"/>
+                    <circle cx="14" cy="9" r="1.5"/>
+                    <circle cx="4" cy="14" r="1.5"/>
+                    <circle cx="9" cy="14" r="1.5"/>
+                    <circle cx="14" cy="14" r="1.5"/>
+                </svg>
+            </div>
             <div>
                 <div class="flex justify-between items-center mb-2">
                     <p class="text-xs font-bold ${dueStatusClass}">${dueStatusText}</p>
@@ -323,14 +338,26 @@ TaskPixel.Home = {
     // 使用 delay（长按）触发拖拽，用户按住一段时间后即可拖动整个项
     this._sortableInstance = Sortable.create(container, {
       delay: 220,
-      animation: 150,
+      animation: 200,
+      ghostClass: "task-card-ghost",
+      chosenClass: "task-card-chosen",
+      dragClass: "task-card-drag",
+      onStart: (evt) => {
+        // 拖拽开始时的视觉反馈
+        evt.item.style.transform = "rotate(2deg)";
+        console.log("开始拖拽任务:", evt.item.dataset.taskId);
+      },
       onEnd: (evt) => {
+        // 重置样式
+        evt.item.style.transform = "";
+
         try {
           const ordered = Array.from(container.querySelectorAll(".task-card"))
             .map((el) => el.dataset.taskId)
             .filter(Boolean);
           if (ordered && ordered.length) {
             TaskPixel.DataStore.updateTaskOrder(ordered);
+            console.log("任务排序已更新:", ordered);
           }
         } catch (err) {
           console.error("保存任务顺序失败", err);
@@ -736,6 +763,17 @@ TaskPixel.Home = {
       container.classList.remove("hidden");
     });
 
+    // 隐藏拖拽句柄（批量管理时禁用拖拽）
+    const dragHandles = document.querySelectorAll(".drag-handle");
+    dragHandles.forEach((handle) => {
+      handle.classList.add("hidden");
+    });
+
+    // 禁用 Sortable 实例
+    if (this._sortableInstance) {
+      this._sortableInstance.option("disabled", true);
+    }
+
     // 更新按钮文本
     if (this.elements.toggleBulkModeBtn) {
       this.elements.toggleBulkModeBtn.textContent = "退出批量管理";
@@ -762,6 +800,17 @@ TaskPixel.Home = {
     checkboxContainers.forEach((container) => {
       container.classList.add("hidden");
     });
+
+    // 显示拖拽句柄（恢复拖拽功能）
+    const dragHandles = document.querySelectorAll(".drag-handle");
+    dragHandles.forEach((handle) => {
+      handle.classList.remove("hidden");
+    });
+
+    // 启用 Sortable 实例
+    if (this._sortableInstance) {
+      this._sortableInstance.option("disabled", false);
+    }
 
     // 隐藏批量操作工具栏
     if (this.elements.bulkActionsToolbar) {

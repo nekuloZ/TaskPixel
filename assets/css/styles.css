@@ -30,7 +30,7 @@
 
 /* Panel background used in task_detail and similar pages to avoid inline styles */
 .panel-bg {
-  background-color: #F3F4F6;
+  background-color: #f3f4f6;
 }
 
 /* 像素按钮样式 */
@@ -476,4 +476,65 @@ details > summary::-webkit-details-marker {
 
 details[open] > summary .expand-icon {
   transform: rotate(90deg);
+}
+
+/* 任务卡片拖拽排序样式 */
+.task-card {
+  cursor: grab;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.task-card:active {
+  cursor: grabbing;
+}
+
+/* 拖拽状态样式 */
+.task-card-chosen {
+  transform: rotate(2deg) scale(1.05);
+  box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  background: #f8f9fa !important;
+  border-color: #4f46e5 !important;
+}
+
+.task-card-ghost {
+  opacity: 0.3;
+  background: #f0f0f0 !important;
+  border: 4px dashed #ccc !important;
+  transform: scale(0.95);
+}
+
+.task-card-drag {
+  transform: rotate(3deg) scale(1.1);
+  box-shadow: 12px 12px 24px rgba(0, 0, 0, 0.4);
+  background: #ffffff !important;
+}
+
+/* 拖拽句柄样式 */
+.drag-handle {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.task-card:hover .drag-handle {
+  opacity: 1;
+}
+
+/* 长按提示动画 */
+.task-card:active .drag-handle {
+  animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
 }
