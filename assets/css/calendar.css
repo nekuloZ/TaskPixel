@@ -1,0 +1,735 @@
+/* TaskPixel 日历样式文件 */
+
+/* 迷你月历样式 */
+.mini-calendar {
+  font-size: 14px;
+}
+
+.mini-calendar-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.mini-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #000;
+  border: 2px solid #000;
+}
+
+.mini-calendar-cell {
+  background: #fff;
+  padding: 6px;
+  text-align: center;
+  cursor: pointer;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mini-calendar-cell:hover {
+  background: #f0f0f0;
+}
+
+.mini-calendar-cell.today {
+  background: #4f46e5;
+  color: white;
+  font-weight: bold;
+}
+
+.mini-calendar-cell.selected {
+  background: #8b5cf6;
+  color: white;
+}
+
+.mini-calendar-cell.other-month {
+  color: #ccc;
+}
+
+.mini-calendar-cell.has-records {
+  background: #dbeafe;
+  border: 1px solid #3b82f6;
+}
+
+/* 周视图样式 */
+.week-column-view {
+  display: flex;
+  height: auto;
+  min-height: 1500px;
+  border: 2px solid #000;
+  background: #fff;
+  overflow-x: auto;
+  min-width: 800px;
+  position: relative;
+}
+
+.time-axis {
+  flex: 0 0 80px;
+  background: #f8f9fa;
+  border-right: 2px solid #000;
+  display: flex;
+  flex-direction: column;
+}
+
+.time-axis-header {
+  flex: 0 0 60px;
+  border-bottom: 2px solid #000;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #666;
+}
+
+.time-label {
+  flex: 0 0 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  color: #666;
+  background: #f8f9fa;
+}
+
+.time-label:last-child {
+  border-bottom: none;
+}
+
+.day-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #000;
+  min-width: 0;
+}
+
+.day-column:last-child {
+  border-right: none;
+}
+
+.day-header {
+  flex: 0 0 60px;
+  background: #f8f9fa;
+  border-bottom: 2px solid #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.day-name {
+  font-size: 14px;
+  color: #666;
+}
+
+.date-number {
+  font-size: 22px;
+  color: #4f46e5;
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.day-content {
+  flex: 1;
+  position: relative;
+  background: white;
+  cursor: pointer;
+  min-height: 1440px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 为每个小时添加分隔线 */
+.day-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 59px,
+    #ddd 59px,
+    #ddd 60px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.empty-day {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #999;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* 当前时间线 */
+.current-time-line {
+  position: absolute;
+  left: 80px; /* 从时间轴右侧开始 */
+  right: 0;
+  height: 2px;
+  background: #ff0000;
+  z-index: 100;
+  box-shadow: 0 0 4px rgba(255, 0, 0, 0.5);
+}
+
+.current-time-dot {
+  position: absolute;
+  left: -6px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  background: #ff0000;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(255, 0, 0, 0.5);
+}
+
+.current-time-label {
+  position: absolute;
+  left: -70px;
+  top: -10px;
+  background: #ff0000;
+  color: white;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+/* 小时格子样式 */
+.hour-cell {
+  border-bottom: 1px solid #ddd;
+  height: 60px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.hour-cell:hover {
+  background: rgba(79, 70, 229, 0.05);
+}
+
+/* 小时格子中的时间块 */
+.time-block-cell {
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4px 6px;
+  transition: all 0.2s;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.time-block-cell:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.block-content-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.block-content-cell .block-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.block-content-cell .block-time {
+  font-size: 10px;
+  opacity: 0.8;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 时间块样式 */
+.time-block {
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.time-block:hover {
+  transform: translateX(2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.block-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+/* 通用块标题样式 - 用于非时间块卡片 */
+.block-content .block-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.block-content .block-time {
+  font-size: 10px;
+  opacity: 0.9;
+  line-height: 1;
+}
+
+/* 不同类别的时间块颜色 */
+.time-block.work {
+  background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+}
+
+.time-block.study {
+  background: linear-gradient(45deg, #10b981, #047857);
+}
+
+.time-block.exercise {
+  background: linear-gradient(45deg, #f59e0b, #d97706);
+}
+
+.time-block.entertainment {
+  background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+}
+
+.time-block.rest {
+  background: linear-gradient(45deg, #6b7280, #4b5563);
+}
+
+.time-block.meal {
+  background: linear-gradient(45deg, #ef4444, #dc2626);
+}
+
+.time-block.commute {
+  background: linear-gradient(45deg, #06b6d4, #0891b2);
+}
+
+.time-block.other {
+  background: linear-gradient(45deg, #64748b, #475569);
+}
+
+/* 时间块卡片样式 */
+.time-block-card {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  background: #f8f9fa;
+  border: 2px solid #000;
+  border-radius: 0;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 11px;
+  overflow-y: auto;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.time-block-card:hover {
+  background: #e9ecef;
+  box-shadow: 2px 2px 0 #000;
+}
+
+.time-block-card .block-title {
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 1.2;
+  margin-bottom: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #000;
+  text-shadow: none;
+}
+
+.time-block-card .block-time {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.1;
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+
+/* 时间块卡片字体颜色 */
+.time-block-card.work {
+  color: #1d4ed8;
+  border-left: 4px solid #1d4ed8;
+}
+
+.time-block-card.study {
+  color: #047857;
+  border-left: 4px solid #047857;
+}
+
+.time-block-card.exercise {
+  color: #d97706;
+  border-left: 4px solid #d97706;
+}
+
+.time-block-card.entertainment {
+  color: #7c3aed;
+  border-left: 4px solid #7c3aed;
+}
+
+.time-block-card.rest {
+  color: #4b5563;
+  border-left: 4px solid #4b5563;
+}
+
+.time-block-card.meal {
+  color: #dc2626;
+  border-left: 4px solid #dc2626;
+}
+
+.time-block-card.commute {
+  color: #0891b2;
+  border-left: 4px solid #0891b2;
+}
+
+.time-block-card.other {
+  color: #475569;
+  border-left: 4px solid #475569;
+}
+
+/* 子任务样式 */
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafafa;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.subtask-item:last-child {
+  border-bottom: none;
+}
+
+.subtask-checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.subtask-input {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  padding: 6px 8px;
+  font-size: 12px;
+  border-radius: 3px;
+  background: white;
+}
+
+.subtask-remove {
+  color: #ef4444;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.subtask-remove:hover {
+  background: #fee2e2;
+}
+
+/* 时间块中的子任务显示 */
+.time-block-subtasks {
+  margin-top: 6px;
+  font-size: 10px;
+  line-height: 1.3;
+  max-height: 60px;
+  overflow-y: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 4px;
+}
+
+.subtask-display-item {
+  display: block;
+  margin-bottom: 3px;
+  padding: 2px 4px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  color: #333;
+  font-weight: 500;
+  border-left: 2px solid rgba(0, 0, 0, 0.2);
+  position: relative;
+  padding-left: 12px;
+  transition: all 0.2s ease;
+}
+
+.subtask-display-item:before {
+  content: "▸";
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.subtask-display-item:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-left-color: rgba(0, 0, 0, 0.3);
+}
+
+.subtask-completed {
+  text-decoration: line-through;
+  opacity: 0.6;
+  background: rgba(128, 128, 128, 0.05);
+  border-left-color: rgba(128, 128, 128, 0.3);
+  color: #666;
+}
+
+.subtask-completed:before {
+  content: "✓";
+  color: #22c55e;
+}
+
+.subtask-more {
+  font-style: italic;
+  opacity: 0.7;
+  background: rgba(128, 128, 128, 0.05);
+  border-left-color: rgba(128, 128, 128, 0.3);
+  font-size: 9px;
+  color: #666;
+}
+
+.subtask-more:before {
+  content: "…";
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* 时间块卡片滚动条样式 */
+.time-block-card::-webkit-scrollbar {
+  width: 4px;
+}
+
+.time-block-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.time-block-card::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0;
+}
+
+.time-block-card::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* 子任务容器滚动条样式 */
+.time-block-subtasks::-webkit-scrollbar {
+  width: 3px;
+}
+
+.time-block-subtasks::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.time-block-subtasks::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+}
+
+.time-block-subtasks::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 效率评分样式 */
+.time-block.efficiency-5,
+.time-block-cell.efficiency-5 {
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+  border: 2px solid #22c55e;
+}
+
+.time-block.efficiency-4,
+.time-block-cell.efficiency-4 {
+  box-shadow: 0 0 6px rgba(132, 204, 22, 0.6);
+  border: 2px solid #84cc16;
+}
+
+.time-block.efficiency-3,
+.time-block-cell.efficiency-3 {
+  box-shadow: 0 0 4px rgba(245, 158, 11, 0.4);
+  border: 2px solid #f59e0b;
+}
+
+.time-block.efficiency-2,
+.time-block-cell.efficiency-2 {
+  box-shadow: 0 0 4px rgba(239, 68, 68, 0.4);
+  border: 2px solid #ef4444;
+}
+
+.time-block.efficiency-1,
+.time-block-cell.efficiency-1 {
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.6);
+  border: 2px solid #dc2626;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 像素按钮小尺寸 */
+.pixel-button-sm {
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0 #000;
+  background: #fff;
+  color: #000;
+  font-family: "VT323", monospace;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.pixel-button-sm:hover {
+  background: #f0f0f0;
+}
+
+.pixel-button-sm:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #000;
+}
+
+/* 像素输入框 */
+.pixel-input {
+  border: 2px solid #000;
+  background: #fff;
+  padding: 8px 12px;
+  font-family: "VT323", monospace;
+  font-size: 16px;
+}
+
+.pixel-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #4f46e5;
+}
+
+/* 像素选择框 */
+.pixel-select {
+  border: 2px solid #000;
+  background: #fff;
+  padding: 8px 12px;
+  font-family: "VT323", monospace;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.pixel-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #4f46e5;
+}
+
+/* 响应式设计 */
+@media (max-width: 1280px) {
+  .week-calendar {
+    min-width: 600px;
+  }
+
+  .week-header,
+  .week-grid {
+    grid-template-columns: 60px repeat(7, 1fr);
+  }
+
+  .time-label {
+    font-size: 10px;
+    padding: 4px;
+  }
+
+  .hour-cell {
+    min-height: 32px;
+  }
+
+  .time-block {
+    font-size: 10px;
+    padding: 1px 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .week-calendar {
+    min-width: 400px;
+  }
+
+  .week-header,
+  .week-grid {
+    grid-template-columns: 40px repeat(7, 1fr);
+  }
+
+  .time-label {
+    font-size: 8px;
+    padding: 2px;
+  }
+
+  .hour-cell {
+    min-height: 24px;
+  }
+
+  .time-block {
+    font-size: 8px;
+    padding: 1px;
+  }
+
+  .day-header {
+    font-size: 12px;
+    padding: 8px 4px;
+  }
+}

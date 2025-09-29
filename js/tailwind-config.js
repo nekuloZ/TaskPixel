@@ -23,8 +23,14 @@
           "accent-red": "#ef4444",
         },
         fontFamily: {
-          display: ["'Press Start 2P'", "cursive"],
-          sans: ["VT323", "monospace"],
+          display: [
+            "'Press Start 2P'",
+            "'SimHei'",
+            "'Microsoft YaHei'",
+            "cursive",
+          ],
+          sans: ["VT323", "'SimHei'", "'Microsoft YaHei'", "monospace"],
+          body: ["VT323", "'SimHei'", "'Microsoft YaHei'", "monospace"],
         },
         borderRadius: {
           DEFAULT: "0px",

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskPixel - 日历</title>
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <!-- Tailwind CSS (CDN) and shared configuration -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+
+    <!-- 应用样式 -->
+    <link rel="stylesheet" href="assets/css/styles.css?v=20250926">
+    <link rel="stylesheet" href="assets/css/calendar.css?v=20250926">
+</head>
+
+<body class="bg-background-light font-display text-pixel-text-color">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="flex h-full grow flex-col">
+            <!-- Navigation Header -->
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b-4 border-pixel-border-color px-6 py-4 bg-white">
+                <div class="flex items-center gap-4">
+                    <svg class="text-pixel-text-color" fill="none" height="32" viewBox="0 0 32 32" width="32"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd"
+                            d="M0 0H8V8H0V0ZM8 8H16V16H8V8ZM16 16H24V24H16V16ZM0 16H8V24H0V16ZM8 24H16V32H8V24ZM16 0H24V8H16V0ZM24 8H32V16H24V8Z"
+                            fill="currentColor" fill-rule="evenodd"></path>
+                    </svg>
+                    <h2 class="text-xl font-bold text-pixel-text-color">TaskPixel</h2>
+                </div>
+                <div class="hidden md:flex items-center gap-8 text-sm">
+                    <a class="text-black/70 hover:text-primary nav-link" href="index.html">主页</a>
+                    <a class="font-bold text-pixel-text-color nav-link active" href="calendar.html">日历</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="tags_management.html">标签管理</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
+                    <a class="text-black/70 hover:text-primary nav-link" href="data_management.html">数据管理</a>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+
+                    <!-- 左侧：迷你月历 + 控制面板 -->
+                    <div class="xl:col-span-1 space-y-6">
+                        <!-- 迷你月历 -->
+                        <div class="pixel-border bg-white p-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold">日历导航</h3>
+                                <div class="flex items-center gap-2">
+                                    <button id="prev-month"
+                                        class="pixel-button-sm w-8 h-8 flex items-center justify-center">
+                                        ←
+                                    </button>
+                                    <button id="next-month"
+                                        class="pixel-button-sm w-8 h-8 flex items-center justify-center">
+                                        →
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="mini-calendar" class="mini-calendar">
+                                <!-- 迷你月历将通过JS生成 -->
+                            </div>
+                        </div>
+
+                        <!-- 快速记录 -->
+                        <div class="pixel-border bg-white p-4">
+                            <h3 class="text-lg font-bold mb-3">快速记录</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="quick-activity" class="pixel-input w-full text-sm"
+                                    placeholder="输入活动内容...">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="time" id="quick-start-time" class="pixel-input text-sm"
+                                        placeholder="开始时间">
+                                    <input type="time" id="quick-end-time" class="pixel-input text-sm"
+                                        placeholder="结束时间">
+                                </div>
+                                <button id="quick-add" class="pixel-button bg-primary text-white text-sm w-full">
+                                    添加时间块
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：周视图 + 时间块 -->
+                    <div class="xl:col-span-3">
+                        <!-- 周导航 -->
+                        <div class="pixel-border bg-white p-4 mb-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <button id="prev-week" class="pixel-button flex items-center gap-2">
+                                        <span>← 上一周</span>
+                                    </button>
+                                    <button id="next-week" class="pixel-button flex items-center gap-2">
+                                        <span>下一周 →</span>
+                                    </button>
+                                </div>
+                                <div class="text-center">
+                                    <h2 id="current-week" class="text-xl font-bold">2025年9月第4周</h2>
+                                    <p id="week-range" class="text-sm text-gray-600">9月22日 - 9月28日</p>
+                                </div>
+                                <button id="today-btn" class="pixel-button bg-primary text-white">
+                                    今天
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 周视图时间表 -->
+                        <div class="pixel-border bg-white overflow-hidden">
+                            <div id="week-grid">
+                                <!-- 周视图将通过JS生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 时间块编辑模态框 -->
+    <div id="time-block-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="pixel-border bg-white p-6 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">编辑时间块</h3>
+                <button id="close-modal" class="text-xl hover:text-red-500">×</button>
+            </div>
+
+            <form id="time-block-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-2">活动内容</label>
+                    <input type="text" id="modal-activity" class="pixel-input w-full" placeholder="您在做什么？" required>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-2">日期</label>
+                        <input type="date" id="modal-date" class="pixel-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">开始时间</label>
+                        <input type="time" id="modal-start-time" class="pixel-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">结束时间</label>
+                        <input type="time" id="modal-end-time" class="pixel-input w-full" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-2">类别</label>
+                        <select id="modal-category" class="pixel-select w-full">
+                            <option value="work">工作</option>
+                            <option value="study">学习</option>
+                            <option value="exercise">运动</option>
+                            <option value="entertainment">娱乐</option>
+                            <option value="rest">休息</option>
+                            <option value="meal">用餐</option>
+                            <option value="commute">通勤</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">效率评分</label>
+                        <select id="modal-efficiency" class="pixel-select w-full">
+                            <option value="5">优秀 (5分)</option>
+                            <option value="4">良好 (4分)</option>
+                            <option value="3" selected>一般 (3分)</option>
+                            <option value="2">较差 (2分)</option>
+                            <option value="1">很差 (1分)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 子任务列表 -->
+                <div>
+                    <label class="block text-sm font-bold mb-2">子任务列表</label>
+                    <div id="subtasks-container"
+                        class="border-2 border-gray-300 rounded p-3 max-h-40 overflow-y-auto bg-gray-50">
+                        <div class="text-sm text-gray-500 text-center py-2" id="empty-subtasks">
+                            点击下方按钮添加子任务
+                        </div>
+                    </div>
+                    <button type="button" id="add-subtask" class="pixel-button-sm mt-2 bg-blue-500 text-white">
+                        + 添加子任务
+                    </button>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold mb-2">备注</label>
+                    <textarea id="modal-notes" class="pixel-input w-full h-20" placeholder="可选备注..."></textarea>
+                </div>
+
+                <div class="flex gap-2 justify-end">
+                    <button type="button" id="delete-block"
+                        class="pixel-button bg-red-500 text-white hidden">删除</button>
+                    <button type="button" id="cancel-modal" class="pixel-button">取消</button>
+                    <button type="submit" class="pixel-button bg-primary text-white">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 应用脚本 -->
+    <script src="js/core.js"></script>
+    <script src="js/calendar.js"></script>
+    <script>
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function () {
+            // 初始化核心模块
+            TaskPixel.init();
+
+            // 初始化日历模块
+            TaskPixel.Calendar.init();
+        });
+    </script>
+</body>
+
+</html>

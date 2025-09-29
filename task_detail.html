@@ -16,6 +16,19 @@
   <!-- SortableJS for drag-and-drop ordering -->
   <script src="https://unpkg.com/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
+    /* 统一像素字体样式 */
+    * {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace !important;
+    }
+
+    /* 确保中文也使用像素风格 */
+    body,
+    html {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace !important;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
     /* 页面特定的标签相关样式 */
 
     /* 标签功能样式 */
@@ -121,16 +134,29 @@
 
     /* 折叠子步骤样式 */
     .toggle-substeps-btn {
-      border: 2px solid transparent;
-      background: transparent;
+      border: 2px solid #000 !important;
+      background: #c0c0c0 !important;
+      color: #000 !important;
+      width: 28px !important;
+      height: 28px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-family: 'VT323', monospace !important;
+      font-size: 16px !important;
+      transition: all 0.1s ease !important;
+      border-radius: 0 !important;
       cursor: pointer;
-      font-size: 14px;
-      line-height: 1;
+    }
+
+    .toggle-substeps-btn:hover {
+      transform: translate(-1px, -1px) !important;
+      box-shadow: 2px 2px 0 #000 !important;
     }
 
     .toggle-substeps-btn:focus {
-      outline: 2px dashed #4F46E5;
-      outline-offset: 3px;
+      outline: 2px solid #4F46E5;
+      outline-offset: 2px;
     }
 
     .substeps-container[data-collapsed="true"] {
@@ -182,6 +208,127 @@
 
     .pixel-toggle-btn[aria-expanded="false"]::before {
       content: "▶";
+    }
+
+    /* 标签页样式 */
+    .task-tabs {
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      padding: 8px 16px;
+      border: 2px solid #000;
+      background: #f5f5f5;
+      color: #666;
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: none;
+      position: relative;
+    }
+
+    .tab-btn:first-child {
+      border-top-left-radius: 4px;
+    }
+
+    .tab-btn:last-child {
+      border-top-right-radius: 4px;
+    }
+
+    .tab-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .tab-btn.active {
+      background: #3b82f6;
+      color: white;
+      border-bottom: 2px solid #3b82f6;
+      transform: translateY(2px);
+    }
+
+    .tab-content {
+      display: block;
+    }
+
+    .tab-content.hidden {
+      display: none;
+    }
+
+    /* 资源管理样式 */
+    .resource-add-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .resource-add-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 3px 3px 0px #000;
+    }
+
+    .resource-item {
+      border: 2px solid #e0e0e0;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: white;
+      transition: all 0.2s ease;
+    }
+
+    .resource-item:hover {
+      border-color: #3b82f6;
+      box-shadow: 2px 2px 0px #3b82f6;
+    }
+
+    .resource-item-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .resource-icon {
+      font-size: 24px;
+      width: 32px;
+      text-align: center;
+    }
+
+    .resource-info {
+      flex: 1;
+    }
+
+    .resource-name {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace;
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .resource-path {
+      font-size: 12px;
+      color: #666;
+      word-break: break-all;
+    }
+
+    .resource-delete {
+      padding: 4px 8px;
+      font-size: 12px;
+      background: #ef4444;
+      color: white;
+      border: 2px solid #000;
+    }
+
+    .resource-delete:hover {
+      background: #dc2626;
+    }
+
+    .empty-resources {
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
     }
 
     /* 统一操作按钮样式（图标风格） */
@@ -282,6 +429,222 @@
       padding-top: 8px;
       margin-bottom: 12px;
     }
+
+    /* 拖动排序样式 */
+    .drag-handle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      padding: 2px;
+    }
+
+    .drag-handle:hover {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 2px;
+    }
+
+    .sortable-ghost {
+      opacity: 0.4;
+      transform: rotate(2deg);
+    }
+
+    .sortable-chosen {
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .sortable-drag {
+      transform: rotate(5deg);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .substep-item {
+      transition: all 0.2s ease;
+      border-radius: 4px;
+      margin-bottom: 2px;
+    }
+
+    .substep-item {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace !important;
+      font-size: 15px !important;
+      padding: 8px 12px !important;
+    }
+
+    .substep-item:hover {
+      background: #f8f9fa !important;
+    }
+
+    .substep-item span {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace !important;
+      font-size: 15px !important;
+      line-height: 1.4 !important;
+    }
+
+    .substep-checkbox {
+      width: 16px !important;
+      height: 16px !important;
+      margin-right: 8px !important;
+      border: 2px solid #000 !important;
+      border-radius: 0 !important;
+    }
+
+    /* 全局文字样式统一 */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace !important;
+      font-weight: normal !important;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace !important;
+    }
+
+    /* 输入框样式 */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    textarea,
+    select {
+      border: 2px solid #000 !important;
+      border-radius: 0 !important;
+      padding: 6px 8px !important;
+      font-size: 14px !important;
+      background: white !important;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="email"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid #4F46E5 !important;
+      outline-offset: 2px !important;
+      border-color: #4F46E5 !important;
+    }
+
+    /* 页面标题优化 */
+    .text-2xl {
+      font-size: 24px !important;
+    }
+
+    .text-xl {
+      font-size: 20px !important;
+    }
+
+    .text-lg {
+      font-size: 18px !important;
+    }
+
+    /* 按钮组布局优化 */
+    .flex.gap-2 {
+      gap: 8px !important;
+    }
+
+    .flex.gap-1 {
+      gap: 4px !important;
+    }
+
+    /* 卡片间距优化 */
+    .mb-6 {
+      margin-bottom: 20px !important;
+    }
+
+    .mb-4 {
+      margin-bottom: 12px !important;
+    }
+
+    .mb-2 {
+      margin-bottom: 6px !important;
+    }
+
+    /* 目标卡片拖动样式 */
+    .goal-card {
+      transition: all 0.2s ease;
+      padding: 16px !important;
+    }
+
+    .goal-card.sortable-ghost {
+      opacity: 0.4;
+      transform: rotate(1deg);
+    }
+
+    .goal-card.sortable-chosen {
+      transform: scale(1.01);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .goal-card.sortable-drag {
+      transform: rotate(3deg);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    /* 按钮样式优化 */
+    .action-btn {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace !important;
+      font-size: 14px !important;
+      padding: 6px 8px !important;
+      border: 2px solid #000 !important;
+      background: #c0c0c0 !important;
+      color: #000 !important;
+      transition: all 0.1s ease !important;
+      min-width: 32px;
+      text-align: center;
+    }
+
+    .action-btn:hover {
+      transform: translate(-1px, -1px) !important;
+      box-shadow: 2px 2px 0 #000 !important;
+    }
+
+    .action-btn.bg-green-500 {
+      background: #22c55e !important;
+      color: white !important;
+    }
+
+    .action-btn.bg-blue-500 {
+      background: #3b82f6 !important;
+      color: white !important;
+    }
+
+    .action-btn.bg-red-500 {
+      background: #ef4444 !important;
+      color: white !important;
+    }
+
+    .action-btn.bg-gray-200 {
+      background: #e5e7eb !important;
+      color: #374151 !important;
+    }
+
+    /* 卡片头部布局优化 */
+    .goal-card .flex.items-start.justify-between {
+      align-items: flex-start !important;
+      gap: 12px;
+    }
+
+    .goal-card h4 {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace !important;
+      font-size: 18px !important;
+      font-weight: normal !important;
+      line-height: 1.3 !important;
+      margin-bottom: 8px !important;
+    }
+
+    .goal-card p {
+      font-family: 'VT323', 'SimHei', 'Microsoft YaHei', monospace !important;
+      font-size: 14px !important;
+      line-height: 1.4 !important;
+      margin-bottom: 12px !important;
+    }
   </style>
 </head>
 
@@ -300,7 +663,7 @@
       </div>
       <div class="hidden md:flex items-center gap-8 text-sm nav-links">
         <a class="text-black/70 hover:text-primary nav-link" href="index.html">主页</a>
-        <a class="text-black/70 hover:text-primary nav-link" href="#">日历</a>
+        <a class="text-black/70 hover:text-primary nav-link" href="calendar.html">日历</a>
         <a class="text-black/70 hover:text-primary nav-link" href="goals.html">目标</a>
         <a class="text-black/70 hover:text-primary nav-link" href="tags_management.html">标签管理</a>
         <a class="text-black/70 hover:text-primary nav-link" href="settings.html">设置</a>
@@ -314,61 +677,114 @@
 
           <!-- 左侧栏 -->
           <div class="space-y-8">
-            <!-- 任务卡片 -->
+            <!-- 任务卡片 - 标签页结构 -->
             <div class="pixel-border p-6 panel-bg">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                <h2 class="font-display text-2xl text-text-primary mb-4 sm:mb-0 task-title"></h2>
-                <div class="flex items-center gap-2">
-                  <span
-                    class="font-display text-sm px-2 py-1 task-status bg-accent-yellow/20 text-accent-yellow-800 border-2 border-accent-yellow-800">进行中</span>
+              <!-- 标签页导航 -->
+              <div class="task-tabs mb-6">
+                <div class="flex border-b-3 border-black">
+                  <button
+                    class="tab-btn active px-4 py-2 border-b-2 border-primary bg-primary/10 text-primary font-display text-sm"
+                    data-tab="info">
+                    📋 任务信息
+                  </button>
+                  <button class="tab-btn px-4 py-2 hover:bg-gray-100 font-display text-sm text-gray-600"
+                    data-tab="resources">
+                    📎 任务资源
+                  </button>
                 </div>
               </div>
-              <div class="space-y-6">
-                <div>
-                  <label class="block font-display text-lg text-text-primary mb-2" for="task-description">描述</label>
-                  <p class="text-xl text-text-secondary task-description"></p>
+
+              <!-- 任务信息标签页 -->
+              <div class="tab-content" data-tab="info">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                  <h2 class="font-display text-2xl text-text-primary mb-4 sm:mb-0 task-title"></h2>
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="font-display text-sm px-2 py-1 task-status bg-accent-yellow/20 text-accent-yellow-800 border-2 border-accent-yellow-800">进行中</span>
+                  </div>
                 </div>
-                <!-- 标签区域 -->
-                <div class="task-tags-section mt-4">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <div class="task-tags-display flex flex-wrap gap-1">
-                      <!-- 任务标签显示区域 -->
-                    </div>
-                    <div class="tags-input-container" data-target="task" data-task-id="">
-                      <button class="add-tags-btn">+Tags</button>
-                      <div class="tag-input-wrapper hidden">
-                        <input type="text" class="tag-input-field" placeholder="输入标签名称..." autocomplete="off">
-                        <div class="tag-suggestions hidden"></div>
+                <div class="space-y-6">
+                  <div>
+                    <label class="block font-display text-lg text-text-primary mb-2" for="task-description">描述</label>
+                    <p class="text-xl text-text-secondary task-description"></p>
+                  </div>
+                  <!-- 标签区域 -->
+                  <div class="task-tags-section mt-4">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <div class="task-tags-display flex flex-wrap gap-1">
+                        <!-- 任务标签显示区域 -->
+                      </div>
+                      <div class="tags-input-container" data-target="task" data-task-id="">
+                        <button class="add-tags-btn">添加标签</button>
+                        <div class="tag-input-wrapper hidden">
+                          <input type="text" class="tag-input-field" placeholder="输入标签名称..." autocomplete="off">
+                          <div class="tag-suggestions hidden"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div class="mt-4">
-                  <label class="block font-display text-lg text-text-primary mb-2" for="task-progress">进度</label>
-                  <div class="progress-bar with-text">
-                    <div class="progress-bar-fill"></div>
-                    <div class="progress-label" aria-hidden="true"></div>
+                  <div class="mt-4">
+                    <label class="block font-display text-lg text-text-primary mb-2" for="task-progress">进度</label>
+                    <div class="progress-bar with-text">
+                      <div class="progress-bar-fill"></div>
+                      <div class="progress-label" aria-hidden="true"></div>
+                    </div>
+                    <p class="text-right text-text-secondary text-lg mt-1 progress-text"></p>
                   </div>
-                  <p class="text-right text-text-secondary text-lg mt-1 progress-text"></p>
+                </div>
+                <div class="mt-8 flex items-center justify-end gap-4">
+                  <button
+                    class="pixel-button back-button bg-pixel-secondary text-text-primary font-display py-2 px-4 text-sm flex items-center"
+                    title="返回">
+                    返回
+                  </button>
+                  <button
+                    class="pixel-button edit-button bg-accent-blue text-white font-display py-2 px-4 text-sm flex items-center"
+                    title="编辑任务">
+                    编辑
+                  </button>
+                  <button
+                    class="pixel-button complete-button bg-accent-green text-white font-display py-2 px-4 text-sm flex items-center"
+                    title="标记为完成">
+                    完成
+                  </button>
                 </div>
               </div>
-              <div class="mt-8 flex items-center justify-end gap-4">
-                <button
-                  class="pixel-button back-button bg-pixel-secondary text-text-primary font-display py-2 px-4 text-sm flex items-center"
-                  title="返回">
-                  <span class="material-symbols-outlined align-middle">arrow_back</span>
-                </button>
-                <button
-                  class="pixel-button edit-button bg-accent-blue text-white font-display py-2 px-4 text-sm flex items-center"
-                  title="编辑任务">
-                  <span class="material-symbols-outlined align-middle">edit</span>
-                </button>
-                <button
-                  class="pixel-button complete-button bg-accent-green text-white font-display py-2 px-4 text-sm flex items-center"
-                  title="标记为完成">
-                  <span class="material-symbols-outlined align-middle">check_circle</span>
-                </button>
+
+              <!-- 任务资源标签页 -->
+              <div class="tab-content hidden" data-tab="resources">
+                <div class="resource-management">
+                  <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-display text-2xl text-text-primary">任务资源管理</h3>
+                  </div>
+
+                  <!-- 资源添加按钮 -->
+                  <div class="resource-type-buttons mb-6">
+                    <div class="grid grid-cols-2 gap-3">
+                      <button class="pixel-button bg-blue-500 text-white p-3 resource-add-btn" data-type="local">
+                        📁 本地上传
+                      </button>
+                      <button class="pixel-button bg-green-500 text-white p-3 resource-add-btn" data-type="url">
+                        🔗 URL上传
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 资源列表 -->
+                  <div class="resource-list-container">
+                    <div class="resource-list" id="resourceList">
+                      <!-- 资源项将通过JavaScript动态添加 -->
+                    </div>
+
+                    <!-- 空状态提示 -->
+                    <div class="empty-resources text-center py-12" id="emptyResourcesState">
+                      <div class="text-6xl mb-4">📦</div>
+                      <h4 class="font-display text-xl text-gray-600 mb-2">暂无资源</h4>
+                      <p class="text-gray-500 mb-4">点击上方按钮开始添加任务相关资源</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -914,7 +1330,7 @@
           const addButton = document.createElement('div');
           addButton.className = 'text-center mt-6';
           addButton.innerHTML = `
-            <button class="pixel-button bg-primary text-white px-4 py-2 add-goal-btn" title="添加新目标">🎯 ➕</button>
+            <button class="pixel-button bg-primary text-white px-4 py-2 add-goal-btn" title="添加新目标">添加目标</button>
           `;
           goalsContainer.appendChild(addButton);
         } else {
@@ -923,13 +1339,16 @@
           emptyState.className = 'text-center py-8';
           emptyState.innerHTML = `
             <p class="text-gray-500 mb-4">还没有设置目标</p>
-            <button class="pixel-button bg-primary text-white px-4 py-2 add-goal-btn" title="添加目标">🎯 ➕</button>
+            <button class="pixel-button bg-primary text-white px-4 py-2 add-goal-btn" title="添加目标">添加目标</button>
           `;
           goalsContainer.appendChild(emptyState);
         }
 
         // 绑定添加目标按钮
         bindAddGoalEvents(taskId);
+
+        // 初始化目标拖动排序
+        initializeGoalSorting(taskId);
 
         // 应用已保存的折叠首选项（如果有），并初始化子步骤的 Sortable 实例
         try {
@@ -956,6 +1375,136 @@
         }
       }
 
+      // 初始化子步骤拖动排序
+      function initializeSubstepSorting(goalCard, goalId, taskId) {
+        const substepsContainer = goalCard.querySelector('.substeps-container');
+        if (!substepsContainer || !window.Sortable) return;
+
+        // 创建Sortable实例
+        new Sortable(substepsContainer, {
+          handle: '.drag-handle',
+          animation: 150,
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen',
+          dragClass: 'sortable-drag',
+          onEnd: function (evt) {
+            // 获取新的排序
+            const substepItems = Array.from(substepsContainer.querySelectorAll('.substep-item'));
+            const newOrder = substepItems.map(item => item.dataset.substepId);
+
+            // 更新数据存储
+            updateSubstepOrder(taskId, goalId, newOrder);
+          }
+        });
+      }
+
+      // 更新子步骤排序
+      function updateSubstepOrder(taskId, goalId, newOrder) {
+        try {
+          // 优先使用 DataStore API
+          if (window.TaskPixel && TaskPixel.DataStore && typeof TaskPixel.DataStore.updateSubstepOrder === 'function') {
+            TaskPixel.DataStore.updateSubstepOrder(taskId, goalId, newOrder);
+            return;
+          }
+        } catch (e) {
+          console.error('更新子步骤排序失败 via DataStore', e);
+        }
+
+        // 备用方案：直接操作localStorage
+        try {
+          const raw = localStorage.getItem('taskpixel_data');
+          if (!raw) return;
+
+          const data = JSON.parse(raw);
+          const task = data.tasks.find(t => t.id === taskId);
+          if (!task || !task.goals) return;
+
+          const goal = task.goals.find(g => g.id === goalId);
+          if (!goal || !goal.substeps) return;
+
+          // 重新排序子步骤
+          const reorderedSubsteps = [];
+          newOrder.forEach((substepId, index) => {
+            const substep = goal.substeps.find(s => s.id === substepId);
+            if (substep) {
+              substep.order = index;
+              reorderedSubsteps.push(substep);
+            }
+          });
+
+          goal.substeps = reorderedSubsteps;
+          localStorage.setItem('taskpixel_data', JSON.stringify(data));
+
+          console.log('子步骤排序已更新');
+        } catch (e) {
+          console.error('更新子步骤排序失败', e);
+        }
+      }
+
+      // 初始化目标拖动排序
+      function initializeGoalSorting(taskId) {
+        const goalsContainer = document.querySelector('.goals-container');
+        if (!goalsContainer || !window.Sortable) return;
+
+        // 创建Sortable实例
+        new Sortable(goalsContainer, {
+          handle: '.drag-handle',
+          animation: 150,
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen',
+          dragClass: 'sortable-drag',
+          filter: '.text-center', // 排除"添加新目标"按钮区域
+          onEnd: function (evt) {
+            // 获取所有目标卡片的新排序
+            const goalCards = Array.from(goalsContainer.querySelectorAll('.goal-card'));
+            const newOrder = goalCards.map(card => card.dataset.goalId);
+
+            // 更新数据存储
+            updateGoalOrder(taskId, newOrder);
+          }
+        });
+      }
+
+      // 更新目标排序
+      function updateGoalOrder(taskId, newOrder) {
+        try {
+          // 优先使用 DataStore API
+          if (window.TaskPixel && TaskPixel.DataStore && typeof TaskPixel.DataStore.updateGoalOrder === 'function') {
+            TaskPixel.DataStore.updateGoalOrder(taskId, newOrder);
+            return;
+          }
+        } catch (e) {
+          console.error('更新目标排序失败 via DataStore', e);
+        }
+
+        // 备用方案：直接操作localStorage
+        try {
+          const raw = localStorage.getItem('taskpixel_data');
+          if (!raw) return;
+
+          const data = JSON.parse(raw);
+          const task = data.tasks.find(t => t.id === taskId);
+          if (!task || !task.goals) return;
+
+          // 重新排序目标
+          const reorderedGoals = [];
+          newOrder.forEach((goalId, index) => {
+            const goal = task.goals.find(g => g.id === goalId);
+            if (goal) {
+              goal.order = index;
+              reorderedGoals.push(goal);
+            }
+          });
+
+          task.goals = reorderedGoals;
+          localStorage.setItem('taskpixel_data', JSON.stringify(data));
+
+          console.log('目标排序已更新');
+        } catch (e) {
+          console.error('更新目标排序失败', e);
+        }
+      }
+
       // 创建目标卡片
       function createGoalCard(goal, taskId) {
         const card = document.createElement('div');
@@ -968,9 +1517,15 @@
 
         card.innerHTML = `
           <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center gap-2">
-                <button class="action-btn action-btn--small bg-gray-200 move-goal-up" data-goal-id="${goal.id}" title="上移目标">↑</button>
-                <button class="action-btn action-btn--small bg-gray-200 move-goal-down" data-goal-id="${goal.id}" title="下移目标">↓</button>
+              <div class="drag-handle cursor-move text-gray-400 hover:text-gray-600 mr-3 mt-1" title="拖拽排序目标">
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="currentColor">
+                  <circle cx="3" cy="3" r="1"/>
+                  <circle cx="9" cy="3" r="1"/>
+                  <circle cx="3" cy="6" r="1"/>
+                  <circle cx="9" cy="6" r="1"/>
+                  <circle cx="3" cy="9" r="1"/>
+                  <circle cx="9" cy="9" r="1"/>
+                </svg>
               </div>
               <div class="flex-1">
               <div class="flex items-center justify-between">
@@ -981,11 +1536,11 @@
             </div>
             <div class="flex gap-2">
         <button class="action-btn bg-green-500 edit-goal-btn" 
-                      data-goal-id="${goal.id}" title="修改目标">✏️</button>
+                      data-goal-id="${goal.id}" title="修改目标">编辑</button>
         <button class="action-btn bg-blue-500 add-substep-btn" 
-                      data-goal-id="${goal.id}" title="添加子步骤">➕</button>
+                      data-goal-id="${goal.id}" title="添加子步骤">新增</button>
         <button class="action-btn bg-red-500 delete-goal-btn" 
-                      data-goal-id="${goal.id}" title="删除目标">🗑️</button>
+                      data-goal-id="${goal.id}" title="删除目标">删除</button>
             </div>
           </div>
 
@@ -1009,20 +1564,28 @@
             <div class="substeps-container" role="region" aria-label="子步骤列表" data-collapsed="false">
             ${goal.substeps ? goal.substeps.map(substep => `
               <div class="flex items-center gap-3 py-2 px-3 hover:bg-gray-50 substep-item" data-substep-id="${substep.id}">
+                <div class="drag-handle cursor-move text-gray-400 hover:text-gray-600 mr-2" title="拖拽排序">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                    <circle cx="3" cy="3" r="1"/>
+                    <circle cx="9" cy="3" r="1"/>
+                    <circle cx="3" cy="6" r="1"/>
+                    <circle cx="9" cy="6" r="1"/>
+                    <circle cx="3" cy="9" r="1"/>
+                    <circle cx="9" cy="9" r="1"/>
+                  </svg>
+                </div>
                 <input type="checkbox" ${substep.completed ? 'checked' : ''} 
                        class="substep-checkbox w-4 h-4" 
                        data-goal-id="${goal.id}" 
                        data-substep-id="${substep.id}">
                 <span class="flex-1 ${substep.completed ? 'line-through text-gray-500' : ''}">${substep.content || substep.title}</span>
                 <div class="flex gap-1 items-center">
-      <button class="action-btn action-btn--small bg-gray-200 move-substep-up" data-substep-id="${substep.id}" data-goal-id="${goal.id}" title="上移子步骤">↑</button>
-      <button class="action-btn action-btn--small bg-gray-200 move-substep-down" data-substep-id="${substep.id}" data-goal-id="${goal.id}" title="下移子步骤">↓</button>
-      <button class="action-btn bg-green-500 edit-substep-btn" 
-                          data-goal-id="${goal.id}" 
-                          data-substep-id="${substep.id}" title="修改子步骤">✏️</button>
-      <button class="action-btn bg-red-500 delete-substep-btn" 
-                          data-goal-id="${goal.id}" 
-                          data-substep-id="${substep.id}" title="删除子步骤">🗑️</button>
+                  <button class="action-btn bg-green-500 edit-substep-btn" 
+                              data-goal-id="${goal.id}" 
+                              data-substep-id="${substep.id}" title="修改子步骤">编辑</button>
+                  <button class="action-btn bg-red-500 delete-substep-btn" 
+                              data-goal-id="${goal.id}" 
+                              data-substep-id="${substep.id}" title="删除子步骤">删除</button>
                 </div>
               </div>
             `).join('') : ''}
@@ -1091,17 +1654,10 @@
           });
         });
 
-        // 目标上移/下移按钮
-        const moveUpBtn = card.querySelector('.move-goal-up');
-        const moveDownBtn = card.querySelector('.move-goal-down');
-        if (moveUpBtn) moveUpBtn.addEventListener('click', () => moveGoal(taskId, goal.id, 'up'));
-        if (moveDownBtn) moveDownBtn.addEventListener('click', () => moveGoal(taskId, goal.id, 'down'));
 
-        // 子步骤上移/下移按钮
-        const moveSubUp = card.querySelectorAll('.move-substep-up');
-        const moveSubDown = card.querySelectorAll('.move-substep-down');
-        moveSubUp.forEach(btn => btn.addEventListener('click', () => moveSubstep(taskId, btn.dataset.goalId, btn.dataset.substepId, 'up')));
-        moveSubDown.forEach(btn => btn.addEventListener('click', () => moveSubstep(taskId, btn.dataset.goalId, btn.dataset.substepId, 'down')));
+
+        // 初始化子步骤拖动排序
+        initializeSubstepSorting(card, goal.id, taskId);
 
         // 折叠/展开子步骤功能
         try {
@@ -1152,106 +1708,9 @@
         }
       }
 
-      // 本地实现的移动函数（如果存在 TaskPixel.TaskDetail 则优先使用它）
-      function moveGoal(taskId, goalId, direction) {
-        // 优先使用统一的 DataStore API
-        try {
-          if (window.TaskPixel && TaskPixel.DataStore && typeof TaskPixel.DataStore.updateGoalOrder === 'function') {
-            const task = TaskPixel.DataStore.getTaskById(taskId);
-            if (!task || !task.goals) return;
-            const ids = (task.goals || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0)).map(g => g.id);
-            const idx = ids.indexOf(goalId);
-            if (idx === -1) return;
-            if (direction === 'up' && idx > 0) {
-              const tmp = ids[idx - 1]; ids[idx - 1] = ids[idx]; ids[idx] = tmp;
-            } else if (direction === 'down' && idx < ids.length - 1) {
-              const tmp = ids[idx + 1]; ids[idx + 1] = ids[idx]; ids[idx] = tmp;
-            } else {
-              return;
-            }
-            TaskPixel.DataStore.updateGoalOrder(taskId, ids);
-            // 重新渲染最新数据
-            const refreshed = TaskPixel.DataStore.getTaskById(taskId);
-            if (refreshed) renderGoals(refreshed.goals || [], taskId);
-            return;
-          }
-        } catch (e) {
-          console.error('moveGoal via DataStore failed', e);
-        }
 
-        // 备用回退（旧的 localStorage 操作）
-        try {
-          const raw = localStorage.getItem('taskpixel_data');
-          if (!raw) return;
-          const data = JSON.parse(raw);
-          const task = data.tasks.find(t => t.id === taskId);
-          if (!task || !task.goals) return;
-          const ids = task.goals.map(g => g.id);
-          const idx = ids.indexOf(goalId);
-          if (idx === -1) return;
-          if (direction === 'up' && idx > 0) {
-            const tmp = task.goals[idx - 1]; task.goals[idx - 1] = task.goals[idx]; task.goals[idx] = tmp;
-          } else if (direction === 'down' && idx < task.goals.length - 1) {
-            const tmp = task.goals[idx + 1]; task.goals[idx + 1] = task.goals[idx]; task.goals[idx] = tmp;
-          }
-          task.goals.forEach((g, i) => g.order = i);
-          localStorage.setItem('taskpixel_data', JSON.stringify(data));
-          renderGoals(task.goals, taskId);
-        } catch (e) {
-          console.error('moveGoal fallback error', e);
-        }
-      }
 
-      function moveSubstep(taskId, goalId, substepId, direction) {
-        try {
-          if (window.TaskPixel && TaskPixel.DataStore && typeof TaskPixel.DataStore.updateSubstepOrder === 'function') {
-            const task = TaskPixel.DataStore.getTaskById(taskId);
-            if (!task) return;
-            const goal = (task.goals || []).find(g => g.id === goalId);
-            if (!goal || !goal.substeps) return;
-            const ids = (goal.substeps || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0)).map(s => s.id);
-            const idx = ids.indexOf(substepId);
-            if (idx === -1) return;
-            if (direction === 'up' && idx > 0) {
-              const tmp = ids[idx - 1]; ids[idx - 1] = ids[idx]; ids[idx] = tmp;
-            } else if (direction === 'down' && idx < ids.length - 1) {
-              const tmp = ids[idx + 1]; ids[idx + 1] = ids[idx]; ids[idx] = tmp;
-            } else {
-              return;
-            }
-            TaskPixel.DataStore.updateSubstepOrder(taskId, goalId, ids);
-            const refreshed = TaskPixel.DataStore.getTaskById(taskId);
-            if (refreshed) renderGoals(refreshed.goals || [], taskId);
-            return;
-          }
-        } catch (e) {
-          console.error('moveSubstep via DataStore failed', e);
-        }
 
-        // 备用回退
-        try {
-          const raw = localStorage.getItem('taskpixel_data');
-          if (!raw) return;
-          const data = JSON.parse(raw);
-          const task = data.tasks.find(t => t.id === taskId);
-          if (!task || !task.goals) return;
-          const goal = task.goals.find(g => g.id === goalId);
-          if (!goal || !goal.substeps) return;
-          const ids = goal.substeps.map(s => s.id);
-          const idx = ids.indexOf(substepId);
-          if (idx === -1) return;
-          if (direction === 'up' && idx > 0) {
-            const tmp = goal.substeps[idx - 1]; goal.substeps[idx - 1] = goal.substeps[idx]; goal.substeps[idx] = tmp;
-          } else if (direction === 'down' && idx < goal.substeps.length - 1) {
-            const tmp = goal.substeps[idx + 1]; goal.substeps[idx + 1] = goal.substeps[idx]; goal.substeps[idx] = tmp;
-          }
-          goal.substeps.forEach((s, i) => s.order = i);
-          localStorage.setItem('taskpixel_data', JSON.stringify(data));
-          renderGoals(task.goals, taskId);
-        } catch (e) {
-          console.error('moveSubstep fallback error', e);
-        }
-      }
 
       // 绑定添加目标事件
       function bindAddGoalEvents(taskId) {
@@ -2192,7 +2651,248 @@
       // 初始化内联标签管理器
       InlineTagManager.init();
 
+      // 初始化标签页功能
+      initTabSystem();
+
+      // 初始化资源管理功能
+      initResourceManagement();
+
     });
+
+    // 标签页系统
+    function initTabSystem() {
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const targetTab = this.getAttribute('data-tab');
+
+          // 移除所有活跃状态
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.add('hidden'));
+
+          // 激活当前标签页
+          this.classList.add('active');
+          const targetContent = document.querySelector(`.tab-content[data-tab="${targetTab}"]`);
+          if (targetContent) {
+            targetContent.classList.remove('hidden');
+          }
+
+          // 如果切换到资源标签页，刷新资源列表
+          if (targetTab === 'resources') {
+            refreshResourceList();
+          }
+        });
+      });
+    }
+
+    // 资源管理系统
+    function initResourceManagement() {
+      const addButtons = document.querySelectorAll('.resource-add-btn');
+
+      addButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const resourceType = this.getAttribute('data-type');
+          showAddResourceDialog(resourceType);
+        });
+      });
+
+      // 初始化时刷新资源列表
+      refreshResourceList();
+    }
+
+    // 显示添加资源对话框
+    function showAddResourceDialog(type) {
+      if (type === 'local') {
+        // 本地上传：只记录文件路径，不实际传输文件
+        const name = prompt('请输入资源名称:');
+        if (!name) return;
+
+        const path = prompt('请输入本地文件路径:\n\n例如: C:\\Users\\Documents\\project\\file.pdf\n或: D:\\工作\\资料\\图片.jpg');
+        if (!path) return;
+
+        // 验证路径格式
+        if (!/^[A-Za-z]:\\/.test(path) && !/^\\\\/.test(path) && !/^\//.test(path)) {
+          alert('请输入有效的文件路径');
+          return;
+        }
+
+        addResource('local', name, path);
+
+      } else if (type === 'url') {
+        // URL上传：输入网络链接
+        const name = prompt('请输入资源名称:');
+        if (!name) return;
+
+        const url = prompt('请输入网络链接:\n\n例如: https://example.com/file.pdf\n或: https://docs.google.com/document/...');
+        if (!url) return;
+
+        // 验证URL格式
+        if (!/^https?:\/\/.+/.test(url)) {
+          alert('请输入有效的网络链接（以 http:// 或 https:// 开头）');
+          return;
+        }
+
+        addResource('url', name, url);
+      }
+    }
+
+    // 添加资源
+    function addResource(type, name, path) {
+      try {
+        const taskId = new URLSearchParams(window.location.search).get('id');
+        if (!taskId) {
+          alert('未找到任务ID');
+          return;
+        }
+
+        const data = JSON.parse(localStorage.getItem('taskpixel_data') || '{}');
+        const task = data.tasks?.find(t => t.id === taskId);
+
+        if (!task) {
+          alert('未找到任务');
+          return;
+        }
+
+        // 初始化资源数组
+        if (!task.resources) {
+          task.resources = [];
+        }
+
+        // 判断资源类型
+        const isUrl = type === 'url';
+        const isLocal = type === 'local';
+
+        // 添加新资源
+        const resource = {
+          id: 'resource_' + Date.now(),
+          type: type,
+          name: name,
+          path: path,
+          isUrl: isUrl,
+          isLocal: isLocal,
+          addDate: new Date().toISOString()
+        };
+
+        task.resources.push(resource);
+
+        // 保存数据
+        localStorage.setItem('taskpixel_data', JSON.stringify(data));
+
+        // 刷新显示
+        refreshResourceList();
+
+        alert('资源添加成功！');
+
+      } catch (e) {
+        console.error('添加资源失败:', e);
+        alert('添加资源失败: ' + e.message);
+      }
+    }
+
+    // 删除资源
+    function deleteResource(resourceId) {
+      if (!confirm('确定要删除这个资源吗？')) {
+        return;
+      }
+
+      try {
+        const taskId = new URLSearchParams(window.location.search).get('id');
+        if (!taskId) return;
+
+        const data = JSON.parse(localStorage.getItem('taskpixel_data') || '{}');
+        const task = data.tasks?.find(t => t.id === taskId);
+
+        if (!task || !task.resources) return;
+
+        // 删除资源
+        task.resources = task.resources.filter(r => r.id !== resourceId);
+
+        // 保存数据
+        localStorage.setItem('taskpixel_data', JSON.stringify(data));
+
+        // 刷新显示
+        refreshResourceList();
+
+        alert('资源删除成功！');
+
+      } catch (e) {
+        console.error('删除资源失败:', e);
+        alert('删除资源失败: ' + e.message);
+      }
+    }
+
+    // 刷新资源列表
+    function refreshResourceList() {
+      try {
+        const taskId = new URLSearchParams(window.location.search).get('id');
+        if (!taskId) return;
+
+        const data = JSON.parse(localStorage.getItem('taskpixel_data') || '{}');
+        const task = data.tasks?.find(t => t.id === taskId);
+
+        const resourceList = document.getElementById('resourceList');
+        const emptyState = document.getElementById('emptyResourcesState');
+
+        if (!resourceList || !emptyState) return;
+
+        // 清空列表
+        resourceList.innerHTML = '';
+
+        if (!task || !task.resources || task.resources.length === 0) {
+          // 显示空状态
+          emptyState.style.display = 'block';
+          return;
+        }
+
+        // 隐藏空状态
+        emptyState.style.display = 'none';
+
+        // 资源图标映射
+        const resourceIcons = {
+          local: '📁',
+          url: '🔗'
+        };
+
+        // 渲染资源列表
+        task.resources.forEach(resource => {
+          const resourceItem = document.createElement('div');
+          resourceItem.className = 'resource-item';
+
+          // 判断资源类型显示不同样式
+          const typeLabel = resource.type === 'local' ? '本地文件' : 'URL链接';
+          const pathDisplay = resource.type === 'url' ?
+            `<a href="${resource.path}" target="_blank" class="text-blue-600 hover:underline">${resource.path}</a>` :
+            resource.path;
+
+          resourceItem.innerHTML = `
+            <div class="resource-item-header">
+              <div class="resource-icon">${resourceIcons[resource.type] || '📎'}</div>
+              <div class="resource-info">
+                <div class="resource-name">${resource.name}</div>
+                <div class="resource-path">${pathDisplay}</div>
+                <div class="text-xs text-gray-400 mt-1">
+                  ${typeLabel} • ${new Date(resource.addDate).toLocaleDateString()}
+                </div>
+              </div>
+              <button class="resource-delete pixel-button" onclick="deleteResource('${resource.id}')">
+                删除
+              </button>
+            </div>
+          `;
+
+          resourceList.appendChild(resourceItem);
+        });
+
+      } catch (e) {
+        console.error('刷新资源列表失败:', e);
+      }
+    }
+
+    // 将deleteResource函数设为全局，以便在onclick中调用
+    window.deleteResource = deleteResource;
+
   </script>
 </body>
 
